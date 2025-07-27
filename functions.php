@@ -1,5 +1,17 @@
 <?php
 
+function mytheme_enqueue_scripts() {
+    // jQuery
+    wp_enqueue_script('jquery');
+
+    // Swiper
+    wp_enqueue_script('swiper', 'https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js', array(), null, true);
+    wp_enqueue_style('swiper-style', 'https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css');
+
+    // 你的主题脚本
+    wp_enqueue_script('theme-main', get_template_directory_uri() . '/js/main.js', array('jquery', 'swiper'), null, true);
+}
+add_action('wp_enqueue_scripts', 'mytheme_enqueue_scripts');
 
 
 

@@ -475,6 +475,139 @@ $(function ($) {
                     }
                 }
             });
+
+            /*
+            * 图片加载完成后重新计算导航栏位置
+            * 解决图片懒加载导致的高度计算不准确问题
+            * */
+            (function() {
+                let imageLoadTimer = null; //防抖计时器
+                let loadedImages = 0; //已加载图片计数
+                let totalImages = 0; //总图片数
+
+                // 重新计算导航栏位置的函数（带防抖）
+                function recalculateOnImageLoad() {
+                    if (imageLoadTimer) {
+                        clearTimeout(imageLoadTimer);
+                    }
+                    imageLoadTimer = setTimeout(function() {
+                        if (typeof computed === 'function') {
+                            computed(); //重新计算高度
+                        }
+                        if (typeof toFixed === 'function') {
+                            toFixed(); //重新计算位置
+                        }
+                    }, 100); //防抖延迟100ms
+                }
+
+                // 监听所有图片的加载事件
+                function setupImageLoadListeners() {
+                    const images = document.querySelectorAll('img');
+                    totalImages = images.length;
+
+                    if (totalImages === 0) {
+                        // 如果没有图片，直接执行一次计算
+                        recalculateOnImageLoad();
+                        return;
+                    }
+
+                    images.forEach(function(img) {
+                        // 如果图片已经加载完成
+                        if (img.complete && img.naturalHeight !== 0) {
+                            loadedImages++;
+                            if (loadedImages === totalImages) {
+                                recalculateOnImageLoad();
+                            }
+                        } else {
+                            // 监听图片加载完成事件
+                            img.addEventListener('load', function() {
+                                loadedImages++;
+                                if (loadedImages === totalImages) {
+                                    recalculateOnImageLoad();
+                                } else {
+                                    // 每张图片加载完成都重新计算一次（防抖会合并多次调用）
+                                    recalculateOnImageLoad();
+                                }
+                            }, { once: true });
+
+                            // 监听图片加载错误事件（也要重新计算）
+                            img.addEventListener('error', function() {
+                                loadedImages++;
+                                recalculateOnImageLoad();
+                            }, { once: true });
+                        }
+                    });
+                }
+
+                // 页面加载完成后也重新计算一次
+                if (document.readyState === 'complete') {
+                    setupImageLoadListeners();
+                } else {
+                    window.addEventListener('load', function() {
+                        setupImageLoadListeners();
+                    });
+                }
+
+                // 监听动态添加的图片（使用 MutationObserver）
+                if (typeof MutationObserver !== 'undefined') {
+                    const observer = new MutationObserver(function(mutations) {
+                        let hasNewImages = false;
+                        mutations.forEach(function(mutation) {
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.nodeType === 1) { // Element node
+                                    if (node.tagName === 'IMG') {
+                                        hasNewImages = true;
+                                        totalImages++;
+                                        if (node.complete && node.naturalHeight !== 0) {
+                                            loadedImages++;
+                                            recalculateOnImageLoad();
+                                        } else {
+                                            node.addEventListener('load', function() {
+                                                loadedImages++;
+                                                recalculateOnImageLoad();
+                                            }, { once: true });
+                                            node.addEventListener('error', function() {
+                                                loadedImages++;
+                                                recalculateOnImageLoad();
+                                            }, { once: true });
+                                        }
+                                    } else if (node.querySelectorAll) {
+                                        const imgs = node.querySelectorAll('img');
+                                        if (imgs.length > 0) {
+                                            hasNewImages = true;
+                                            totalImages += imgs.length;
+                                            imgs.forEach(function(img) {
+                                                if (img.complete && img.naturalHeight !== 0) {
+                                                    loadedImages++;
+                                                    recalculateOnImageLoad();
+                                                } else {
+                                                    img.addEventListener('load', function() {
+                                                        loadedImages++;
+                                                        recalculateOnImageLoad();
+                                                    }, { once: true });
+                                                    img.addEventListener('error', function() {
+                                                        loadedImages++;
+                                                        recalculateOnImageLoad();
+                                                    }, { once: true });
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                        if (hasNewImages) {
+                            recalculateOnImageLoad();
+                        }
+                    });
+
+                    // 开始观察DOM变化
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+            })();
         }
 
     })();

@@ -20,7 +20,7 @@ if ( nicen_theme_showArticleCate() ) {
             <aside class="main-left isIndex" id="navigator">
                 <div class="main-top">
                     <ul>
-                        <li class="active">🗂️ 文章导航</li>
+                        <li class="active">🗂️ Article Navigation</li>
                         <!-- <li>修改记录</li>-->
                     </ul>
                     <i class="iconfont icon-daohang-caidan"></i>

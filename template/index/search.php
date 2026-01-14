@@ -9,6 +9,6 @@
         <!--  搜索图标  -->
         <div class="search-icon iconfont icon-sousuo"></div>
         <!--  搜索框  -->
-        <input id="search" class="search" type="text" placeholder="输入关键词回车搜索"/>
+        <input id="search" class="search" type="text" placeholder="Enter keywords to search"/>
     </div>
 </div>

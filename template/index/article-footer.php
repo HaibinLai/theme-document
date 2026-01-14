@@ -68,21 +68,21 @@ $previous = get_previous_post();//上一篇
 
     <div class="footer-nav">
         <div class="to">
-            <span class="text">上一篇</span>
+            <span class="text">Previous</span>
 			<?php if ( ! empty( $next_post ) ) { ?>
                 <a href="<?php echo get_permalink( $next_post->ID ) ?>"
                    title="<?php echo $next_post->post_title ?>"><?php echo $next_post->post_title ?></a>
 			<?php } else { ?>
-                <a href="/" title="首页">没有了</a>
+                <a href="/" title="首页">End</a>
 			<?php } ?>
         </div>
         <div class="to right">
-            <span class="text">下一篇</span>
+            <span class="text">Next</span>
 			<?php if ( ! empty( $previous_post ) ) { ?>
                 <a href="<?php echo get_permalink( $previous_post->ID ) ?>"
                    title="<?php echo $previous_post->post_title ?>"><?php echo $previous_post->post_title ?></a>
 			<?php } else { ?>
-                <a href="/" title="首页">没有了</a>
+                <a href="/" title="首页">End</a>
 			<?php } ?>
         </div>
     </div>

@@ -8,7 +8,7 @@ if ( nicen_theme_config( 'document_dynamic', false ) && is_home() ) {
     <div class="dynamic">
         <ul class="list">
             <li class="tab active-tab" data-key="default">
-                最新文章
+                Latest Articles
             </li>
 			<?php
 

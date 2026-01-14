@@ -39,8 +39,8 @@ if ( nicen_theme_showInfo() ) {
             <li>
                 <i class="iconfont icon-shijian"></i><?php echo nicen_theme_timeToString( get_the_time( "Y-m-d H:i:s" ) ); ?>
             </li>
-            <li><i class="iconfont icon-icon-test"></i><?php echo nicen_theme_getPostViews( get_the_ID() ); ?>热度</li>
-            <li style="border:none"><i class="iconfont icon-pinglun"></i><?php echo get_comments_number(); ?>评论</li>
+            <li><i class="iconfont icon-icon-test"></i><?php echo nicen_theme_getPostViews( get_the_ID() ); ?> Views</li>
+            <li style="border:none"><i class="iconfont icon-pinglun"></i><?php echo get_comments_number(); ?> Comments</li>
         </ul>
     </div>
 	<?php

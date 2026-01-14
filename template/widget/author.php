@@ -53,15 +53,15 @@ if ($count_posts) {
         <div class="statistic">
 
             <div class="item">
-                <span class="top">文章数</span>
+                <span class="top">Articles</span>
                 <span class="bottom"><?php echo $publish; ?></span>
             </div>
             <div class="item">
-                <span class="top">评论数</span>
+                <span class="top">Comments</span>
                 <span class="bottom"><?php echo $comment; ?></span>
             </div>
             <div class="item">
-                <span class="top">阅读数</span>
+                <span class="top">Views</span>
                 <span class="bottom"><?php echo $views; ?></span>
             </div>
 

@@ -24,7 +24,7 @@ function nicen_theme_getAllCat()
 	if (count($terms) > 0) {
 		foreach ($terms as $term) {
 			$cat[] = [
-				'label' => '分类：' . $term->name,
+				'label' => 'Category: ' . $term->name,
 				'value' => $term->term_id
 			];
 		}

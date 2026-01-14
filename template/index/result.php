@@ -19,7 +19,7 @@ if ( is_category() || is_search() || is_tag() || is_archive() ) {
     <div class="non-result">
 
         <div class="in">
-            <span class="belong"><?php echo $match; ?></span> 的文章列表
+            <span class="belong"><?php echo $match; ?></span> article list
         </div>
 		<?php
 		/*
@@ -29,8 +29,8 @@ if ( is_category() || is_search() || is_tag() || is_archive() ) {
 			?>
             <div class="number">
                 <i class="iconfont icon-sousuo"></i>
-                共<?php global $wp_query;
-				echo $wp_query->found_posts; ?>篇文章
+                <?php global $wp_query;
+				echo $wp_query->found_posts; ?> articles
             </div>
 		<?php } ?>
     </div>

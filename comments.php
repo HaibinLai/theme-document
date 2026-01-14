@@ -41,7 +41,7 @@ if ( nicen_theme_showComments() ) {
         <div class="div-info">
             <div class="header">
                 <ul>
-                    <li class="active"><div class="mark"></div>评论区</li>
+                    <li class="active"><div class="mark"></div>Comments</li>
                     <!-- <li>修改记录</li>-->
                 </ul>
             </div>
@@ -55,15 +55,15 @@ if ( nicen_theme_showComments() ) {
                         </div>
                         <div class="comment-info">
                             <div class="comment-info-top"><?php echo $isLogin ? $nickname : '恨相知晚'; ?></div>
-                            <div class="comment-info-bottom"><?php echo ( ! $comment ) ? '一起参与讨论！' : '回复 ' . $comment->comment_author . '的评论'; ?></div>
+                            <div class="comment-info-bottom"><?php echo ( ! $comment ) ? 'Join the discussion!' : 'Reply to ' . $comment->comment_author . '\'s comment'; ?></div>
                         </div>
                     </div>
                     <div class="comment-loginout">
 						<?php if ( $comment ) {
-							cancel_comment_reply_link( '取消回复' );
+							cancel_comment_reply_link( 'Cancel Reply' );
 						} ?>
-                        <a style="display: <?php echo $isLogin ? 'block' : 'none' ?>" title="注销登录"
-                           href="<?php echo wp_logout_url( apply_filters( 'the_permalink', get_permalink(), '' ) ); ?>">注销登录</a>
+                        <a style="display: <?php echo $isLogin ? 'block' : 'none' ?>" title="Logout"
+                           href="<?php echo wp_logout_url( apply_filters( 'the_permalink', get_permalink(), '' ) ); ?>">Logout</a>
                     </div>
                 </div>
                 <div class="comment-form-main">
@@ -74,7 +74,7 @@ if ( nicen_theme_showComments() ) {
                            id="comment_post_ID">
                     <div class="comment-textarea">
                         <textarea id="comment_content" name="comment" maxlength="65525"
-                                  placeholder="三言两语,安慰自己,冷言冷语,坚持自己" rows="5"
+                                  placeholder="Three words, comfort yourself, cold words, stick to yourself" rows="5"
                                   class="comment-content"></textarea>
 
                         <i class="iconfont icon-biaoqing emoji"></i>
@@ -84,19 +84,19 @@ if ( nicen_theme_showComments() ) {
                     </div>
 
                     <div class="comment-container">
-                        <input placeholder="昵称" name="author" type="text" class="comment-name"
+                        <input placeholder="Nickname" name="author" type="text" class="comment-name"
                                value="<?php echo $nickname ?>"
                                required/>
-                        <input placeholder="邮箱" name="email" type="email" class="comment-mail"
+                        <input placeholder="Email" name="email" type="email" class="comment-mail"
                                value="<?php echo $email ?>"
                                required/>
-                        <input placeholder="网址" name="url" type="url" class="comment-url"
+                        <input placeholder="Website" name="url" type="url" class="comment-url"
                                value="<?php echo $webUrl ?>"
                                required/>
                     </div>
                 </div>
                 <div class="comment-form-footer">
-                    <button type="submit">提交</button>
+                    <button type="submit">Submit</button>
                 </div>
             </form>
 
@@ -126,7 +126,7 @@ if ( nicen_theme_showComments() ) {
 	} else { ?>
         <div class="div-info">
             <div class="header" style="padding: 20px 20px 0 20px;text-align: center;border: none;">
-                评论区未打开，无法接收留言！
+                Comments are not open, cannot receive messages!
             </div>
         </div>
 		<?php

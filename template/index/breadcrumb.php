@@ -45,7 +45,7 @@ if ( nicen_theme_showBread() ) {
             /
             <a href="<?php echo $linkTag ?>" title=" <?php echo $tags; ?>"> <?php echo $tags; ?></a>
 		<?php } ?>
-        / 正文
+        / Main Content
     </div>
 	<?php
 }

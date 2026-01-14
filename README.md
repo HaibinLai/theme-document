@@ -14,26 +14,7 @@ Gitee：[https://gitee.com/friend-nicen/theme-document](https://gitee.com/friend
 
 使用帮助看这里：[https://nicen.cn/1552.html](https://nicen.cn/1552.html)
 
-> 😁，加我微信【good7341】或机器人微信【nicen_friend】拉你进交流群！
 
-# 打赏记录
-
-不定时更新..........，感谢：
-
-| 时间         | 昵称          | 金额    |
-|------------|-------------|-------|
-| 2024-04-08 | 黯星丶         | 36.6  |
-| 2024-04-18 | 桩白墨 plough  | 25    |
-| 2024-11-13 | Laumy       | 66.0  |
-| 2025-01-13 | Jason zhang | 100.0 |
-| 2025-02-13 | 法律人@海       | 66.0  |
-| 2025-04-25 | Laumy       | 60.0  |
-
-# 打赏
-
-乐意的话，打赏一下也行，不打赏也没关系，如果打赏记得备注一下大名哦，~.~
-
-![img.png](https://weixin.nicen.cn/images/weixin.jpg)
 
 # 插件推荐
 
@@ -51,6 +32,20 @@ Github：<https://github.com/friend-nicen/nicen-replay>
 
 Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 
+
+# 2026-01-14
+
+Haibin
+
+1. 修复远程图片时两侧边栏没有动态更新的bug
+2. 全面英文化主题。
+
+## 历史更新（原作者）
+
+<details>
+<summary>点击展开查看原作者的全部更新记录</summary>
+
+  
 # 2025-04-25
 
 1. 修复前台存在多个jq时会导致部分功能不可用的问题
@@ -159,6 +154,8 @@ Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 ![首页设置](https://nicen.cn/wp-content/uploads/2022/06/1665419976060.png)
 ![页脚设置](https://nicen.cn/wp-content/uploads/2022/06/1665419953959.png)
 ![导航栏设置](https://nicen.cn/wp-content/uploads/2022/06/1665419985715.png)
+  
+</details>
 
 # 安装之前
 

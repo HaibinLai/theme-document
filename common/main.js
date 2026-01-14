@@ -266,6 +266,12 @@ $(function ($) {
             * 左侧边栏位置检测
             * */
             function fixedLeft() {
+                // 每次调用时都重新获取最新的位置和高度值，确保计算准确
+                if (space.length > 0) {
+                    topTop = $('#space').getTop();
+                    topHeight = navigator.outerHeight();
+                    topOffset = innerHeight - topHeight - topTop;
+                }
 
                 // 优先使用 window.scrollY，兼容某些浏览器 html.scrollTop 始终为 0 的情况
                 let html_scrollTop = window.scrollY || html.scrollTop();
@@ -274,7 +280,9 @@ $(function ($) {
                 if (html_scrollTop >= _absolute) {
 
                     isfixedLeft = true;
+                    // 重新获取最新高度（可能因为图片加载而变化）
                     topHeight = navigator.outerHeight();
+                    topTop = $('#space').getTop();
                     topOffset = innerHeight - topHeight - topTop;
 
 
@@ -315,8 +323,21 @@ $(function ($) {
                             top = min;
                         }
 
+                        // 确保 top 值不会超出可视区域（防止侧栏移出屏幕）
+                        // top 值应该在 min 和 (min + navigator.height()) 之间
+                        if (top < min) {
+                            top = min;
+                        }
+                        // 确保侧栏底部不会超出屏幕底部
+                        let maxTop = innerHeight - navigator.outerHeight() - 20; // 留20px边距
+                        if (top > maxTop && maxTop > min) {
+                            top = maxTop;
+                        }
 
                         navigator.css('top', top);
+                    } else {
+                        // 如果还没到需要偏移的位置，确保侧栏在初始位置
+                        navigator.css('top', topTop);
                     }
 
                 } else {
@@ -367,6 +388,8 @@ $(function ($) {
             * 滚动、屏幕大小变化时，动态更新右侧侧边栏的位置
             * */
             function toFixed() {
+                // 每次滚动时都重新计算高度值，因为页面高度可能在滚动过程中发生变化（如图片加载）
+                computed();
 
                 /*
                 * 如果有左侧边栏

@@ -25,7 +25,7 @@ $previous = get_previous_post();//上一篇
 		<?php if ( nicen_theme_config( "document_show_donate", false ) ) { ?>
             <div class="donate">
                 <a href="<?php nicen_theme_config( 'document_donate_url' ); ?>">
-                    <button>赞赏</button>
+                    <button>See my github</button>
                 </a>
             </div>
 		<?php } ?>

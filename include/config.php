@@ -1,7 +1,7 @@
 <?php
 
 /*
- * @author 友人a丶
+ * @author 友人a丶 Haibin
  * @date 2022-08-14
  * 主题前台设置
  * 主题后台设置
@@ -39,7 +39,7 @@
 /*
  * 主题版本
  * */
-const DOCUMENT_VERSION = "1.2.9";
+const DOCUMENT_VERSION = "1.3.1";
 
 const ADMIN = [
 	/*菜单设置*/

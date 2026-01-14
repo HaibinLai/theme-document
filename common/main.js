@@ -267,7 +267,8 @@ $(function ($) {
             * */
             function fixedLeft() {
 
-                let html_scrollTop = html.scrollTop();
+                // 优先使用 window.scrollY，兼容某些浏览器 html.scrollTop 始终为 0 的情况
+                let html_scrollTop = window.scrollY || html.scrollTop();
 
 
                 if (html_scrollTop >= _absolute) {
@@ -388,8 +389,8 @@ $(function ($) {
 
                 isFixed = true;//标记正在滚动
 
-                // 已经滚动的距离
-                let html_scrollTop = html.scrollTop();
+                // 已经滚动的距离（优先使用 window.scrollY，兼容性更好）
+                let html_scrollTop = window.scrollY || html.scrollTop();
 
                 /*
                 * 大于保持静态，小于保持绝对

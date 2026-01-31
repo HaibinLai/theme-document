@@ -33,6 +33,14 @@ Github：<https://github.com/friend-nicen/nicen-replay>
 Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 
 
+# 2026-02-01
+
+Haibin
+
+修复了 main.js 404 错误。添加了强制移除旧版 jQuery 的代码。
+创建了诊断工具 diagnose-jquery.php，创建了诊断工具
+
+
 # 2026-01-14
 
 Haibin

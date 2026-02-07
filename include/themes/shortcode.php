@@ -147,3 +147,26 @@ function nicen_theme_init_shortcode()
 }
 
 add_action('after_setup_theme', 'nicen_theme_init_shortcode'); //新增短标签处理
+
+/*
+ * 处理图片宽度格式：![描述|宽度](URL)
+ * */
+function nicen_theme_process_image_width($content) {
+	// 匹配格式：![描述|宽度](URL)
+	// 例如：![5a6f5946a91d749fd21712674072fb15.jpg|400](https://example.com/image.png)
+	// 注意：这个格式需要在 markdown 解析之前处理，因为标准 markdown 不支持 | 分隔符
+	$pattern = '/!\[([^\]]*)\|(\d+)\]\(([^\)]+)\)/';
+	
+	return preg_replace_callback($pattern, function($matches) {
+		$alt = $matches[1]; // 图片描述
+		$width = intval($matches[2]); // 宽度值（像素）
+		$url = $matches[3]; // 图片URL
+		
+		// 返回带有宽度属性的img标签
+		// 使用内联样式确保宽度生效，同时保持响应式（max-width: 100%）
+		return '<img src="' . esc_url($url) . '" alt="' . esc_attr($alt) . '" style="width: ' . $width . 'px; max-width: 100%; height: auto; display: block; margin: 0 auto;" loading="lazy" class="viewerLightBox" />';
+	}, $content);
+}
+
+// 在内容输出前处理图片宽度格式，优先级设为5，确保在其他过滤器之前处理
+add_filter('the_content', 'nicen_theme_process_image_width', 5);

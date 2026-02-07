@@ -2327,4 +2327,141 @@ html body .main-container .main-main .main-content .main-article blockquote p{
   margin: .4rem 0;
 }
 
+/* Details 和 Summary 可折叠专栏样式 */
+html body .main-container .main-main .main-content .main-article details {
+  margin: 1rem 0;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+html body .main-container .main-main .main-content .main-article details:hover {
+  border-color: var(--theme-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+html body .main-container .main-main .main-content .main-article details[open] {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--theme-color);
+}
+
+html body .main-container .main-main .main-content .main-article details summary {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--theme-text-color);
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  user-select: none;
+  list-style: none;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+html body .main-container .main-main .main-content .main-article details summary::-webkit-details-marker {
+  display: none;
+}
+
+html body .main-container .main-main .main-content .main-article details summary::before {
+  content: '▶';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.2s ease;
+  color: var(--theme-color);
+  font-size: 0.8em;
+}
+
+html body .main-container .main-main .main-content .main-article details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+html body .main-container .main-main .main-content .main-article details summary:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--theme-color);
+}
+
+html body .main-container .main-main .main-content .main-article details summary:active {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html body .main-container .main-main .main-content .main-article details > *:not(summary) {
+  padding: 1rem 1rem 1rem 1rem;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+html body .main-container .main-main .main-content .main-article details > *:not(summary):first-of-type {
+  padding-top: 1rem;
+}
+
+html body .main-container .main-main .main-content .main-article details > *:not(summary):last-child {
+  padding-bottom: 1rem;
+}
+
+html body .main-container .main-main .main-content .main-article details p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+  color: var(--theme-text-color);
+}
+
+html body .main-container .main-main .main-content .main-article details p:first-child {
+  margin-top: 0;
+}
+
+html body .main-container .main-main .main-content .main-article details p:last-child {
+  margin-bottom: 0;
+}
+
+html body .main-container .main-main .main-content .main-article details h1,
+html body .main-container .main-main .main-content .main-article details h2,
+html body .main-container .main-main .main-content .main-article details h3,
+html body .main-container .main-main .main-content .main-article details h4,
+html body .main-container .main-main .main-content .main-article details h5,
+html body .main-container .main-main .main-content .main-article details h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--theme-text-color);
+}
+
+html body .main-container .main-main .main-content .main-article details h1:first-child,
+html body .main-container .main-main .main-content .main-article details h2:first-child,
+html body .main-container .main-main .main-content .main-article details h3:first-child,
+html body .main-container .main-main .main-content .main-article details h4:first-child,
+html body .main-container .main-main .main-content .main-article details h5:first-child,
+html body .main-container .main-main .main-content .main-article details h6:first-child {
+  margin-top: 0;
+}
+
+html body .main-container .main-main .main-content .main-article details ul,
+html body .main-container .main-main .main-content .main-article details ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+html body .main-container .main-main .main-content .main-article details code {
+  background: var(--theme-code-bg);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+html body .main-container .main-main .main-content .main-article details pre {
+  background: var(--theme-pre-code-bg);
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+html body .main-container .main-main .main-content .main-article details blockquote {
+  margin: 0.5rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 3px solid var(--theme-color);
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+}
+
 

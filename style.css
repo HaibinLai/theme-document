@@ -2415,15 +2415,63 @@ html body .main-container .main-main .main-content .main-article details p:last-
   margin-bottom: 0;
 }
 
+/* Details 内的标题样式 - 继承主文章标题的所有样式 */
 html body .main-container .main-main .main-content .main-article details h1,
 html body .main-container .main-main .main-content .main-article details h2,
 html body .main-container .main-main .main-content .main-article details h3,
 html body .main-container .main-main .main-content .main-article details h4,
 html body .main-container .main-main .main-content .main-article details h5,
 html body .main-container .main-main .main-content .main-article details h6 {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  font-weight: 550;
+  cursor: pointer;
+  margin: 1rem 0 0.5rem 0;
   color: var(--theme-text-color);
+  position: relative;
+}
+
+html body .main-container .main-main .main-content .main-article details h1 {
+  font-weight: 510;
+  font-size: var(--theme-first-level-title);
+  margin-top: 1rem;
+}
+
+html body .main-container .main-main .main-content .main-article details h2 {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 0 0.25rem 0;
+  border-bottom: 1px solid #e1e1e1;
+  font-weight: normal;
+  vertical-align: middle;
+  font-size: var(--theme-secondary-level-title);
+}
+
+html body .main-container .main-main .main-content .main-article details h2:before {
+  display: block;
+  content: " ";
+  font-weight: 510;
+  border-radius: 5px;
+  width: 3px;
+  margin-top: 0.1rem;
+  height: 1rem;
+  margin-right: 0.6rem;
+  background-color: var(--theme-color);
+}
+
+html body .main-container .main-main .main-content .main-article details h3 {
+  font-size: var(--theme-third-level-title);
+}
+
+html body .main-container .main-main .main-content .main-article details h4 {
+  font-size: var(--theme-fourth-level-title);
+}
+
+html body .main-container .main-main .main-content .main-article details h5 {
+  font-size: var(--theme-third-level-title);
+}
+
+html body .main-container .main-main .main-content .main-article details h6 {
+  font-size: var(--theme-fourth-level-title);
 }
 
 html body .main-container .main-main .main-content .main-article details h1:first-child,

@@ -1082,9 +1082,19 @@ function nicen_theme_getPostWordCount( $postID = null, $type = 'words' ) {
 	
 	$content = get_post_field( 'post_content', $postID );
 	
-	// 去除HTML标签和短代码
+	// 先去除链接标签（避免统计链接中的文本和URL）
+	$content = preg_replace( '/<a\s+[^>]*>.*?<\/a>/is', '', $content );
+	
+	// 去除其他HTML标签和短代码
 	$content = strip_tags( $content );
 	$content = preg_replace( "/\[[\s\S]*?]/", "", $content );
+	
+	// 去除URL（http://、https://、www. 开头的链接）
+	$content = preg_replace( '/https?:\/\/[^\s]+/i', '', $content );
+	$content = preg_replace( '/www\.[^\s]+/i', '', $content );
+	
+	// 去除邮箱地址
+	$content = preg_replace( '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/', '', $content );
 	
 	if ( $type === 'chars' ) {
 		// 字符数模式

@@ -1065,3 +1065,44 @@ function get_new_post_modified_time( $format ) {
 	}
 
 }
+
+
+/**
+ * 获取文章字数统计
+ * @param int $postID 文章ID，默认为当前文章
+ * @param string $type 统计类型：'words' 总词数（默认，中文字符数+英文单词数），'chars' 字符数
+ * @return int 字数
+ */
+function nicen_theme_getPostWordCount( $postID = null, $type = 'words' ) {
+	
+	if ( $postID === null ) {
+		global $post;
+		$postID = $post->ID;
+	}
+	
+	$content = get_post_field( 'post_content', $postID );
+	
+	// 去除HTML标签和短代码
+	$content = strip_tags( $content );
+	$content = preg_replace( "/\[[\s\S]*?]/", "", $content );
+	
+	if ( $type === 'chars' ) {
+		// 字符数模式
+		return mb_strlen( $content, 'UTF-8' );
+	} else {
+		// 总词数模式（默认）：中文字符数 + 英文单词数
+		
+		// 统计中文字符数
+		preg_match_all( '/[\x{4e00}-\x{9fa5}]/u', $content, $chinese_matches );
+		$chinese_count = count( $chinese_matches[0] );
+		
+		// 统计英文单词数
+		$english_content = preg_replace( '/[\x{4e00}-\x{9fa5}]/u', ' ', $content ); // 将中文替换为空格
+		$english_content = preg_replace( '/[^\w\s]/u', ' ', $english_content ); // 去除标点，保留字母数字和空格
+		$english_content = preg_replace( '/\s+/', ' ', trim( $english_content ) ); // 规范化空格
+		$english_words = !empty( trim( $english_content ) ) ? count( explode( ' ', $english_content ) ) : 0;
+		
+		// 总词数 = 中文字符数 + 英文单词数
+		return $chinese_count + $english_words;
+	}
+}

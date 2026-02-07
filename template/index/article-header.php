@@ -40,7 +40,8 @@ if ( nicen_theme_showInfo() ) {
                 <i class="iconfont icon-shijian"></i><?php echo nicen_theme_timeToString( get_the_time( "Y-m-d H:i:s" ) ); ?>
             </li>
             <li><i class="iconfont icon-icon-test"></i><?php echo nicen_theme_getPostViews( get_the_ID() ); ?> Views</li>
-            <li style="border:none"><i class="iconfont icon-pinglun"></i><?php echo get_comments_number(); ?> Comments</li>
+            <li><i class="iconfont icon-pinglun"></i><?php echo get_comments_number(); ?> Comments</li>
+            <li style="border:none"><i class="iconfont icon-wenzhang"></i><?php echo nicen_theme_getPostWordCount(); ?> Words</li>
         </ul>
     </div>
 	<?php

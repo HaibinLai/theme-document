@@ -33,6 +33,30 @@ Github：<https://github.com/friend-nicen/nicen-replay>
 Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 
 
+# 2026-02-08
+
+Haibin
+
+1. 在文章开头添加了字数统计功能，统一显示总词数（中文字符数 + 英文单词数）。
+2. 新增支持 HTML `<details>` 和 `<summary>` 可折叠专栏功能，支持在 Markdown 中使用，包含完整的样式支持：
+   - 美观的容器样式（背景色、边框、圆角、阴影）
+   - 自定义的折叠/展开箭头图标
+   - 完整的标题样式继承（h1-h6 均支持，h2 包含左侧彩色条和底部边框）
+   - 内容区域的内边距和背景色
+   - 悬停和展开状态的交互效果
+   - 支持内部的所有 Markdown 元素（段落、列表、代码块、引用等）
+
+   使用示例：
+   ```html
+   <details>
+   <summary>📸 关于日本拍照与隐私保护的重要提醒（点击展开）</summary>
+   
+   ### 关于日本的拍照与隐私保护说明
+   
+   在日本，一般情况下，在街道、公园等公共场所拍摄风景或人文场景是合法的...
+   </details>
+   ```
+
 # 2026-02-01
 
 Haibin

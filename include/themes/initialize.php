@@ -152,12 +152,42 @@ function nicen_theme_fit_html_cat_mode( $content ) {
 
 
 /**
+ * 为文章内容中的图片统一添加原生懒加载（loading="lazy"）
+ *
+ * - 已经包含 loading 属性的 <img> 标签不会被修改（例如 lightbox 短代码里已经加过）
+ * - 只对文章内容里的 HTML 生效（通过 the_content 输出）
+ */
+function nicen_theme_add_lazy_loading_to_images( $content ) {
+
+	// 只处理包含 <img 的内容，其它内容直接返回
+	if ( strpos( $content, '<img' ) === false ) {
+		return $content;
+	}
+
+	return preg_replace_callback( '/<img[^>]*>/i', function ( $matches ) {
+		$tag = $matches[0];
+
+		// 已经带有 loading 属性的，保持不变
+		if ( stripos( $tag, ' loading=' ) !== false ) {
+			return $tag;
+		}
+
+		// 在 <img 之后插入 loading="lazy"
+		return preg_replace( '/<img\s+/i', '<img loading="lazy" ', $tag, 1 );
+	}, $content );
+}
+
+
+/**
  * 是否需要显示文章目录
  * 是html模式
  */
 if ( nicen_theme_config( "document_catelog_mode", false ) === 'html' ) {
 	add_filter( 'the_content', 'nicen_theme_fit_html_cat_mode' );
 }
+
+// 为文章内容中的所有图片添加原生懒加载
+add_filter( 'the_content', 'nicen_theme_add_lazy_loading_to_images', 20 );
 
 
 

@@ -42,6 +42,15 @@ Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 </details>
 
 
+# 2026-02-27
+
+Haibin
+
+1. 优化了图片懒加载，博客访问更快捷且减少带宽损耗
+2. 修复firefox浏览器无法查看侧边栏的问题
+3. 优化各种安全及防爬虫问题
+
+
 # 2026-02-08
 
 Haibin

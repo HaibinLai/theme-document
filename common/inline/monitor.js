@@ -7,30 +7,50 @@
 
 /*
 * 防止子容器触发父容器的滚动
+* 兼容旧版本 jQuery（例如 1.6.2 不支持 .on）和现代浏览器
+* 不再依赖 $(elem).on，而是直接使用原生事件绑定
 * */
 $.fn.scrollUnique = function () {
     return $(this).each(function () {
-        var eventType = 'mousewheel';
-        // 火狐是DOMMouseScroll事件
-        if (document.mozHidden !== undefined) {
-            eventType = 'DOMMouseScroll';
-        }
-        $(this).on(eventType, function (event) {
+        var elem = this;
+        // 统一使用 wheel / DOMMouseScroll / mousewheel 事件，兼容各浏览器
+        var handler = function (event) {
+            var e = event || window.event;
+            var original = e.originalEvent || e;
 
             // 一些数据
-            var scrollTop = this.scrollTop,
-                scrollHeight = this.scrollHeight,
-                height = this.clientHeight;
+            var scrollTop = elem.scrollTop,
+                scrollHeight = elem.scrollHeight,
+                height = elem.clientHeight;
 
-            var delta = (event.originalEvent.wheelDelta) ? event.originalEvent.wheelDelta : -(event.originalEvent.detail || 0);
+            var delta = original.wheelDelta ? original.wheelDelta : -(original.detail || 0);
 
             if ((delta > 0 && scrollTop <= delta) || (delta < 0 && scrollHeight - height - scrollTop <= -1 * delta)) {
-                // IE浏览器下滚动会跨越边界直接影响父级滚动，因此，临界时候手动边界滚动定位
-                this.scrollTop = delta > 0 ? 0 : scrollHeight;
+                // IE 浏览器下滚动会跨越边界直接影响父级滚动，因此，临界时候手动边界滚动定位
+                elem.scrollTop = delta > 0 ? 0 : scrollHeight;
                 // 向上滚 || 向下滚
-                event.preventDefault();
+                if (e.preventDefault) {
+                    e.preventDefault();
+                } else {
+                    e.returnValue = false;
+                }
             }
-        });
+        };
+
+        // 优先使用标准 wheel 事件
+        if (elem.addEventListener) {
+            elem.addEventListener('wheel', handler, { passive: false });
+            // 兼容旧版 Firefox
+            elem.addEventListener('DOMMouseScroll', handler, { passive: false });
+            // 兼容部分旧版浏览器
+            elem.addEventListener('mousewheel', handler, { passive: false });
+        } else if (elem.attachEvent) {
+            // 旧版 IE
+            elem.attachEvent('onmousewheel', handler);
+        } else {
+            // 最后兜底
+            elem.onmousewheel = handler;
+        }
     });
 };
 

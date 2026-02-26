@@ -138,7 +138,8 @@ $(function ($) {
             }
 
 
-            let anchor = main.find(Index.find('div a').attr("href"));
+            // 直接根据锚点选择器查找目标节点，避免依赖 html 作为根节点
+            let anchor = $(Index.find('div a').attr("href"));
 
             if (anchor.length !== 0) {
 
@@ -152,11 +153,22 @@ $(function ($) {
                 let top = anchor.getTop() - ($(".isIndex").length > 0 ? 55 : 15);
 
                 /*
-                * 滚动锚点标记
+                * 使用 window.scrollTo 进行滚动，兼容 Firefox / Chromium
                 * */
-                main.animate({scrollTop: top}, 200, function () {
+                try {
+                    window.scrollTo({
+                        top: top,
+                        behavior: 'smooth'
+                    });
+                    // 简单延时后恢复监听（平滑滚动大约 200ms）
+                    setTimeout(function () {
+                        watchScroll = true;
+                    }, 300);
+                } catch (e) {
+                    // 不支持平滑滚动配置的旧浏览器降级处理
+                    window.scrollTo(0, top);
                     watchScroll = true;
-                });
+                }
 
             }
 
@@ -227,9 +239,10 @@ $(function ($) {
             if (!watchScroll) return;
 
 
-            let thats = main;
-            let top = thats.get(0).scrollTop;
-            let collects = thats.find(".main-content").find("h1,h2,h3,h4");
+            // 获取当前已滚动的距离（优先使用 window.scrollY，兼容 Firefox）
+            let top = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            // 直接从文章内容区域查找标题，避免依赖 html 作为根节点
+            let collects = $(".main-content").find("h1,h2,h3,h4");
             let position = null;
 
             /*

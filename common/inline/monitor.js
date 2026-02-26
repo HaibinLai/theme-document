@@ -77,12 +77,15 @@ $(function ($) {
 
     /*
     * 屏蔽文章导航滚动事件向上传递
+    * 兼容老版本 jQuery（使用 .scroll 而不是 .on）
     * */
     (function () {
-        $('.scroll').scrollUnique()
-            .on('scroll', function (e) {
-                e.stopPropagation(); //停止向上传递事件
-            });
+        // 初始化自定义滚轮处理，防止滚动穿透到父容器
+        $('.scroll').scrollUnique();
+        // 使用 jQuery.scroll 绑定 scroll 事件，在所有 jQuery 版本中都可用
+        $('.scroll').scroll(function (e) {
+            e.stopPropagation(); //停止向上传递事件
+        });
     })();
 
     //防止重复触发目录滚动

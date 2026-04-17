@@ -66,7 +66,7 @@ if ( ! $is_admin && empty( $toys ) ) {
                 <div class="toys-grid">
                     <?php foreach ( $toys as $index => $toy ) : ?>
                         <?php $toy_href = preg_match( '#^https?://#i', $toy['url'] ) ? $toy['url'] : home_url( $toy['url'] ); ?>
-                        <a href="<?php echo esc_url( $toy_href ); ?>" class="toys-card" data-index="<?php echo $index; ?>"<?php echo preg_match( '#^https?://#i', $toy['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
+                        <a href="<?php echo esc_url( $toy_href ); ?>" class="toys-card" data-index="<?php echo $index; ?>" data-url="<?php echo esc_attr( $toy['url'] ); ?>"<?php echo preg_match( '#^https?://#i', $toy['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
                             <div class="toys-card-icon"><?php echo $toy['icon']; ?></div>
                             <div class="toys-card-name"><?php echo esc_html( $toy['name'] ); ?></div>
                             <div class="toys-card-desc"><?php echo esc_html( $toy['desc'] ); ?></div>
@@ -390,7 +390,7 @@ if ( ! $is_admin && empty( $toys ) ) {
                 name:  card.querySelector('.toys-card-name').textContent,
                 icon:  card.querySelector('.toys-card-icon').innerHTML.trim(),
                 desc:  card.querySelector('.toys-card-desc').textContent,
-                url:   card.getAttribute('href').replace(<?php echo json_encode( home_url() ); ?>, ''),
+                url:   card.dataset.url || '',
                 admin_only: !!card.querySelector('.toys-card-badge')
             });
         });

@@ -468,22 +468,38 @@
         chartCtx.closePath();
         chartCtx.fill();
 
-        // 象限文字 — 用各象限对应的纯色
+        // 象限文字 — 放在各区域视觉中心
         chartCtx.font = 'bold 16px sans-serif';
         chartCtx.textAlign = 'center';
 
+        // 左上：立即做（矩形中心）
+        var luCx = (chartLeft + x3) / 2;
+        var luCy = (chartTop + splitY) / 2;
         chartCtx.fillStyle = isDark ? '#f87171' : '#dc2626';
-        chartCtx.fillText('紧急且重要', (p.left + x3) / 2, p.top + 26);
-        chartCtx.fillText('立即做!', (p.left + x3) / 2, p.top + 46);
+        chartCtx.fillText('紧急且重要', luCx, luCy - 8);
+        chartCtx.fillText('立即做!', luCx, luCy + 12);
 
+        // 右上：计划做（梯形，取x中点处的上下边中点）
+        var planCx = (x3 + chartRight) / 2;
+        // 计算planCx对应的斜线y值
+        var planDays = ((planCx - p.left) / cw) * xTotalRange - XOFFSET;
+        var planBottomImp = planDays > 14 ? 3 + (planDays - 14) / 7 * 0.5 : 3.2;
+        var planBottomY = impToY(planBottomImp);
+        var planCy = (chartTop + planBottomY) / 2;
         chartCtx.fillStyle = isDark ? '#fbbf24' : '#d97706';
-        chartCtx.fillText('计划做', (x3 + p.left + cw) / 2, p.top + 26);
+        chartCtx.fillText('计划做', planCx, planCy);
 
+        // 左下：快速做（矩形中心）
+        var llCx = (chartLeft + x3) / 2;
+        var llCy = (splitY + chartBottom) / 2;
         chartCtx.fillStyle = isDark ? '#facc15' : '#b45309';
-        chartCtx.fillText('快速做', (p.left + x3) / 2, splitY + 20);
+        chartCtx.fillText('快速做', llCx, llCy);
 
+        // 右下：一般事务（梯形，取x中点处的斜线和底边中点）
+        var genCx = planCx;
+        var genCy = (planBottomY + chartBottom) / 2;
         chartCtx.fillStyle = isDark ? '#34d399' : '#047857';
-        chartCtx.fillText('一般事务', (x3 + p.left + cw) / 2, splitY + 20);
+        chartCtx.fillText('一般事务', genCx, genCy);
 
         // 分割虚线 — x=3.2天为主竖线，y=3.2★+升星斜线为横线
         chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';

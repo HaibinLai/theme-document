@@ -92,18 +92,17 @@
         render();
         input.value = '';
         dateInput.value = '';
+        input.focus();
 
         // 提交到服务器
         ajax('todo_create', { title: title, priority: priority, due_date: dueDate })
             .then(function (row) {
-                // 用真实数据替换临时数据
                 var idx = todos.findIndex(function (t) { return t.id === tempId; });
                 if (idx !== -1) todos[idx] = row;
                 saveToLocal();
                 render();
             })
             .catch(function () {
-                // 失败则移除
                 todos = todos.filter(function (t) { return t.id !== tempId; });
                 saveToLocal();
                 render();
@@ -206,7 +205,6 @@
         if (dragItem) dragItem.classList.remove('dragging');
         dragItem = null;
 
-        // 更新排序
         var list = document.getElementById('todo-list');
         var items = Array.from(list.children);
         var orders = [];
@@ -222,6 +220,61 @@
         ajax('todo_reorder', { orders: JSON.stringify(orders) });
     }
 
+    /* ========== 日期与倒计时 ========== */
+
+    function getDaysRemaining(dateStr) {
+        if (!dateStr) return null;
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        var due = new Date(dateStr);
+        due.setHours(0, 0, 0, 0);
+        return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        var d = new Date(dateStr);
+        var m = d.getMonth() + 1;
+        var day = d.getDate();
+        return m + '月' + day + '日';
+    }
+
+    function getCountdownHtml(todo) {
+        if (!todo.due_date || todo.completed == 1) return '';
+        var days = getDaysRemaining(todo.due_date);
+        if (days === null) return '';
+
+        var cls, text;
+        if (days < 0) {
+            cls = 'overdue';
+            text = '已过期' + Math.abs(days) + '天';
+        } else if (days === 0) {
+            cls = 'urgent';
+            text = '今天截止';
+        } else if (days === 1) {
+            cls = 'urgent';
+            text = '明天截止';
+        } else if (days <= 3) {
+            cls = 'soon';
+            text = '剩余' + days + '天';
+        } else {
+            cls = 'normal';
+            text = '剩余' + days + '天';
+        }
+        return '<span class="todo-countdown ' + cls + '">' + text + '</span>';
+    }
+
+    function isOverdue(todo) {
+        if (!todo.due_date || todo.completed == 1) return false;
+        var days = getDaysRemaining(todo.due_date);
+        return days !== null && days < 0;
+    }
+
+    function priorityLabel(p) {
+        var map = { high: '紧急', medium: '普通', low: '低优' };
+        return map[p] || '普通';
+    }
+
     /* ========== 渲染 ========== */
 
     function getFilteredTodos() {
@@ -232,35 +285,25 @@
         });
     }
 
-    function formatDate(dateStr) {
-        if (!dateStr) return '';
-        var d = new Date(dateStr);
-        var m = d.getMonth() + 1;
-        var day = d.getDate();
-        return m + '/' + day;
-    }
-
-    function isOverdue(todo) {
-        if (!todo.due_date || todo.completed == 1) return false;
-        var today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return new Date(todo.due_date) < today;
-    }
-
-    function priorityLabel(p) {
-        var map = { high: '高', medium: '中', low: '低' };
-        return map[p] || '中';
-    }
-
     function render() {
         var filtered = getFilteredTodos();
         var total = todos.length;
         var done = todos.filter(function (t) { return t.completed == 1; }).length;
         var active = total - done;
+        var percent = total > 0 ? Math.round(done / total * 100) : 0;
 
         // 统计
         var statsEl = document.getElementById('todo-stats');
-        statsEl.innerHTML = '<span>共 ' + total + ' 项</span><span>待完成 ' + active + '</span><span>已完成 ' + done + '</span>';
+        statsEl.innerHTML = '<span>共 ' + total + ' 项</span>'
+            + '<span>待完成 ' + active + '</span>'
+            + '<span>已完成 ' + done + '</span>'
+            + '<span>' + percent + '%</span>';
+
+        // 进度条
+        var progressBar = document.getElementById('todo-progress-bar');
+        if (progressBar) {
+            progressBar.style.width = percent + '%';
+        }
 
         // 筛选按钮高亮
         document.querySelectorAll('.todo-filter-btn').forEach(function (btn) {
@@ -271,10 +314,11 @@
         var listEl = document.getElementById('todo-list');
 
         if (filtered.length === 0) {
-            listEl.innerHTML = '<div class="todo-empty">' +
-                (currentFilter === 'all' ? '暂无待办事项，添加一个吧' :
-                    currentFilter === 'active' ? '没有未完成的待办' : '没有已完成的待办') +
-                '</div>';
+            listEl.innerHTML = '<div class="todo-empty">'
+                + '<div class="todo-empty-icon">&#128203;</div>'
+                + (currentFilter === 'all' ? '暂无待办事项，添加一个吧' :
+                    currentFilter === 'active' ? '所有任务都完成了，太棒了！' : '还没有已完成的待办')
+                + '</div>';
             return;
         }
 
@@ -283,9 +327,16 @@
             var isEditing = editingId == todo.id;
             var overdue = isOverdue(todo);
 
-            html += '<div class="todo-item' + (todo.completed == 1 ? ' completed' : '') + '"'
+            // 外层容器
+            html += '<div class="todo-item' + (todo.completed == 1 ? ' completed' : '') + (overdue ? ' overdue' : '') + '"'
                 + ' data-id="' + todo.id + '"'
                 + ' draggable="true">';
+
+            // 左侧优先级彩条
+            html += '<div class="todo-priority-bar ' + (todo.priority || 'medium') + '"></div>';
+
+            // 主体
+            html += '<div class="todo-body">';
 
             // 复选框
             html += '<div class="todo-checkbox" onclick="window._todo.toggle(' + todo.id + ')"></div>';
@@ -297,9 +348,9 @@
                     + ' onkeydown="if(event.key===\'Enter\')window._todo.saveEdit(' + todo.id + ');if(event.key===\'Escape\')window._todo.cancelEdit()">';
                 html += '<div class="todo-edit-inline">';
                 html += '<select id="edit-priority-' + todo.id + '">'
-                    + '<option value="high"' + (todo.priority === 'high' ? ' selected' : '') + '>高优先级</option>'
-                    + '<option value="medium"' + (todo.priority === 'medium' ? ' selected' : '') + '>中优先级</option>'
-                    + '<option value="low"' + (todo.priority === 'low' ? ' selected' : '') + '>低优先级</option>'
+                    + '<option value="high"' + (todo.priority === 'high' ? ' selected' : '') + '>紧急</option>'
+                    + '<option value="medium"' + (todo.priority === 'medium' ? ' selected' : '') + '>普通</option>'
+                    + '<option value="low"' + (todo.priority === 'low' ? ' selected' : '') + '>低优</option>'
                     + '</select>';
                 html += '<input type="date" id="edit-date-' + todo.id + '" value="' + (todo.due_date || '') + '">';
                 html += '<button class="todo-action-btn" onclick="window._todo.saveEdit(' + todo.id + ')" title="保存">&#10003;</button>';
@@ -308,24 +359,28 @@
             } else {
                 html += '<div class="todo-title">' + escapeHtml(todo.title) + '</div>';
                 html += '<div class="todo-meta">';
-                html += '<span class="todo-priority ' + todo.priority + '">' + priorityLabel(todo.priority) + '</span>';
+                html += '<span class="todo-priority-tag ' + todo.priority + '">' + priorityLabel(todo.priority) + '</span>';
                 if (todo.due_date) {
-                    html += '<span class="todo-due' + (overdue ? ' overdue' : '') + '">'
-                        + (overdue ? '已过期 ' : '') + formatDate(todo.due_date) + '</span>';
+                    html += '<span class="todo-due">'
+                        + '<span class="todo-due-icon">&#128197;</span>'
+                        + formatDate(todo.due_date)
+                        + '</span>';
+                    html += getCountdownHtml(todo);
                 }
                 html += '</div>';
             }
-            html += '</div>';
+            html += '</div>'; // .todo-content
 
             // 操作按钮
             if (!isEditing) {
                 html += '<div class="todo-actions">';
                 html += '<button class="todo-action-btn" onclick="window._todo.startEdit(' + todo.id + ')" title="编辑">&#9998;</button>';
-                html += '<button class="todo-action-btn delete" onclick="window._todo.deleteTodo(' + todo.id + ')" title="删除">&#10005;</button>';
+                html += '<button class="todo-action-btn delete" onclick="window._todo.deleteTodo(' + todo.id + ')" title="删除">&#128465;</button>';
                 html += '</div>';
             }
 
-            html += '</div>';
+            html += '</div>'; // .todo-body
+            html += '</div>'; // .todo-item
         });
 
         listEl.innerHTML = html;

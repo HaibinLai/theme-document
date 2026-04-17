@@ -346,35 +346,45 @@
         // 上半: 重要, 下半: 不重要
 
         // 紧急+重要 (左上) — 深红
-        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.12)';
+        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.30)' : 'rgba(239,68,68,0.20)';
         chartCtx.fillRect(p.left, p.top, x7 - p.left, ch / 2);
         // 中间+重要 (中上) — 橙
-        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.15)' : 'rgba(245,158,11,0.10)';
+        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.25)' : 'rgba(245,158,11,0.18)';
         chartCtx.fillRect(x7, p.top, x14 - x7, ch / 2);
         // 不急+重要 (右上) — 蓝
-        chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.08)';
+        chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.22)' : 'rgba(59,130,246,0.14)';
         chartCtx.fillRect(x14, p.top, p.left + cw - x14, ch / 2);
         // 紧急+不重要 (左下) — 黄
-        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.15)' : 'rgba(234,179,8,0.10)';
+        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.25)' : 'rgba(234,179,8,0.18)';
         chartCtx.fillRect(p.left, halfY, x7 - p.left, ch / 2);
         // 中间+不重要 (中下) — 浅黄绿
-        chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.10)' : 'rgba(132,204,22,0.07)';
+        chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.18)' : 'rgba(132,204,22,0.12)';
         chartCtx.fillRect(x7, halfY, x14 - x7, ch / 2);
         // 不急+不重要 (右下) — 绿
-        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.08)';
+        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.22)' : 'rgba(16,185,129,0.14)';
         chartCtx.fillRect(x14, halfY, p.left + cw - x14, ch / 2);
 
-        // 象限文字
-        var labelColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.22)';
+        // 象限文字 — 用各象限对应的颜色
         chartCtx.font = 'bold 13px sans-serif';
-        chartCtx.fillStyle = labelColor;
         chartCtx.textAlign = 'center';
+
+        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.7)' : 'rgba(220,38,38,0.5)';
         chartCtx.fillText('紧急且重要', (p.left + x7) / 2, p.top + 24);
         chartCtx.fillText('立即做!', (p.left + x7) / 2, p.top + 42);
+
+        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.7)' : 'rgba(217,119,6,0.5)';
         chartCtx.fillText('重要·计划做', (x7 + x14) / 2, p.top + 24);
+
+        chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.7)' : 'rgba(37,99,235,0.45)';
         chartCtx.fillText('不急·可规划', (x14 + p.left + cw) / 2, p.top + 24);
+
+        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.7)' : 'rgba(180,130,0,0.5)';
         chartCtx.fillText('紧急·快速做', (p.left + x7) / 2, halfY + 24);
+
+        chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.6)' : 'rgba(80,140,10,0.45)';
         chartCtx.fillText('一般事务', (x7 + x14) / 2, halfY + 24);
+
+        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.6)' : 'rgba(5,120,80,0.45)';
         chartCtx.fillText('可删除', (x14 + p.left + cw) / 2, halfY + 24);
 
         // 分割虚线

@@ -523,11 +523,14 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 矩阵视图整体布局 */
+/* 矩阵视图整体布局 — 突破容器宽度 */
 .todo-matrix-wrap {
     display: flex;
-    gap: 16px;
+    gap: 20px;
     align-items: flex-start;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    padding: 0 max(20px, calc(50vw - 620px));
 }
 
 /* 2D图容器 */
@@ -547,7 +550,7 @@
 
 /* 侧边栏 */
 .todo-sidebar {
-    width: 220px;
+    width: 260px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;

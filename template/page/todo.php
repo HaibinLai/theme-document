@@ -37,6 +37,11 @@ get_header();
                         <option value="high">紧急</option>
                         <option value="low">低优</option>
                     </select>
+                    <div class="todo-add-importance">
+                        <span>重要:</span>
+                        <input type="range" id="todo-importance" min="1" max="5" value="3">
+                        <span class="importance-label" id="todo-importance-label">★★★☆☆</span>
+                    </div>
                     <input type="date" id="todo-date" class="todo-add-date">
                     <button id="todo-add-btn" class="todo-add-btn">+ 添加</button>
                 </div>
@@ -46,19 +51,30 @@ get_header();
                     <div class="todo-progress-bar" id="todo-progress-bar" style="width: 0%"></div>
                 </div>
 
-                <!-- 工具栏：筛选 + 统计 -->
+                <!-- 工具栏：视图切换 + 筛选 + 统计 -->
                 <div class="todo-toolbar">
-                    <div class="todo-filters">
-                        <button class="todo-filter-btn active" data-filter="all">全部</button>
-                        <button class="todo-filter-btn" data-filter="active">未完成</button>
-                        <button class="todo-filter-btn" data-filter="completed">已完成</button>
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                        <div class="todo-views">
+                            <button class="todo-view-btn active" data-view="list">&#128196; 列表</button>
+                            <button class="todo-view-btn" data-view="chart">&#128200; 矩阵</button>
+                        </div>
+                        <div class="todo-filters">
+                            <button class="todo-filter-btn active" data-filter="all">全部</button>
+                            <button class="todo-filter-btn" data-filter="active">未完成</button>
+                            <button class="todo-filter-btn" data-filter="completed">已完成</button>
+                        </div>
                     </div>
                     <div id="todo-stats" class="todo-stats"></div>
                 </div>
 
-                <!-- 列表 -->
+                <!-- 列表视图 -->
                 <div id="todo-list" class="todo-list">
                     <div class="todo-loading">加载中...</div>
+                </div>
+
+                <!-- 2D矩阵视图 -->
+                <div id="todo-chart-wrap" class="todo-chart-wrap" style="display:none;">
+                    <canvas id="todo-chart"></canvas>
                 </div>
             </div>
         </article>

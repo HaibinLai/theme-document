@@ -453,6 +453,74 @@
     font-size: 13px;
 }
 
+/* 重要度星星 */
+.todo-importance-tag {
+    color: #f59e0b;
+    font-size: var(--theme-text-more-mini, 0.69rem);
+    letter-spacing: -1px;
+}
+
+/* 重要度滑块 */
+.todo-add-importance {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--theme-secondary, 0.78rem);
+}
+
+.todo-add-importance input[type="range"] {
+    width: 80px;
+    accent-color: #f59e0b;
+}
+
+.todo-add-importance .importance-label {
+    color: #f59e0b;
+    font-size: var(--theme-text-more-mini, 0.69rem);
+    min-width: 60px;
+    letter-spacing: -1px;
+}
+
+/* 视图切换按钮 */
+.todo-views {
+    display: flex;
+    gap: 4px;
+    background: var(--theme-border-color, #eee);
+    border-radius: 8px;
+    padding: 3px;
+}
+
+.todo-view-btn {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--theme-text-secondary, rgba(0, 0, 0, 0.65));
+    font-size: var(--theme-secondary, 0.78rem);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.todo-view-btn.active {
+    background: var(--theme-bg-color, #fff);
+    color: var(--theme-text-color, #333);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 2D图容器 */
+.todo-chart-wrap {
+    width: 100%;
+    display: none;
+    border: 1px solid var(--theme-border-color, #e8e8e8);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--theme-bg-color, #fff);
+}
+
+.todo-chart-wrap canvas {
+    display: block;
+    width: 100%;
+}
+
 /* 深色模式适配 */
 .dark .todo-add {
     border-color: #3a3a3a;
@@ -532,6 +600,20 @@
 
 .dark .todo-countdown.normal {
     background: rgba(5, 150, 105, 0.15);
+}
+
+.dark .todo-views {
+    background: #2a2a2b;
+}
+
+.dark .todo-view-btn.active {
+    background: #3a3a3a;
+    color: var(--theme-text-color);
+}
+
+.dark .todo-chart-wrap {
+    border-color: #3a3a3a;
+    background: var(--theme-front-color, #2a2a2b);
 }
 
 /* 响应式 */

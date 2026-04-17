@@ -15,6 +15,7 @@ function document_todo_create_table() {
 		title varchar(500) NOT NULL DEFAULT '',
 		completed tinyint(1) NOT NULL DEFAULT 0,
 		priority varchar(10) NOT NULL DEFAULT 'medium',
+		importance tinyint(1) NOT NULL DEFAULT 3,
 		due_date date DEFAULT NULL,
 		sort_order int(11) NOT NULL DEFAULT 0,
 		created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -22,6 +23,7 @@ function document_todo_create_table() {
 		PRIMARY KEY (id),
 		KEY idx_completed (completed),
 		KEY idx_priority (priority),
+		KEY idx_importance (importance),
 		KEY idx_sort_order (sort_order)
 	) $charset_collate;";
 
@@ -41,3 +43,15 @@ function document_todo_maybe_create_table() {
 	}
 }
 add_action( 'init', 'document_todo_maybe_create_table' );
+
+/* 升级：为已有表添加 importance 字段 */
+function document_todo_maybe_add_importance() {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'document_todos';
+	$column = $wpdb->get_results( "SHOW COLUMNS FROM $table_name LIKE 'importance'" );
+	if ( empty( $column ) ) {
+		$wpdb->query( "ALTER TABLE $table_name ADD COLUMN importance tinyint(1) NOT NULL DEFAULT 3 AFTER priority" );
+		$wpdb->query( "ALTER TABLE $table_name ADD KEY idx_importance (importance)" );
+	}
+}
+add_action( 'init', 'document_todo_maybe_add_importance' );

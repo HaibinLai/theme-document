@@ -42,6 +42,7 @@ function document_todo_create() {
 	$title    = sanitize_text_field( $_POST['title'] ?? '' );
 	$priority = sanitize_text_field( $_POST['priority'] ?? 'medium' );
 	$due_date = sanitize_text_field( $_POST['due_date'] ?? '' );
+	$importance = intval( $_POST['importance'] ?? 3 );
 
 	if ( empty( $title ) ) {
 		wp_send_json_error( '标题不能为空' );
@@ -51,12 +52,15 @@ function document_todo_create() {
 		$priority = 'medium';
 	}
 
+	$importance = max( 1, min( 5, $importance ) );
+
 	$data = [
-		'title'    => $title,
-		'priority' => $priority,
-		'due_date' => $due_date ?: null,
+		'title'      => $title,
+		'priority'   => $priority,
+		'importance' => $importance,
+		'due_date'   => $due_date ?: null,
 	];
-	$format = [ '%s', '%s', '%s' ];
+	$format = [ '%s', '%s', '%d', '%s' ];
 
 	$wpdb->insert( $table, $data, $format );
 	$id = $wpdb->insert_id;
@@ -104,6 +108,10 @@ function document_todo_update() {
 	if ( isset( $_POST['due_date'] ) ) {
 		$update['due_date'] = sanitize_text_field( $_POST['due_date'] ) ?: null;
 		$format[]           = '%s';
+	}
+	if ( isset( $_POST['importance'] ) ) {
+		$update['importance'] = max( 1, min( 5, intval( $_POST['importance'] ) ) );
+		$format[]             = '%d';
 	}
 
 	if ( empty( $update ) ) {

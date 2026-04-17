@@ -908,5 +908,16 @@ const PAGES = [
 				'/common/clipboard/clipboard.js'
 			]
 		]
+	],
+	'Snake Game' => [
+		'template'  => 'template/page/snake.php',
+		'dependent' => [
+			'styles'  => [
+				'/common/snake/snake.css'
+			],
+			'scripts' => [
+				'/common/snake/snake.js'
+			]
+		]
 	]
 ];

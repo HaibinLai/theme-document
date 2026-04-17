@@ -988,7 +988,7 @@
             html += '<span class="pomodoro-icon">&#127813;</span>';
             html += '<span class="pomodoro-task-name">' + escapeHtml(todo ? todo.title : '') + '</span>';
             html += '<span class="pomodoro-timer">' + timeStr + '</span>';
-            html += '<span class="pomodoro-phase">' + phaseText + '</span>';
+            html += '<span class="pomodoro-phase' + (pomodoroSlots.length > 1 ? ' hide-when-crowded' : '') + '">' + phaseText + '</span>';
             html += '<div class="pomodoro-actions">';
             html += '<button class="pomodoro-btn" onclick="window._todo.pauseSlot(' + slot.todoId + ')" title="' + (slot.paused ? '继续' : '暂停') + '">' + (slot.paused ? '&#9654;' : '&#9208;') + '</button>';
             html += '<button class="pomodoro-btn" onclick="window._todo.stopSlot(' + slot.todoId + ')" title="停止">&#9209;</button>';

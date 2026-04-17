@@ -823,6 +823,10 @@
     flex-shrink: 0;
 }
 
+.pomodoro-phase.hide-when-crowded {
+    display: none;
+}
+
 .pomodoro-actions {
     display: flex;
     gap: 4px;

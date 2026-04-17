@@ -395,9 +395,14 @@
         fd.append('action', action);
         if (data) Object.keys(data).forEach(function (k) { fd.append(k, data[k]); });
         return fetch(AJAX_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
-            .then(function (r) { return r.json(); })
-            .then(function (res) {
+            .then(function (r) {
+                if (!r.ok) { console.error('Snake AJAX HTTP error:', r.status, AJAX_URL); throw new Error('HTTP ' + r.status); }
+                return r.text();
+            })
+            .then(function (text) {
+                try { var res = JSON.parse(text); } catch (e) { console.error('Snake AJAX invalid JSON:', text.substring(0, 200)); throw e; }
                 if (res.success) return res.data;
+                console.error('Snake AJAX error:', res.data);
                 throw new Error(res.data || 'Error');
             });
     }
@@ -432,8 +437,9 @@
     function loadLeaderboard() {
         ajax('snake_leaderboard', { type: lbType, limit: 20 }).then(function (rows) {
             renderLeaderboard(rows);
-        }).catch(function () {
-            document.getElementById('snake-lb-list').innerHTML = '<div class="snake-lb-empty">Failed to load</div>';
+        }).catch(function (e) {
+            console.error('Leaderboard load failed:', e);
+            document.getElementById('snake-lb-list').innerHTML = '<div class="snake-lb-empty">Failed to load leaderboard</div>';
         });
     }
 

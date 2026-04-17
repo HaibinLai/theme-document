@@ -101,45 +101,6 @@ if ( ! $is_admin && empty( $toys ) ) {
     </div>
 </main>
 
-<?php if ( $is_admin ) : ?>
-<!-- Admin: add/edit modal -->
-<div class="toys-modal-overlay" id="toys-modal" style="display:none;">
-    <div class="toys-modal">
-        <div class="toys-modal-header">
-            <h3 id="toys-modal-title">Add New Item</h3>
-            <button class="toys-modal-close" id="toys-modal-close">&times;</button>
-        </div>
-        <div class="toys-modal-body">
-            <input type="hidden" id="toys-edit-index" value="-1">
-            <label>Name
-                <input type="text" id="toys-input-name" placeholder="e.g. Todo List" autocomplete="off">
-            </label>
-            <label>Icon (Emoji, image URL, or upload)
-                <div class="toys-icon-input-wrap">
-                    <input type="text" id="toys-input-icon" placeholder="Emoji, image URL, or click upload" autocomplete="off">
-                    <button type="button" class="toys-btn toys-btn-upload" id="toys-upload-btn" title="Upload from media library">&#128247;</button>
-                </div>
-                <div class="toys-icon-preview" id="toys-icon-preview"></div>
-            </label>
-            <label>Description
-                <input type="text" id="toys-input-desc" placeholder="A short description" autocomplete="off">
-            </label>
-            <label>URL
-                <input type="text" id="toys-input-url" placeholder="e.g. /todo-list/ or https://..." autocomplete="off">
-            </label>
-            <label class="toys-checkbox-label">
-                <input type="checkbox" id="toys-input-admin"> Admin only
-            </label>
-        </div>
-        <div class="toys-modal-footer">
-            <button class="toys-btn toys-btn-delete" id="toys-delete-btn" style="display:none;">Delete</button>
-            <div style="flex:1;"></div>
-            <button class="toys-btn toys-btn-cancel" id="toys-cancel-btn">Cancel</button>
-            <button class="toys-btn toys-btn-save" id="toys-save-btn">Save</button>
-        </div>
-    </div>
-</div>
-
 <style>
 /* ===== My Corner page styles ===== */
 .toys-container {
@@ -415,6 +376,45 @@ if ( ! $is_admin && empty( $toys ) ) {
     .toys-card-icon img { width: 2.4rem; height: 2.4rem; }
 }
 </style>
+
+<?php if ( $is_admin ) : ?>
+<!-- Admin: add/edit modal -->
+<div class="toys-modal-overlay" id="toys-modal" style="display:none;">
+    <div class="toys-modal">
+        <div class="toys-modal-header">
+            <h3 id="toys-modal-title">Add New Item</h3>
+            <button class="toys-modal-close" id="toys-modal-close">&times;</button>
+        </div>
+        <div class="toys-modal-body">
+            <input type="hidden" id="toys-edit-index" value="-1">
+            <label>Name
+                <input type="text" id="toys-input-name" placeholder="e.g. Todo List" autocomplete="off">
+            </label>
+            <label>Icon (Emoji, image URL, or upload)
+                <div class="toys-icon-input-wrap">
+                    <input type="text" id="toys-input-icon" placeholder="Emoji, image URL, or click upload" autocomplete="off">
+                    <button type="button" class="toys-btn toys-btn-upload" id="toys-upload-btn" title="Upload from media library">&#128247;</button>
+                </div>
+                <div class="toys-icon-preview" id="toys-icon-preview"></div>
+            </label>
+            <label>Description
+                <input type="text" id="toys-input-desc" placeholder="A short description" autocomplete="off">
+            </label>
+            <label>URL
+                <input type="text" id="toys-input-url" placeholder="e.g. /todo-list/ or https://..." autocomplete="off">
+            </label>
+            <label class="toys-checkbox-label">
+                <input type="checkbox" id="toys-input-admin"> Admin only
+            </label>
+        </div>
+        <div class="toys-modal-footer">
+            <button class="toys-btn toys-btn-delete" id="toys-delete-btn" style="display:none;">Delete</button>
+            <div style="flex:1;"></div>
+            <button class="toys-btn toys-btn-cancel" id="toys-cancel-btn">Cancel</button>
+            <button class="toys-btn toys-btn-save" id="toys-save-btn">Save</button>
+        </div>
+    </div>
+</div>
 
 <script>
 (function() {

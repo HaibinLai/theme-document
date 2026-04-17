@@ -824,7 +824,8 @@
     var BREAK_DURATION = 5 * 60;
     var LONG_BREAK_DURATION = 15 * 60;
     var POMODORO_STORAGE = 'pomodoro_counts';
-    var pomodoroSessionTodos = []; // 本次会话已专注过的不同任务ID（最多3个）
+    var POMODORO_STATE = 'pomodoro_state';
+    var pomodoroSessionTodos = [];
 
     function getPomodoroCount(todoId) {
         try { var d = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}'); return d[todoId] || 0; } catch (e) { return 0; }
@@ -835,6 +836,60 @@
             d[todoId] = (d[todoId] || 0) + 1;
             localStorage.setItem(POMODORO_STORAGE, JSON.stringify(d));
         } catch (e) { }
+    }
+    function savePomodoroState() {
+        if (!pomodoroTimer && !pomodoroPaused) {
+            localStorage.removeItem(POMODORO_STATE);
+            return;
+        }
+        try {
+            localStorage.setItem(POMODORO_STATE, JSON.stringify({
+                todoId: pomodoroTodoId,
+                phase: pomodoroPhase,
+                endTime: pomodoroPaused ? null : Date.now() + pomodoroRemaining * 1000,
+                remaining: pomodoroRemaining,
+                count: pomodoroCount,
+                paused: pomodoroPaused,
+                sessionTodos: pomodoroSessionTodos
+            }));
+        } catch (e) { }
+    }
+    function restorePomodoro() {
+        try {
+            var s = JSON.parse(localStorage.getItem(POMODORO_STATE));
+            if (!s || !s.todoId) return;
+            var todo = todos.find(function (t) { return t.id == s.todoId; });
+            if (!todo) { localStorage.removeItem(POMODORO_STATE); return; }
+
+            pomodoroTodoId = s.todoId;
+            pomodoroPhase = s.phase;
+            pomodoroCount = s.count || 0;
+            pomodoroSessionTodos = s.sessionTodos || [];
+            pomodoroPaused = s.paused || false;
+            pomodoroOrigTitle = document.title;
+
+            if (s.paused) {
+                pomodoroRemaining = s.remaining || 0;
+            } else {
+                pomodoroRemaining = Math.max(0, Math.round((s.endTime - Date.now()) / 1000));
+                if (pomodoroRemaining <= 0) {
+                    endPomodoroPhase();
+                }
+            }
+
+            var bar = document.getElementById('pomodoro-bar');
+            document.getElementById('pomodoro-task-name').textContent = todo.title;
+            bar.style.display = 'flex';
+            bar.classList.toggle('break', pomodoroPhase !== 'focus');
+            bar.classList.toggle('paused', pomodoroPaused);
+            if (pomodoroPaused) {
+                document.getElementById('pomodoro-pause').innerHTML = '&#9654;';
+                document.getElementById('pomodoro-pause').title = '继续';
+            }
+            updatePomodoroUI();
+            pomodoroTimer = setInterval(tickPomodoro, 1000);
+            startPomodoroAnim();
+        } catch (e) { localStorage.removeItem(POMODORO_STATE); }
     }
 
     function startPomodoro(todoId) {
@@ -860,6 +915,7 @@
         updatePomodoroUI();
         pomodoroTimer = setInterval(tickPomodoro, 1000);
         startPomodoroAnim();
+        savePomodoroState();
         render();
         // 请求通知权限
         if ('Notification' in window && Notification.permission === 'default') {
@@ -875,6 +931,7 @@
         } else {
             updatePomodoroUI();
         }
+        savePomodoroState();
     }
 
     function endPomodoroPhase() {
@@ -910,6 +967,7 @@
         if (pomodoroPaused) {
             document.title = pomodoroOrigTitle;
         }
+        savePomodoroState();
     }
 
     function stopPomodoro(silent) {
@@ -918,6 +976,7 @@
         pomodoroTodoId = null;
         pomodoroPaused = false;
         stopPomodoroAnim();
+        localStorage.removeItem(POMODORO_STATE);
         var bar = document.getElementById('pomodoro-bar');
         if (bar) bar.style.display = 'none';
         document.title = pomodoroOrigTitle || document.title;
@@ -1004,6 +1063,7 @@
 
         initChartEvents();
         initPomodoroEvents();
+        restorePomodoro();
         var resizeTimer;
         window.addEventListener('resize', function () {
             clearTimeout(resizeTimer);

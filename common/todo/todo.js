@@ -398,6 +398,21 @@
         chartCtx.stroke();
         chartCtx.setLineDash([]);
 
+        // 今天红虚线
+        var xToday = p.left + ((0 + XOFFSET) / xTotalRange) * cw;
+        chartCtx.strokeStyle = isDark ? 'rgba(239,68,68,0.6)' : 'rgba(220,38,38,0.5)';
+        chartCtx.setLineDash([4, 3]);
+        chartCtx.lineWidth = 1.5;
+        chartCtx.beginPath();
+        chartCtx.moveTo(xToday, p.top); chartCtx.lineTo(xToday, p.top + ch);
+        chartCtx.stroke();
+        chartCtx.setLineDash([]);
+        // "今天"标注
+        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.8)' : 'rgba(220,38,38,0.65)';
+        chartCtx.font = 'bold 11px sans-serif';
+        chartCtx.textAlign = 'center';
+        chartCtx.fillText('TODAY', xToday, p.top - 6);
+
         // 坐标轴
         var axisColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.35)';
         chartCtx.strokeStyle = axisColor;

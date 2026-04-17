@@ -27,7 +27,7 @@ if ( empty( $toys ) ) {
             'name'       => '待办事项',
             'icon'       => '&#128203;',
             'desc'       => '管理日常任务，保持高效',
-            'url'        => '/待办事项',
+            'url'        => '/index.php/todo-list/',
             'admin_only' => true,
         ],
     ];

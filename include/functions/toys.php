@@ -49,6 +49,16 @@ function nicen_theme_toys_manage() {
             array_splice( $toys, $index, 1 );
             break;
 
+        case 'reorder':
+            $from = intval( $data['from'] ?? -1 );
+            $to   = intval( $data['to'] ?? -1 );
+            if ( ! isset( $toys[ $from ] ) || ! isset( $toys[ $to ] ) ) {
+                wp_send_json_error( 'Invalid index' );
+            }
+            $item = array_splice( $toys, $from, 1 )[0];
+            array_splice( $toys, $to, 0, [ $item ] );
+            break;
+
         default:
             wp_send_json_error( 'Unknown operation' );
     }

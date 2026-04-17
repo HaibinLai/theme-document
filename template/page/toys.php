@@ -250,6 +250,22 @@ if ( ! $is_admin && empty( $toys ) ) {
     color: #bbb;
 }
 
+/* Drag & drop */
+.toys-card[draggable="true"] {
+    cursor: grab;
+}
+.toys-card[draggable="true"]:active {
+    cursor: grabbing;
+}
+.toys-card.toys-dragging {
+    opacity: 0.35;
+    transform: scale(0.95);
+}
+.toys-card.toys-drag-over {
+    border-color: var(--theme-color);
+    box-shadow: 0 0 0 3px var(--theme-color-20);
+}
+
 /* ===== Modal ===== */
 .toys-modal-overlay {
     position: fixed;
@@ -506,6 +522,44 @@ if ( ! $is_admin && empty( $toys ) ) {
         if (!confirm('Are you sure you want to delete this item?')) return;
         var idx = parseInt(document.getElementById('toys-edit-index').value);
         saveToy('delete', { index: idx });
+    });
+    // Drag & drop reorder
+    var dragSrc = null;
+    var cards = document.querySelectorAll('.toys-card[data-index]');
+    cards.forEach(function(card) {
+        card.setAttribute('draggable', 'true');
+
+        card.addEventListener('dragstart', function(e) {
+            dragSrc = card;
+            card.classList.add('toys-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', card.dataset.index);
+        });
+
+        card.addEventListener('dragend', function() {
+            card.classList.remove('toys-dragging');
+            cards.forEach(function(c){ c.classList.remove('toys-drag-over'); });
+        });
+
+        card.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (card !== dragSrc) card.classList.add('toys-drag-over');
+        });
+
+        card.addEventListener('dragleave', function() {
+            card.classList.remove('toys-drag-over');
+        });
+
+        card.addEventListener('drop', function(e) {
+            e.preventDefault();
+            card.classList.remove('toys-drag-over');
+            if (dragSrc === card) return;
+            var fromIndex = parseInt(dragSrc.dataset.index);
+            var toIndex = parseInt(card.dataset.index);
+            if (fromIndex === toIndex) return;
+            saveToy('reorder', { from: fromIndex, to: toIndex });
+        });
     });
 })();
 </script>

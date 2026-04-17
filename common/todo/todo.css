@@ -784,8 +784,13 @@
 }
 
 .pomodoro-bar.break {
-    background: linear-gradient(135deg, #10b981, #059669);
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, #6ee7b7, #34d399);
+    box-shadow: 0 4px 16px rgba(110, 231, 183, 0.3);
+}
+
+.pomodoro-bar.longbreak {
+    background: linear-gradient(135deg, #059669, #047857);
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
 }
 
 .pomodoro-bar.paused {

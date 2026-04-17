@@ -982,7 +982,7 @@
             var timeStr = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
             var phaseText = slot.phase === 'focus' ? '专注中' : slot.phase === 'break' ? '短休息' : '长休息';
             var isFocus = slot.phase === 'focus';
-            var barClass = 'pomodoro-bar' + (!isFocus ? ' break' : '') + (slot.paused ? ' paused' : '');
+            var barClass = 'pomodoro-bar' + (slot.phase === 'longbreak' ? ' longbreak' : !isFocus ? ' break' : '') + (slot.paused ? ' paused' : '');
 
             html += '<div class="' + barClass + '">';
             html += '<span class="pomodoro-icon">&#127813;</span>';

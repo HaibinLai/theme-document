@@ -63,8 +63,8 @@
         if (days < 0) { cls = 'overdue'; text = '已过期' + Math.abs(days) + '天'; }
         else if (days === 0) { cls = 'urgent'; text = '今天截止'; }
         else if (days === 1) { cls = 'urgent'; text = '明天截止'; }
-        else if (days <= 3) { cls = 'soon'; text = '剩余' + days + '天'; }
-        else if (days <= 7) { cls = 'soon'; text = '剩余' + days + '天'; }
+        else if (days <= 3) { cls = 'urgent'; text = '剩余' + days + '天'; }
+        else if (days <= 14) { cls = 'soon'; text = '剩余' + days + '天'; }
         else { cls = 'normal'; text = '剩余' + days + '天'; }
         return '<span class="todo-countdown ' + cls + '">' + text + '</span>';
     }
@@ -97,8 +97,8 @@
      * 根据截止日期自动升级紧急度（只升不降）
      * 规则：
      *   <= 0天 → urgent
-     *   <= 2天 → 至少 twodays
-     *   <= 7天 → 至少 thisweek
+     *   <= 3天 → 至少 twodays
+     *   <= 14天 → 至少 thisweek
      */
     function getEffectivePriority(todo) {
         var base = todo.priority || 'thisweek';
@@ -109,8 +109,8 @@
         var baseLevel = (PRIORITY_MAP[base] || PRIORITY_MAP.thisweek).level;
 
         if (days <= 0 && baseLevel < 4) return 'urgent';
-        if (days <= 2 && baseLevel < 3) return 'twodays';
-        if (days <= 7 && baseLevel < 2) return 'thisweek';
+        if (days <= 3 && baseLevel < 3) return 'twodays';
+        if (days <= 14 && baseLevel < 2) return 'thisweek';
         return base;
     }
 
@@ -119,6 +119,21 @@
         var s = '';
         for (var i = 0; i < 5; i++) s += i < v ? '★' : '☆';
         return s;
+    }
+
+    /**
+     * 计算有效重要度（图表用）
+     * >14天的待办：每隔7天升高0.5★，14天=3★
+     * 即 effectiveImportance = max(原importance, 3 + (days - 14) / 7 * 0.5)
+     * 上限5
+     */
+    function getEffectiveImportance(todo) {
+        var imp = parseInt(todo.importance) || 3;
+        if (!todo.due_date || todo.completed == 1) return imp;
+        var days = getDaysRemaining(todo.due_date);
+        if (days === null || days <= 14) return imp;
+        var boost = 3 + (days - 14) / 7 * 0.5;
+        return Math.min(5, Math.max(imp, boost));
     }
 
     /* ========== CRUD ========== */
@@ -331,70 +346,73 @@
 
         chartCtx.clearRect(0, 0, w, h);
 
-        // X轴分割线位置：7天 和 14天（按比例）
+        // X轴分割线位置：3天 和 14天（按比例）
         var MAX_DAYS = 21; // X轴最大天数
         var XOFFSET = 3;   // 左边留给过期的
         var xTotalRange = MAX_DAYS + XOFFSET;
-        var x7 = p.left + ((7 + XOFFSET) / xTotalRange) * cw;
+        var x3 = p.left + ((3 + XOFFSET) / xTotalRange) * cw;
         var x14 = p.left + ((14 + XOFFSET) / xTotalRange) * cw;
-        var halfY = p.top + ch / 2;
+        var IMP_SPLIT = 3.2; // 重要/不重要分界线
+        var impYRatio = (IMP_SPLIT - 1) / 4; // 在0~1范围内的位置
+        var yPadC = 0.08;
+        var splitY = p.top + ch * (1 - yPadC) - impYRatio * ch * (1 - 2 * yPadC);
 
         // 四象限背景 — 加深颜色
-        // 左列(0~7天): 紧急区
-        // 中列(7~14天): 中间区
+        // 左列(0~3天): 紧急区
+        // 中列(3~14天): 计划区
         // 右列(14天+): 不紧急区
-        // 上半: 重要, 下半: 不重要
+        // 上半(>=3.2★): 重要, 下半(<3.2★): 不重要
 
         // 紧急+重要 (左上) — 深红
         chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.35)' : 'rgba(239,68,68,0.25)';
-        chartCtx.fillRect(p.left, p.top, x7 - p.left, ch / 2);
-        // 中间+重要 (中上) — 橙
+        chartCtx.fillRect(p.left, p.top, x3 - p.left, splitY - p.top);
+        // 计划+重要 (中上) — 橙
         chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.30)' : 'rgba(245,158,11,0.22)';
-        chartCtx.fillRect(x7, p.top, x14 - x7, ch / 2);
+        chartCtx.fillRect(x3, p.top, x14 - x3, splitY - p.top);
         // 不急+重要 (右上) — 蓝
         chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.28)' : 'rgba(59,130,246,0.18)';
-        chartCtx.fillRect(x14, p.top, p.left + cw - x14, ch / 2);
+        chartCtx.fillRect(x14, p.top, p.left + cw - x14, splitY - p.top);
         // 紧急+不重要 (左下) — 黄
         chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.30)' : 'rgba(234,179,8,0.22)';
-        chartCtx.fillRect(p.left, halfY, x7 - p.left, ch / 2);
-        // 中间+不重要 (中下) — 浅黄绿
+        chartCtx.fillRect(p.left, splitY, x3 - p.left, p.top + ch - splitY);
+        // 计划+不重要 (中下) — 浅黄绿
         chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.22)' : 'rgba(132,204,22,0.16)';
-        chartCtx.fillRect(x7, halfY, x14 - x7, ch / 2);
+        chartCtx.fillRect(x3, splitY, x14 - x3, p.top + ch - splitY);
         // 不急+不重要 (右下) — 绿
         chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.28)' : 'rgba(16,185,129,0.18)';
-        chartCtx.fillRect(x14, halfY, p.left + cw - x14, ch / 2);
+        chartCtx.fillRect(x14, splitY, p.left + cw - x14, p.top + ch - splitY);
 
         // 象限文字 — 用各象限对应的纯色
         chartCtx.font = 'bold 16px sans-serif';
         chartCtx.textAlign = 'center';
 
         chartCtx.fillStyle = isDark ? '#f87171' : '#dc2626';
-        chartCtx.fillText('紧急且重要', (p.left + x7) / 2, p.top + 26);
-        chartCtx.fillText('立即做!', (p.left + x7) / 2, p.top + 46);
+        chartCtx.fillText('紧急且重要', (p.left + x3) / 2, p.top + 26);
+        chartCtx.fillText('立即做!', (p.left + x3) / 2, p.top + 46);
 
         chartCtx.fillStyle = isDark ? '#fbbf24' : '#d97706';
-        chartCtx.fillText('重要·计划做', (x7 + x14) / 2, p.top + 26);
+        chartCtx.fillText('重要·计划做', (x3 + x14) / 2, p.top + 26);
 
         chartCtx.fillStyle = isDark ? '#60a5fa' : '#2563eb';
         chartCtx.fillText('不急·可规划', (x14 + p.left + cw) / 2, p.top + 26);
 
         chartCtx.fillStyle = isDark ? '#facc15' : '#b45309';
-        chartCtx.fillText('紧急·快速做', (p.left + x7) / 2, halfY + 26);
+        chartCtx.fillText('紧急·快速做', (p.left + x3) / 2, splitY + 20);
 
         chartCtx.fillStyle = isDark ? '#a3e635' : '#4d7c0f';
-        chartCtx.fillText('一般事务', (x7 + x14) / 2, halfY + 26);
+        chartCtx.fillText('一般事务', (x3 + x14) / 2, splitY + 20);
 
         chartCtx.fillStyle = isDark ? '#34d399' : '#047857';
-        chartCtx.fillText('可删除', (x14 + p.left + cw) / 2, halfY + 26);
+        chartCtx.fillText('可删除', (x14 + p.left + cw) / 2, splitY + 20);
 
         // 分割虚线
         chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)';
         chartCtx.setLineDash([6, 4]);
         chartCtx.lineWidth = 1;
         chartCtx.beginPath();
-        chartCtx.moveTo(x7, p.top); chartCtx.lineTo(x7, p.top + ch);
+        chartCtx.moveTo(x3, p.top); chartCtx.lineTo(x3, p.top + ch);
         chartCtx.moveTo(x14, p.top); chartCtx.lineTo(x14, p.top + ch);
-        chartCtx.moveTo(p.left, halfY); chartCtx.lineTo(p.left + cw, halfY);
+        chartCtx.moveTo(p.left, splitY); chartCtx.lineTo(p.left + cw, splitY);
         chartCtx.stroke();
         chartCtx.setLineDash([]);
 
@@ -476,7 +494,7 @@
             else if (days > MAX_DAYS) xVal = MAX_DAYS;
             else xVal = days;
 
-            var imp = parseInt(todo.importance) || 3;
+            var imp = getEffectiveImportance(todo);
             var xRatio = (xVal + XOFFSET) / xTotalRange;
             var yPad = 0.08; // 上下各留8%，避免5★顶到象限标题
             var yRatio = (imp - 1) / 4;
@@ -521,14 +539,14 @@
             var r = completed ? 6 : 10;
             var alpha = completed ? 0.35 : 0.9;
 
-            // 颜色根据位置
+            // 颜色根据位置（紧急=3天内，计划=14天内，重要=3.2★+）
             var color;
-            if (pt.x <= 7 && pt.y >= 3) color = 'rgba(220,38,38,' + alpha + ')';       // 紧急重要 红
-            else if (pt.x <= 7 && pt.y < 3) color = 'rgba(217,119,6,' + alpha + ')';    // 紧急不重要 橙
-            else if (pt.x <= 14 && pt.y >= 3) color = 'rgba(245,158,11,' + alpha + ')'; // 中等重要 金橙
-            else if (pt.x <= 14 && pt.y < 3) color = 'rgba(132,204,22,' + alpha + ')';  // 中等不重要 黄绿
-            else if (pt.y >= 3) color = 'rgba(59,130,246,' + alpha + ')';                // 不急重要 蓝
-            else color = 'rgba(16,185,129,' + alpha + ')';                                // 不急不重要 绿
+            if (pt.x <= 3 && pt.y >= 3.2) color = 'rgba(220,38,38,' + alpha + ')';       // 紧急重要 红
+            else if (pt.x <= 3 && pt.y < 3.2) color = 'rgba(217,119,6,' + alpha + ')';    // 紧急不重要 橙
+            else if (pt.x <= 14 && pt.y >= 3.2) color = 'rgba(245,158,11,' + alpha + ')'; // 计划重要 金橙
+            else if (pt.x <= 14 && pt.y < 3.2) color = 'rgba(132,204,22,' + alpha + ')';  // 计划不重要 黄绿
+            else if (pt.y >= 3.2) color = 'rgba(59,130,246,' + alpha + ')';                // 不急重要 蓝
+            else color = 'rgba(16,185,129,' + alpha + ')';                                  // 不急不重要 绿
 
             // 阴影
             chartCtx.shadowColor = 'rgba(0,0,0,0.15)';

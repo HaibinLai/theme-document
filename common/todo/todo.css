@@ -755,6 +755,128 @@
     background: #3a3a3a;
 }
 
+/* 番茄钟计时条 */
+.pomodoro-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+    transition: background 0.4s, box-shadow 0.4s;
+    flex-wrap: wrap;
+}
+
+.pomodoro-bar.break {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.pomodoro-bar.paused {
+    opacity: 0.7;
+}
+
+.pomodoro-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.pomodoro-task-name {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--theme-secondary, 0.78rem);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pomodoro-timer {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+
+.pomodoro-phase {
+    font-size: var(--theme-text-more-mini, 0.69rem);
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.pomodoro-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.pomodoro-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.pomodoro-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.pomodoro-count {
+    font-size: var(--theme-secondary, 0.78rem);
+    flex-shrink: 0;
+}
+
+/* 当前番茄钟任务高亮 */
+.todo-item.pomodoro-active {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* 番茄数标签 */
+.todo-pomodoro-count {
+    color: #ef4444;
+    font-size: var(--theme-text-more-mini, 0.69rem);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* 列表中的番茄钟启动按钮 */
+.todo-action-btn.pomodoro {
+    color: #ef4444;
+}
+
+.todo-action-btn.pomodoro:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.dark .todo-action-btn.pomodoro:hover {
+    background: rgba(220, 38, 38, 0.15);
+}
+
+/* 侧边栏番茄数 */
+.todo-sidebar-pomodoro {
+    color: #ef4444;
+    font-size: var(--theme-text-more-mini-2, 0.62rem);
+    flex-shrink: 0;
+}
+
 /* 响应式 */
 @media (max-width: 768px) {
     .todo-container {

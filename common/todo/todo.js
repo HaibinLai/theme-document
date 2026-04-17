@@ -306,6 +306,8 @@
                         var dText = d < 0 ? '过期' + Math.abs(d) + '天' : d === 0 ? '今天' : d + '天';
                         html += '<span class="todo-sidebar-due">' + dText + '</span>';
                     }
+                    var pc = getPomodoroCount(todo.id);
+                    if (pc > 0) html += '<span class="todo-sidebar-pomodoro">&#127813;' + pc + '</span>';
                     html += '</div>';
                 });
             }
@@ -329,7 +331,7 @@
             var effCss = priorityCss(effPriority);
             var upgraded = effPriority !== (todo.priority || 'thisweek') && todo.completed != 1;
 
-            html += '<div class="todo-item' + (todo.completed == 1 ? ' completed' : '') + '" data-id="' + todo.id + '" draggable="true">';
+            html += '<div class="todo-item' + (todo.completed == 1 ? ' completed' : '') + (pomodoroTodoId == todo.id ? ' pomodoro-active' : '') + '" data-id="' + todo.id + '" draggable="true">';
             html += '<div class="todo-priority-bar ' + effCss + '"></div>';
             html += '<div class="todo-body">';
             html += '<div class="todo-checkbox" onclick="window._todo.toggle(' + todo.id + ')"></div>';
@@ -357,6 +359,7 @@
                 if (upgraded) html += ' ↑';
                 html += '</span>';
                 html += '<span class="todo-importance-tag">' + importanceStars(todo.importance) + '</span>';
+                html += pomodoroCountHtml(todo.id);
                 if (todo.due_date) {
                     html += '<span class="todo-due"><span class="todo-due-icon">&#128197;</span>' + formatDate(todo.due_date) + '</span>';
                     html += getCountdownHtml(todo);
@@ -366,6 +369,7 @@
             html += '</div>';
             if (!isEditing) {
                 html += '<div class="todo-actions">';
+                if (!todo.completed) html += '<button class="todo-action-btn pomodoro" onclick="window._todo.startPomodoro(' + todo.id + ')" title="番茄钟">&#9654;</button>';
                 html += '<button class="todo-action-btn" onclick="window._todo.startEdit(' + todo.id + ')" title="编辑">&#9998;</button>';
                 html += '<button class="todo-action-btn delete" onclick="window._todo.deleteTodo(' + todo.id + ')" title="删除">&#128465;</button>';
                 html += '</div>';
@@ -788,6 +792,154 @@
         });
     }
 
+    /* ========== Pomodoro 番茄钟 ========== */
+    var pomodoroTimer = null;
+    var pomodoroTodoId = null;
+    var pomodoroPhase = 'focus'; // focus / break / longbreak
+    var pomodoroCount = 0;       // 当前会话完成的番茄数
+    var pomodoroRemaining = 0;   // 剩余秒数
+    var pomodoroPaused = false;
+    var pomodoroOrigTitle = '';
+    var FOCUS_DURATION = 25 * 60;
+    var BREAK_DURATION = 5 * 60;
+    var LONG_BREAK_DURATION = 15 * 60;
+    var POMODORO_STORAGE = 'pomodoro_counts';
+
+    function getPomodoroCount(todoId) {
+        try { var d = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}'); return d[todoId] || 0; } catch (e) { return 0; }
+    }
+    function addPomodoroCount(todoId) {
+        try {
+            var d = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}');
+            d[todoId] = (d[todoId] || 0) + 1;
+            localStorage.setItem(POMODORO_STORAGE, JSON.stringify(d));
+        } catch (e) { }
+    }
+
+    function startPomodoro(todoId) {
+        if (pomodoroTimer) stopPomodoro(true);
+        pomodoroTodoId = todoId;
+        pomodoroPhase = 'focus';
+        pomodoroRemaining = FOCUS_DURATION;
+        pomodoroPaused = false;
+        pomodoroOrigTitle = document.title;
+        var todo = todos.find(function (t) { return t.id == todoId; });
+        var bar = document.getElementById('pomodoro-bar');
+        document.getElementById('pomodoro-task-name').textContent = todo ? todo.title : '';
+        bar.style.display = 'flex';
+        bar.classList.remove('break', 'paused');
+        updatePomodoroUI();
+        pomodoroTimer = setInterval(tickPomodoro, 1000);
+        render();
+        // 请求通知权限
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    function tickPomodoro() {
+        if (pomodoroPaused) return;
+        pomodoroRemaining--;
+        if (pomodoroRemaining <= 0) {
+            endPomodoroPhase();
+        } else {
+            updatePomodoroUI();
+        }
+    }
+
+    function endPomodoroPhase() {
+        if (pomodoroPhase === 'focus') {
+            pomodoroCount++;
+            addPomodoroCount(pomodoroTodoId);
+            render(); // 更新番茄数显示
+            // 决定休息类型
+            if (pomodoroCount % 4 === 0) {
+                pomodoroPhase = 'longbreak';
+                pomodoroRemaining = LONG_BREAK_DURATION;
+            } else {
+                pomodoroPhase = 'break';
+                pomodoroRemaining = BREAK_DURATION;
+            }
+            pomodoroNotify('专注完成! 休息一下');
+        } else {
+            pomodoroPhase = 'focus';
+            pomodoroRemaining = FOCUS_DURATION;
+            pomodoroNotify('休息结束! 继续专注');
+        }
+        var bar = document.getElementById('pomodoro-bar');
+        bar.classList.toggle('break', pomodoroPhase !== 'focus');
+        updatePomodoroUI();
+    }
+
+    function pausePomodoro() {
+        pomodoroPaused = !pomodoroPaused;
+        var bar = document.getElementById('pomodoro-bar');
+        bar.classList.toggle('paused', pomodoroPaused);
+        document.getElementById('pomodoro-pause').innerHTML = pomodoroPaused ? '&#9654;' : '&#9208;';
+        document.getElementById('pomodoro-pause').title = pomodoroPaused ? '继续' : '暂停';
+        if (pomodoroPaused) {
+            document.title = pomodoroOrigTitle;
+        }
+    }
+
+    function stopPomodoro(silent) {
+        clearInterval(pomodoroTimer);
+        pomodoroTimer = null;
+        pomodoroTodoId = null;
+        pomodoroPaused = false;
+        var bar = document.getElementById('pomodoro-bar');
+        if (bar) bar.style.display = 'none';
+        document.title = pomodoroOrigTitle || document.title;
+        if (!silent) render();
+    }
+
+    function updatePomodoroUI() {
+        var m = Math.floor(pomodoroRemaining / 60);
+        var s = pomodoroRemaining % 60;
+        var timeStr = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        document.getElementById('pomodoro-timer').textContent = timeStr;
+        var phaseText = pomodoroPhase === 'focus' ? '专注中' : pomodoroPhase === 'break' ? '短休息' : '长休息';
+        document.getElementById('pomodoro-phase').textContent = phaseText;
+        var countStr = '';
+        for (var i = 0; i < pomodoroCount; i++) countStr += '&#127813;';
+        document.getElementById('pomodoro-count').innerHTML = countStr;
+        // 标题栏显示倒计时
+        if (!pomodoroPaused) {
+            document.title = timeStr + ' ' + phaseText + ' - 待办事项';
+        }
+    }
+
+    function pomodoroNotify(msg) {
+        // 浏览器通知
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('番茄钟', { body: msg, icon: '&#127813;' });
+        }
+        // 提示音（AudioContext生成短促音）
+        try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = 880;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.5);
+        } catch (e) { }
+    }
+
+    function pomodoroCountHtml(todoId) {
+        var c = getPomodoroCount(todoId);
+        if (c === 0) return '';
+        return '<span class="todo-pomodoro-count">&#127813;' + (c > 1 ? '&times;' + c : '') + '</span>';
+    }
+
+    function initPomodoroEvents() {
+        document.getElementById('pomodoro-pause').addEventListener('click', pausePomodoro);
+        document.getElementById('pomodoro-stop').addEventListener('click', function () { stopPomodoro(); });
+    }
+
     /* ========== Helpers ========== */
     function escapeHtml(str) { var d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
     function escapeHtmlPlain(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -806,6 +958,7 @@
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.addEventListener('click', function () { setView(this.dataset.view); }); });
 
         initChartEvents();
+        initPomodoroEvents();
         var resizeTimer;
         window.addEventListener('resize', function () {
             clearTimeout(resizeTimer);
@@ -819,7 +972,7 @@
         }
     }
 
-    window._todo = { toggle: toggleTodo, deleteTodo: deleteTodo, startEdit: startEdit, saveEdit: saveEdit, cancelEdit: cancelEdit };
+    window._todo = { toggle: toggleTodo, deleteTodo: deleteTodo, startEdit: startEdit, saveEdit: saveEdit, cancelEdit: cancelEdit, startPomodoro: startPomodoro };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 })();

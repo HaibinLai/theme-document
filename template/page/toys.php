@@ -10,6 +10,11 @@ get_header();
 
 $is_admin = current_user_can( 'administrator' );
 
+// Enqueue WordPress media library for admin icon upload
+if ( $is_admin ) {
+    wp_enqueue_media();
+}
+
 /**
  * Corner items config list
  * Each item: name, icon (emoji), desc, url, admin_only (visibility)
@@ -66,7 +71,14 @@ if ( ! $is_admin && empty( $toys ) ) {
                     <?php foreach ( $toys as $index => $toy ) : ?>
                         <?php $toy_href = preg_match( '#^https?://#i', $toy['url'] ) ? $toy['url'] : home_url( $toy['url'] ); ?>
                         <a href="<?php echo esc_url( $toy_href ); ?>" class="toys-card" data-index="<?php echo $index; ?>" data-url="<?php echo esc_attr( $toy['url'] ); ?>"<?php echo preg_match( '#^https?://#i', $toy['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
-                            <div class="toys-card-icon"><?php echo $toy['icon']; ?></div>
+                            <div class="toys-card-icon"><?php
+                                if ( preg_match( '#^(https?://|/).*\.(png|jpg|jpeg|gif|svg|webp|ico)(\?.*)?$#i', $toy['icon'] ) ) {
+                                    $icon_url = preg_match( '#^https?://#i', $toy['icon'] ) ? $toy['icon'] : home_url( $toy['icon'] );
+                                    echo '<img src="' . esc_url( $icon_url ) . '" alt="icon">';
+                                } else {
+                                    echo $toy['icon'];
+                                }
+                            ?></div>
                             <div class="toys-card-name"><?php echo esc_html( $toy['name'] ); ?></div>
                             <div class="toys-card-desc"><?php echo esc_html( $toy['desc'] ); ?></div>
                             <?php if ( $is_admin && ! empty( $toy['admin_only'] ) ) : ?>
@@ -102,8 +114,12 @@ if ( ! $is_admin && empty( $toys ) ) {
             <label>Name
                 <input type="text" id="toys-input-name" placeholder="e.g. Todo List" autocomplete="off">
             </label>
-            <label>Icon (Emoji)
-                <input type="text" id="toys-input-icon" placeholder="e.g. &#128203; or paste any emoji" autocomplete="off">
+            <label>Icon (Emoji, image URL, or upload)
+                <div class="toys-icon-input-wrap">
+                    <input type="text" id="toys-input-icon" placeholder="Emoji, image URL, or click upload" autocomplete="off">
+                    <button type="button" class="toys-btn toys-btn-upload" id="toys-upload-btn" title="Upload from media library">&#128247;</button>
+                </div>
+                <div class="toys-icon-preview" id="toys-icon-preview"></div>
             </label>
             <label>Description
                 <input type="text" id="toys-input-desc" placeholder="A short description" autocomplete="off">
@@ -150,6 +166,13 @@ if ( ! $is_admin && empty( $toys ) ) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 24px;
+}
+
+.toys-card-icon img {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+    border-radius: 8px;
 }
 
 /* Card */
@@ -293,6 +316,41 @@ if ( ! $is_admin && empty( $toys ) ) {
     align-items: center;
     gap: 8px !important;
 }
+.toys-icon-input-wrap {
+    display: flex;
+    gap: 6px;
+}
+.toys-icon-input-wrap input[type="text"] {
+    flex: 1;
+}
+.toys-btn-upload {
+    padding: 6px 10px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: background 0.2s;
+}
+.toys-btn-upload:hover {
+    background: #e0e0e0;
+}
+.toys-icon-preview {
+    margin-top: 6px;
+    min-height: 0;
+}
+.toys-icon-preview img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+.toys-icon-preview .toys-preview-emoji {
+    font-size: 2.4rem;
+    line-height: 1;
+}
 .toys-checkbox-label input[type="checkbox"] {
     width: 16px;
     height: 16px;
@@ -338,6 +396,7 @@ if ( ! $is_admin && empty( $toys ) ) {
         padding: 24px 12px 18px;
     }
     .toys-card-icon { font-size: 2.4rem; }
+    .toys-card-icon img { width: 2.4rem; height: 2.4rem; }
 }
 </style>
 
@@ -356,6 +415,7 @@ if ( ! $is_admin && empty( $toys ) ) {
         document.getElementById('toys-input-url').value  = data.url  || '';
         document.getElementById('toys-input-admin').checked = !!data.admin_only;
         document.getElementById('toys-delete-btn').style.display = mode === 'edit' ? '' : 'none';
+        updateIconPreview();
         modal.style.display = '';
     }
 
@@ -374,6 +434,35 @@ if ( ! $is_admin && empty( $toys ) ) {
                 else alert(res.data || 'Operation failed');
             });
     }
+
+    // Icon preview
+    var iconInput = document.getElementById('toys-input-icon');
+    var iconPreview = document.getElementById('toys-icon-preview');
+    function updateIconPreview() {
+        var val = iconInput.value.trim();
+        if (!val) { iconPreview.innerHTML = ''; return; }
+        if (/^(https?:\/\/|\/).*\.(png|jpg|jpeg|gif|svg|webp|ico)(\?.*)?$/i.test(val)) {
+            iconPreview.innerHTML = '<img src="' + val + '" alt="preview">';
+        } else {
+            iconPreview.innerHTML = '<span class="toys-preview-emoji">' + val + '</span>';
+        }
+    }
+    iconInput.addEventListener('input', updateIconPreview);
+
+    // Media library upload
+    document.getElementById('toys-upload-btn').addEventListener('click', function() {
+        if (typeof wp === 'undefined' || !wp.media) {
+            alert('Media library not available. Please paste an image URL instead.');
+            return;
+        }
+        var frame = wp.media({ title: 'Choose Icon', multiple: false, library: { type: 'image' } });
+        frame.on('select', function() {
+            var url = frame.state().get('selection').first().toJSON().url;
+            iconInput.value = url;
+            updateIconPreview();
+        });
+        frame.open();
+    });
 
     // Add button
     var addBtn = document.getElementById('toys-add-btn');

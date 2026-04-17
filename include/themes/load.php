@@ -134,6 +134,14 @@ function nicen_theme_load_source() {
 		, [ $url, home_url() ] ) ), 'before' );
 
 	/*
+	 * Clipboard listener - loaded globally for logged-in users
+	 */
+	if ( is_user_logged_in() ) {
+		wp_enqueue_script( 'clipboard-listener', $url . '/common/clipboard/clipboard-listener.js', array(), filemtime( $root . '/common/clipboard/clipboard-listener.js' ), true );
+		wp_add_inline_script( 'clipboard-listener', 'window.CLIPBOARD_AJAX="' . admin_url( 'admin-ajax.php' ) . '";', 'before' );
+	}
+
+	/*
 	 * 内联的css
 	 * */
 	wp_add_inline_style( "main-styles", vsprintf( '.personal{--theme-color:%s;--theme-header-bg-color:%s;--theme-header-font-color:%s;--theme-sub-menu-bg-color:%s;--theme-sub-menu-font-color:%s;--theme-header-border-color:%s;--theme-header-shadow-color:%s;--theme-footer-bg-color: %s;--theme-footer-font-color: %s;--theme-bg-color: %s;}',

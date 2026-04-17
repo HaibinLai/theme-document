@@ -897,5 +897,16 @@ const PAGES = [
 				'/common/todo/todo.js'
 			]
 		]
+	],
+	'Clipboard' => [
+		'template'  => 'template/page/clipboard.php',
+		'dependent' => [
+			'styles'  => [
+				'/common/clipboard/clipboard.css'
+			],
+			'scripts' => [
+				'/common/clipboard/clipboard.js'
+			]
+		]
 	]
 ];

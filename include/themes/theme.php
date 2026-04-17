@@ -14,4 +14,6 @@ include_once get_template_directory() . '/include/themes/emoji.php'; //其它
 include_once get_template_directory() . '/include/themes/extra.php'; //其它
 include_once get_template_directory() . '/include/todo/install.php'; //待办事项-数据库
 include_once get_template_directory() . '/include/todo/api.php'; //待办事项-接口
+include_once get_template_directory() . '/include/clipboard/install.php'; //剪贴板-数据库
+include_once get_template_directory() . '/include/clipboard/api.php'; //剪贴板-接口
 

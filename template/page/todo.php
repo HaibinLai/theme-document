@@ -29,19 +29,6 @@ get_header();
                     <p>管理你的任务，保持高效</p>
                 </div>
 
-                <!-- 番茄钟计时条 -->
-                <div id="pomodoro-bar" class="pomodoro-bar" style="display:none;">
-                    <span class="pomodoro-icon">&#127813;</span>
-                    <span class="pomodoro-task-name" id="pomodoro-task-name"></span>
-                    <span class="pomodoro-timer" id="pomodoro-timer">25:00</span>
-                    <span class="pomodoro-phase" id="pomodoro-phase">专注中</span>
-                    <div class="pomodoro-actions">
-                        <button id="pomodoro-pause" class="pomodoro-btn" title="暂停">&#9208;</button>
-                        <button id="pomodoro-stop" class="pomodoro-btn" title="停止">&#9209;</button>
-                    </div>
-                    <span class="pomodoro-count" id="pomodoro-count"></span>
-                </div>
-
                 <!-- 添加区域 -->
                 <div class="todo-add">
                     <input type="text" id="todo-input" class="todo-add-input" placeholder="输入新的待办事项，回车添加..." autocomplete="off">
@@ -59,6 +46,9 @@ get_header();
                     <input type="date" id="todo-date" class="todo-add-date">
                     <button id="todo-add-btn" class="todo-add-btn">+ 添加</button>
                 </div>
+
+                <!-- 番茄钟计时条容器（最多3个并行，一行展示） -->
+                <div id="pomodoro-container" class="pomodoro-container"></div>
 
                 <!-- 进度条 -->
                 <div class="todo-progress">

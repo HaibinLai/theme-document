@@ -6,7 +6,7 @@
 (function () {
     'use strict';
 
-    var AJAX_URL = window.SNAKE_AJAX || '';
+    var AJAX_URL = window.SNAKE_AJAX || (window.HOME ? window.HOME + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php');
     var DAY_SALT = window.SNAKE_DAY_SALT || '';
 
     // Game config
@@ -152,10 +152,11 @@
             case 'right': head.x++; break;
         }
 
-        // Wall collision
-        if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) {
-            gameOver(); return;
-        }
+        // Wall wrap-around
+        if (head.x < 0) head.x = GRID - 1;
+        else if (head.x >= GRID) head.x = 0;
+        if (head.y < 0) head.y = GRID - 1;
+        else if (head.y >= GRID) head.y = 0;
 
         // Self collision
         for (var i = 0; i < snake.length; i++) {

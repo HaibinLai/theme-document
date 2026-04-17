@@ -399,7 +399,7 @@ if ( ! $is_admin && empty( $toys ) ) {
     // 弹窗按钮
     document.getElementById('toys-modal-close').addEventListener('click', closeModal);
     document.getElementById('toys-cancel-btn').addEventListener('click', closeModal);
-    modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+    // 点击遮罩层不关闭，只能通过取消/关闭按钮退出
 
     document.getElementById('toys-save-btn').addEventListener('click', function(){
         var idx = parseInt(document.getElementById('toys-edit-index').value);

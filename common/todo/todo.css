@@ -509,7 +509,6 @@
 /* 2D图容器 */
 .todo-chart-wrap {
     width: 100%;
-    display: none;
     border: 1px solid var(--theme-border-color, #e8e8e8);
     border-radius: 12px;
     overflow: hidden;

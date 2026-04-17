@@ -148,8 +148,9 @@
     function setView(v) {
         currentView = v;
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === v); });
-        document.getElementById('todo-list').style.display = v === 'list' ? '' : 'none';
-        document.getElementById('todo-chart-wrap').style.display = v === 'chart' ? '' : 'none';
+        document.getElementById('todo-list').style.display = v === 'list' ? 'block' : 'none';
+        var chartWrap = document.getElementById('todo-chart-wrap');
+        chartWrap.style.display = v === 'chart' ? 'block' : 'none';
         render();
     }
 

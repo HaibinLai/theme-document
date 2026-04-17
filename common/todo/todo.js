@@ -692,6 +692,24 @@
                 chartCtx.lineWidth = 2.5;
                 chartCtx.stroke();
             }
+
+            // 番茄钟专注中 — 脉冲闪烁光环
+            if (pomodoroTodoId == pt.todo.id && pomodoroTimer) {
+                var pulse = (Math.sin(Date.now() / 400) + 1) / 2; // 0~1 脉冲
+                var pulseR = r + 6 + pulse * 8;
+                var pulseAlpha = 0.15 + pulse * 0.35;
+                chartCtx.beginPath();
+                chartCtx.arc(pt.screenX, pt.screenY, pulseR, 0, Math.PI * 2);
+                chartCtx.strokeStyle = 'rgba(239,68,68,' + pulseAlpha + ')';
+                chartCtx.lineWidth = 2.5;
+                chartCtx.stroke();
+                // 内层红色光晕
+                chartCtx.beginPath();
+                chartCtx.arc(pt.screenX, pt.screenY, r + 3, 0, Math.PI * 2);
+                chartCtx.strokeStyle = 'rgba(239,68,68,' + (0.4 + pulse * 0.3) + ')';
+                chartCtx.lineWidth = 2;
+                chartCtx.stroke();
+            }
         });
 
         // Tooltip
@@ -801,10 +819,12 @@
     var pomodoroRemaining = 0;   // 剩余秒数
     var pomodoroPaused = false;
     var pomodoroOrigTitle = '';
+    var pomodoroAnimFrame = null;
     var FOCUS_DURATION = 25 * 60;
     var BREAK_DURATION = 5 * 60;
     var LONG_BREAK_DURATION = 15 * 60;
     var POMODORO_STORAGE = 'pomodoro_counts';
+    var pomodoroSessionTodos = []; // 本次会话已专注过的不同任务ID（最多3个）
 
     function getPomodoroCount(todoId) {
         try { var d = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}'); return d[todoId] || 0; } catch (e) { return 0; }
@@ -818,6 +838,14 @@
     }
 
     function startPomodoro(todoId) {
+        // 最多同时专注3件不同事情
+        if (pomodoroSessionTodos.indexOf(todoId) === -1) {
+            if (pomodoroSessionTodos.length >= 3) {
+                alert('一次最多专注3件事情！\n完成当前任务后再开始新的吧。');
+                return;
+            }
+            pomodoroSessionTodos.push(todoId);
+        }
         if (pomodoroTimer) stopPomodoro(true);
         pomodoroTodoId = todoId;
         pomodoroPhase = 'focus';
@@ -831,6 +859,7 @@
         bar.classList.remove('break', 'paused');
         updatePomodoroUI();
         pomodoroTimer = setInterval(tickPomodoro, 1000);
+        startPomodoroAnim();
         render();
         // 请求通知权限
         if ('Notification' in window && Notification.permission === 'default') {
@@ -888,6 +917,7 @@
         pomodoroTimer = null;
         pomodoroTodoId = null;
         pomodoroPaused = false;
+        stopPomodoroAnim();
         var bar = document.getElementById('pomodoro-bar');
         if (bar) bar.style.display = 'none';
         document.title = pomodoroOrigTitle || document.title;
@@ -934,6 +964,20 @@
         var c = getPomodoroCount(todoId);
         if (c === 0) return '';
         return '<span class="todo-pomodoro-count">&#127813;' + (c > 1 ? '&times;' + c : '') + '</span>';
+    }
+
+    function startPomodoroAnim() {
+        stopPomodoroAnim();
+        function frame() {
+            if (currentView === 'chart' && pomodoroTimer) {
+                renderChart(getFilteredTodos());
+            }
+            pomodoroAnimFrame = requestAnimationFrame(frame);
+        }
+        pomodoroAnimFrame = requestAnimationFrame(frame);
+    }
+    function stopPomodoroAnim() {
+        if (pomodoroAnimFrame) { cancelAnimationFrame(pomodoroAnimFrame); pomodoroAnimFrame = null; }
     }
 
     function initPomodoroEvents() {

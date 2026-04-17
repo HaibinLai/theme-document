@@ -76,7 +76,7 @@ if ( ! $is_admin && empty( $toys ) ) {
                                     $icon_url = preg_match( '#^https?://#i', $toy['icon'] ) ? $toy['icon'] : home_url( $toy['icon'] );
                                     echo '<img src="' . esc_url( $icon_url ) . '" alt="icon">';
                                 } else {
-                                    echo $toy['icon'];
+                                    echo esc_html( $toy['icon'] );
                                 }
                             ?></div>
                             <div class="toys-card-name"><?php echo esc_html( $toy['name'] ); ?></div>

@@ -68,11 +68,16 @@ function nicen_theme_toys_manage() {
 }
 
 function nicen_theme_sanitize_toy( $toy ) {
+    $url = sanitize_text_field( $toy['url'] ?? '' );
+    // Block javascript: protocol to prevent XSS
+    if ( preg_match( '/^\s*javascript\s*:/i', $url ) ) {
+        $url = '';
+    }
     return [
         'name'       => sanitize_text_field( $toy['name'] ?? '' ),
-        'icon'       => wp_kses_post( $toy['icon'] ?? '' ),
+        'icon'       => sanitize_text_field( $toy['icon'] ?? '' ),
         'desc'       => sanitize_text_field( $toy['desc'] ?? '' ),
-        'url'        => sanitize_text_field( $toy['url'] ?? '' ),
+        'url'        => $url,
         'admin_only' => ! empty( $toy['admin_only'] ),
     ];
 }

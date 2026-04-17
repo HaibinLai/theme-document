@@ -33,9 +33,10 @@ get_header();
                 <div class="todo-add">
                     <input type="text" id="todo-input" class="todo-add-input" placeholder="输入新的待办事项，回车添加..." autocomplete="off">
                     <select id="todo-priority" class="todo-add-select">
-                        <option value="medium">普通</option>
-                        <option value="high">紧急</option>
-                        <option value="low">低优</option>
+                        <option value="thisweek">这周处理</option>
+                        <option value="urgent">紧急</option>
+                        <option value="twodays">这两天</option>
+                        <option value="anytime">随时可以</option>
                     </select>
                     <div class="todo-add-importance">
                         <span>重要:</span>

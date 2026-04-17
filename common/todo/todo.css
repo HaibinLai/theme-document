@@ -210,15 +210,22 @@
     transition: background 0.2s;
 }
 
-.todo-priority-bar.high {
+.todo-priority-bar.high,
+.todo-priority-bar.urgent {
     background: #ef4444;
 }
 
-.todo-priority-bar.medium {
+.todo-priority-bar.twodays {
     background: #f59e0b;
 }
 
-.todo-priority-bar.low {
+.todo-priority-bar.medium,
+.todo-priority-bar.thisweek {
+    background: #3b82f6;
+}
+
+.todo-priority-bar.low,
+.todo-priority-bar.anytime {
     background: #10b981;
 }
 
@@ -313,17 +320,25 @@
     letter-spacing: 0.5px;
 }
 
-.todo-priority-tag.high {
+.todo-priority-tag.high,
+.todo-priority-tag.urgent {
     background: #fef2f2;
     color: #dc2626;
 }
 
-.todo-priority-tag.medium {
+.todo-priority-tag.twodays {
     background: #fffbeb;
     color: #d97706;
 }
 
-.todo-priority-tag.low {
+.todo-priority-tag.medium,
+.todo-priority-tag.thisweek {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.todo-priority-tag.low,
+.todo-priority-tag.anytime {
     background: #ecfdf5;
     color: #059669;
 }
@@ -576,15 +591,22 @@
     background: #3a3a3a;
 }
 
-.dark .todo-priority-tag.high {
+.dark .todo-priority-tag.high,
+.dark .todo-priority-tag.urgent {
     background: rgba(220, 38, 38, 0.15);
 }
 
-.dark .todo-priority-tag.medium {
+.dark .todo-priority-tag.twodays {
     background: rgba(217, 119, 6, 0.15);
 }
 
-.dark .todo-priority-tag.low {
+.dark .todo-priority-tag.medium,
+.dark .todo-priority-tag.thisweek {
+    background: rgba(37, 99, 235, 0.15);
+}
+
+.dark .todo-priority-tag.low,
+.dark .todo-priority-tag.anytime {
     background: rgba(5, 150, 105, 0.15);
 }
 

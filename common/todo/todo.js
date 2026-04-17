@@ -12,24 +12,20 @@
 
     let todos = [];
     let currentFilter = 'all';
-    let currentView = 'list'; // list | chart
+    let currentView = 'list';
     let editingId = null;
     let dragItem = null;
 
     // Chart state
     let chartCanvas = null;
     let chartCtx = null;
-    let chartPoints = []; // {x, y, todo, screenX, screenY}
+    let chartPoints = [];
     let hoveredPoint = null;
     let chartPadding = { top: 40, right: 40, bottom: 50, left: 60 };
 
     /* ========== LocalStorage ========== */
-    function saveToLocal() {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(todos)); } catch (e) { }
-    }
-    function loadFromLocal() {
-        try { var d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : []; } catch (e) { return []; }
-    }
+    function saveToLocal() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(todos)); } catch (e) { } }
+    function loadFromLocal() { try { var d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : []; } catch (e) { return []; } }
 
     /* ========== AJAX ========== */
     function ajax(action, data) {
@@ -68,6 +64,7 @@
         else if (days === 0) { cls = 'urgent'; text = '今天截止'; }
         else if (days === 1) { cls = 'urgent'; text = '明天截止'; }
         else if (days <= 3) { cls = 'soon'; text = '剩余' + days + '天'; }
+        else if (days <= 7) { cls = 'soon'; text = '剩余' + days + '天'; }
         else { cls = 'normal'; text = '剩余' + days + '天'; }
         return '<span class="todo-countdown ' + cls + '">' + text + '</span>';
     }
@@ -75,8 +72,54 @@
         if (!todo.due_date || todo.completed == 1) return false;
         var d = getDaysRemaining(todo.due_date); return d !== null && d < 0;
     }
-    function priorityLabel(p) { return { high: '紧急', medium: '普通', low: '低优' }[p] || '普通'; }
-    function importanceLabel(v) { return ['', '不重要', '较低', '一般', '重要', '非常重要'][v] || '一般'; }
+
+    /* ========== 紧急度：4级 + 自动升级 ========== */
+    // priority: anytime(随时可以) / thisweek(这周处理) / twodays(这两天) / urgent(紧急)
+    var PRIORITY_MAP = {
+        urgent:   { label: '紧急',     css: 'urgent',   level: 4 },
+        twodays:  { label: '这两天',   css: 'twodays',  level: 3 },
+        thisweek: { label: '这周处理', css: 'thisweek', level: 2 },
+        anytime:  { label: '随时可以', css: 'anytime',  level: 1 },
+        // 向后兼容旧数据
+        high:     { label: '紧急',     css: 'urgent',   level: 4 },
+        medium:   { label: '这周处理', css: 'thisweek', level: 2 },
+        low:      { label: '随时可以', css: 'anytime',  level: 1 }
+    };
+
+    function priorityLabel(p) {
+        return (PRIORITY_MAP[p] || PRIORITY_MAP.thisweek).label;
+    }
+    function priorityCss(p) {
+        return (PRIORITY_MAP[p] || PRIORITY_MAP.thisweek).css;
+    }
+
+    /**
+     * 根据截止日期自动升级紧急度（只升不降）
+     * 规则：
+     *   <= 0天 → urgent
+     *   <= 2天 → 至少 twodays
+     *   <= 7天 → 至少 thisweek
+     */
+    function getEffectivePriority(todo) {
+        var base = todo.priority || 'thisweek';
+        if (!todo.due_date || todo.completed == 1) return base;
+        var days = getDaysRemaining(todo.due_date);
+        if (days === null) return base;
+
+        var baseLevel = (PRIORITY_MAP[base] || PRIORITY_MAP.thisweek).level;
+
+        if (days <= 0 && baseLevel < 4) return 'urgent';
+        if (days <= 2 && baseLevel < 3) return 'twodays';
+        if (days <= 7 && baseLevel < 2) return 'thisweek';
+        return base;
+    }
+
+    function importanceStars(v) {
+        v = parseInt(v) || 3;
+        var s = '';
+        for (var i = 0; i < 5; i++) s += i < v ? '★' : '☆';
+        return s;
+    }
 
     /* ========== CRUD ========== */
     function addTodo() {
@@ -149,8 +192,7 @@
         currentView = v;
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === v); });
         document.getElementById('todo-list').style.display = v === 'list' ? 'block' : 'none';
-        var chartWrap = document.getElementById('todo-chart-wrap');
-        chartWrap.style.display = v === 'chart' ? 'block' : 'none';
+        document.getElementById('todo-chart-wrap').style.display = v === 'chart' ? 'block' : 'none';
         render();
     }
 
@@ -209,16 +251,24 @@
         var html = '';
         filtered.forEach(function (todo) {
             var isEditing = editingId == todo.id;
-            var overdue = isOverdue(todo);
+            var effPriority = getEffectivePriority(todo);
+            var effCss = priorityCss(effPriority);
+            var upgraded = effPriority !== (todo.priority || 'thisweek') && todo.completed != 1;
+
             html += '<div class="todo-item' + (todo.completed == 1 ? ' completed' : '') + '" data-id="' + todo.id + '" draggable="true">';
-            html += '<div class="todo-priority-bar ' + (todo.priority || 'medium') + '"></div>';
+            html += '<div class="todo-priority-bar ' + effCss + '"></div>';
             html += '<div class="todo-body">';
             html += '<div class="todo-checkbox" onclick="window._todo.toggle(' + todo.id + ')"></div>';
             html += '<div class="todo-content">';
             if (isEditing) {
                 html += '<input class="todo-title-input" id="edit-title-' + todo.id + '" value="' + escapeHtml(todo.title) + '" onkeydown="if(event.key===\'Enter\')window._todo.saveEdit(' + todo.id + ');if(event.key===\'Escape\')window._todo.cancelEdit()">';
                 html += '<div class="todo-edit-inline">';
-                html += '<select id="edit-priority-' + todo.id + '"><option value="high"' + (todo.priority === 'high' ? ' selected' : '') + '>紧急</option><option value="medium"' + (todo.priority === 'medium' ? ' selected' : '') + '>普通</option><option value="low"' + (todo.priority === 'low' ? ' selected' : '') + '>低优</option></select>';
+                html += '<select id="edit-priority-' + todo.id + '">';
+                html += '<option value="urgent"' + (todo.priority === 'urgent' || todo.priority === 'high' ? ' selected' : '') + '>紧急</option>';
+                html += '<option value="twodays"' + (todo.priority === 'twodays' ? ' selected' : '') + '>这两天</option>';
+                html += '<option value="thisweek"' + (todo.priority === 'thisweek' || todo.priority === 'medium' ? ' selected' : '') + '>这周处理</option>';
+                html += '<option value="anytime"' + (todo.priority === 'anytime' || todo.priority === 'low' ? ' selected' : '') + '>随时可以</option>';
+                html += '</select>';
                 html += '<select id="edit-importance-' + todo.id + '">';
                 for (var i = 5; i >= 1; i--) html += '<option value="' + i + '"' + (parseInt(todo.importance) === i ? ' selected' : '') + '>' + importanceStars(i) + '</option>';
                 html += '</select>';
@@ -229,7 +279,9 @@
             } else {
                 html += '<div class="todo-title">' + escapeHtml(todo.title) + '</div>';
                 html += '<div class="todo-meta">';
-                html += '<span class="todo-priority-tag ' + todo.priority + '">' + priorityLabel(todo.priority) + '</span>';
+                html += '<span class="todo-priority-tag ' + effCss + '">' + priorityLabel(effPriority);
+                if (upgraded) html += ' ↑';
+                html += '</span>';
                 html += '<span class="todo-importance-tag">' + importanceStars(todo.importance) + '</span>';
                 if (todo.due_date) {
                     html += '<span class="todo-due"><span class="todo-due-icon">&#128197;</span>' + formatDate(todo.due_date) + '</span>';
@@ -254,13 +306,6 @@
         });
     }
 
-    function importanceStars(v) {
-        v = parseInt(v) || 3;
-        var s = '';
-        for (var i = 0; i < 5; i++) s += i < v ? '★' : '☆';
-        return s;
-    }
-
     /* ========== 2D Chart ========== */
 
     function renderChart(filtered) {
@@ -269,7 +314,6 @@
         if (!chartCanvas) return;
         chartCtx = chartCanvas.getContext('2d');
 
-        // Responsive sizing
         var rect = wrap.getBoundingClientRect();
         var dpr = window.devicePixelRatio || 1;
         var w = rect.width;
@@ -285,47 +329,67 @@
         var cw = w - p.left - p.right;
         var ch = h - p.top - p.bottom;
 
-        // Clear
         chartCtx.clearRect(0, 0, w, h);
 
-        // Draw quadrant backgrounds
-        var halfX = p.left + cw / 2;
+        // X轴分割线位置：7天 和 14天（按比例）
+        var MAX_DAYS = 21; // X轴最大天数
+        var XOFFSET = 3;   // 左边留给过期的
+        var xTotalRange = MAX_DAYS + XOFFSET;
+        var x7 = p.left + ((7 + XOFFSET) / xTotalRange) * cw;
+        var x14 = p.left + ((14 + XOFFSET) / xTotalRange) * cw;
         var halfY = p.top + ch / 2;
 
-        // Q1: top-left (urgent + important) — red
-        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.06)';
-        chartCtx.fillRect(p.left, p.top, cw / 2, ch / 2);
-        // Q2: top-right (not urgent + important) — orange
-        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.08)' : 'rgba(245,158,11,0.06)';
-        chartCtx.fillRect(halfX, p.top, cw / 2, ch / 2);
-        // Q3: bottom-left (urgent + not important) — yellow
-        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.08)' : 'rgba(234,179,8,0.06)';
-        chartCtx.fillRect(p.left, halfY, cw / 2, ch / 2);
-        // Q4: bottom-right (not urgent + not important) — green
-        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.06)';
-        chartCtx.fillRect(halfX, halfY, cw / 2, ch / 2);
+        // 四象限背景 — 加深颜色
+        // 左列(0~7天): 紧急区
+        // 中列(7~14天): 中间区
+        // 右列(14天+): 不紧急区
+        // 上半: 重要, 下半: 不重要
 
-        // Quadrant labels
-        var labelColor = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.15)';
-        chartCtx.font = '13px sans-serif';
+        // 紧急+重要 (左上) — 深红
+        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.12)';
+        chartCtx.fillRect(p.left, p.top, x7 - p.left, ch / 2);
+        // 中间+重要 (中上) — 橙
+        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.15)' : 'rgba(245,158,11,0.10)';
+        chartCtx.fillRect(x7, p.top, x14 - x7, ch / 2);
+        // 不急+重要 (右上) — 蓝
+        chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.08)';
+        chartCtx.fillRect(x14, p.top, p.left + cw - x14, ch / 2);
+        // 紧急+不重要 (左下) — 黄
+        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.15)' : 'rgba(234,179,8,0.10)';
+        chartCtx.fillRect(p.left, halfY, x7 - p.left, ch / 2);
+        // 中间+不重要 (中下) — 浅黄绿
+        chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.10)' : 'rgba(132,204,22,0.07)';
+        chartCtx.fillRect(x7, halfY, x14 - x7, ch / 2);
+        // 不急+不重要 (右下) — 绿
+        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.08)';
+        chartCtx.fillRect(x14, halfY, p.left + cw - x14, ch / 2);
+
+        // 象限文字
+        var labelColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.22)';
+        chartCtx.font = 'bold 13px sans-serif';
         chartCtx.fillStyle = labelColor;
         chartCtx.textAlign = 'center';
-        chartCtx.fillText('紧急且重要 · 立即做', p.left + cw / 4, p.top + 24);
-        chartCtx.fillText('重要不紧急 · 计划做', halfX + cw / 4, p.top + 24);
-        chartCtx.fillText('紧急不重要 · 委托做', p.left + cw / 4, halfY + 24);
-        chartCtx.fillText('不急不重要 · 可删除', halfX + cw / 4, halfY + 24);
+        chartCtx.fillText('紧急且重要', (p.left + x7) / 2, p.top + 24);
+        chartCtx.fillText('立即做!', (p.left + x7) / 2, p.top + 42);
+        chartCtx.fillText('重要·计划做', (x7 + x14) / 2, p.top + 24);
+        chartCtx.fillText('不急·可规划', (x14 + p.left + cw) / 2, p.top + 24);
+        chartCtx.fillText('紧急·快速做', (p.left + x7) / 2, halfY + 24);
+        chartCtx.fillText('一般事务', (x7 + x14) / 2, halfY + 24);
+        chartCtx.fillText('可删除', (x14 + p.left + cw) / 2, halfY + 24);
 
-        // Divider lines
-        chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+        // 分割虚线
+        chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)';
         chartCtx.setLineDash([6, 4]);
+        chartCtx.lineWidth = 1;
         chartCtx.beginPath();
-        chartCtx.moveTo(halfX, p.top); chartCtx.lineTo(halfX, p.top + ch);
+        chartCtx.moveTo(x7, p.top); chartCtx.lineTo(x7, p.top + ch);
+        chartCtx.moveTo(x14, p.top); chartCtx.lineTo(x14, p.top + ch);
         chartCtx.moveTo(p.left, halfY); chartCtx.lineTo(p.left + cw, halfY);
         chartCtx.stroke();
         chartCtx.setLineDash([]);
 
-        // Axes
-        var axisColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)';
+        // 坐标轴
+        var axisColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.35)';
         chartCtx.strokeStyle = axisColor;
         chartCtx.lineWidth = 1.5;
         chartCtx.beginPath();
@@ -333,115 +397,129 @@
         chartCtx.stroke();
         chartCtx.lineWidth = 1;
 
-        // Axis labels
-        var textColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)';
+        // X轴标签
+        var textColor = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)';
         chartCtx.fillStyle = textColor;
         chartCtx.font = '12px sans-serif';
         chartCtx.textAlign = 'center';
 
-        // X axis labels
-        var xLabels = ['已过期', '今天', '3天', '7天', '14天', '30天+'];
-        var xPositions = [0, 0.1, 0.25, 0.45, 0.65, 0.9];
-        for (var i = 0; i < xLabels.length; i++) {
-            chartCtx.fillText(xLabels[i], p.left + cw * xPositions[i], p.top + ch + 20);
+        var xTickDays = [-2, 0, 1, 2, 3, 7, 14, 21];
+        var xTickLabels = ['过期', '今天', '明天', '后天', '3天', '7天', '14天', '14天后'];
+        for (var i = 0; i < xTickDays.length; i++) {
+            var tx = p.left + ((xTickDays[i] + XOFFSET) / xTotalRange) * cw;
+            chartCtx.fillText(xTickLabels[i], tx, p.top + ch + 18);
+            // 小刻度线
+            chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+            chartCtx.beginPath(); chartCtx.moveTo(tx, p.top + ch); chartCtx.lineTo(tx, p.top + ch + 5); chartCtx.stroke();
         }
-        chartCtx.fillText('← 紧急                                     不紧急 →', p.left + cw / 2, p.top + ch + 40);
+        chartCtx.fillStyle = textColor;
+        chartCtx.font = 'bold 12px sans-serif';
+        chartCtx.fillText('← 紧急                              不紧急 →', p.left + cw / 2, p.top + ch + 40);
 
-        // Y axis labels
+        // Y轴标签
+        chartCtx.font = '12px sans-serif';
         chartCtx.textAlign = 'right';
         for (var j = 1; j <= 5; j++) {
             var yy = p.top + ch - (j - 1) / 4 * ch;
+            chartCtx.fillStyle = textColor;
             chartCtx.fillText(j + '★', p.left - 8, yy + 4);
         }
         chartCtx.save();
         chartCtx.translate(14, p.top + ch / 2);
         chartCtx.rotate(-Math.PI / 2);
         chartCtx.textAlign = 'center';
+        chartCtx.font = 'bold 12px sans-serif';
+        chartCtx.fillStyle = textColor;
         chartCtx.fillText('重要程度', 0, 0);
         chartCtx.restore();
 
-        // Y axis grid lines
-        chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
+        // Y轴网格线
+        chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
         for (var g = 1; g <= 5; g++) {
             var gy = p.top + ch - (g - 1) / 4 * ch;
             chartCtx.beginPath(); chartCtx.moveTo(p.left, gy); chartCtx.lineTo(p.left + cw, gy); chartCtx.stroke();
         }
 
-        // Compute points
+        // 计算散点
         chartPoints = [];
-        var MAX_DAYS = 35; // X轴最大天数
         filtered.forEach(function (todo) {
             var days = getDaysRemaining(todo.due_date);
             var xVal;
-            if (days === null) xVal = MAX_DAYS; // 无截止日期放最右
-            else if (days < -5) xVal = -5;      // 限制最左
+            if (days === null) xVal = MAX_DAYS;
+            else if (days < -XOFFSET) xVal = -XOFFSET;
+            else if (days > MAX_DAYS) xVal = MAX_DAYS;
             else xVal = days;
 
             var imp = parseInt(todo.importance) || 3;
-            // Map to canvas coords
-            // X: days -> left(urgent) to right(not urgent): -5..MAX_DAYS -> left..right
-            var xRatio = (xVal + 5) / (MAX_DAYS + 5);
-            var yRatio = (imp - 1) / 4; // 1..5 -> 0..1, bottom..top
+            var xRatio = (xVal + XOFFSET) / xTotalRange;
+            var yRatio = (imp - 1) / 4;
             var sx = p.left + xRatio * cw;
             var sy = p.top + ch - yRatio * ch;
 
             chartPoints.push({ x: xVal, y: imp, screenX: sx, screenY: sy, todo: todo });
         });
 
-        // Draw points
+        // 画散点
         chartPoints.forEach(function (pt) {
             var completed = pt.todo.completed == 1;
-            var r = completed ? 6 : 9;
-            var alpha = completed ? 0.3 : 0.85;
+            var r = completed ? 6 : 10;
+            var alpha = completed ? 0.35 : 0.9;
 
-            // Color based on quadrant
+            // 颜色根据位置
             var color;
-            var isUrgent = pt.x <= 7;
-            var isImportant = pt.y >= 3;
-            if (isUrgent && isImportant) color = 'rgba(239,68,68,' + alpha + ')';       // red
-            else if (!isUrgent && isImportant) color = 'rgba(245,158,11,' + alpha + ')'; // orange
-            else if (isUrgent && !isImportant) color = 'rgba(234,179,8,' + alpha + ')';  // yellow
-            else color = 'rgba(16,185,129,' + alpha + ')';                                // green
+            if (pt.x <= 7 && pt.y >= 3) color = 'rgba(220,38,38,' + alpha + ')';       // 紧急重要 红
+            else if (pt.x <= 7 && pt.y < 3) color = 'rgba(217,119,6,' + alpha + ')';    // 紧急不重要 橙
+            else if (pt.x <= 14 && pt.y >= 3) color = 'rgba(245,158,11,' + alpha + ')'; // 中等重要 金橙
+            else if (pt.x <= 14 && pt.y < 3) color = 'rgba(132,204,22,' + alpha + ')';  // 中等不重要 黄绿
+            else if (pt.y >= 3) color = 'rgba(59,130,246,' + alpha + ')';                // 不急重要 蓝
+            else color = 'rgba(16,185,129,' + alpha + ')';                                // 不急不重要 绿
+
+            // 阴影
+            chartCtx.shadowColor = 'rgba(0,0,0,0.15)';
+            chartCtx.shadowBlur = 4;
+            chartCtx.shadowOffsetY = 2;
 
             chartCtx.beginPath();
             chartCtx.arc(pt.screenX, pt.screenY, r, 0, Math.PI * 2);
             chartCtx.fillStyle = color;
             chartCtx.fill();
 
-            // Border
-            chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
-            chartCtx.lineWidth = 1;
+            chartCtx.shadowColor = 'transparent';
+
+            // 边框
+            chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
+            chartCtx.lineWidth = 1.5;
             chartCtx.stroke();
 
-            // Completed strikethrough
+            // 已完成划线
             if (completed) {
                 chartCtx.beginPath();
                 chartCtx.moveTo(pt.screenX - r, pt.screenY);
                 chartCtx.lineTo(pt.screenX + r, pt.screenY);
-                chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
+                chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)';
                 chartCtx.lineWidth = 2;
                 chartCtx.stroke();
             }
 
-            // Hovered point highlight
+            // Hover 高亮
             if (hoveredPoint && hoveredPoint.todo.id === pt.todo.id) {
                 chartCtx.beginPath();
-                chartCtx.arc(pt.screenX, pt.screenY, r + 4, 0, Math.PI * 2);
+                chartCtx.arc(pt.screenX, pt.screenY, r + 5, 0, Math.PI * 2);
                 chartCtx.strokeStyle = color;
-                chartCtx.lineWidth = 2;
+                chartCtx.lineWidth = 2.5;
                 chartCtx.stroke();
             }
         });
 
-        // Draw tooltip
-        if (hoveredPoint) {
-            drawTooltip(hoveredPoint, w, h, isDark);
-        }
+        // Tooltip
+        if (hoveredPoint) drawTooltip(hoveredPoint, w, h, isDark);
     }
 
     function drawTooltip(pt, canvasW, canvasH, isDark) {
         var todo = pt.todo;
+        var effP = getEffectivePriority(todo);
         var lines = [escapeHtmlPlain(todo.title)];
+        lines.push('紧急度: ' + priorityLabel(effP));
         lines.push('重要度: ' + importanceStars(todo.importance));
         if (todo.due_date) {
             var days = getDaysRemaining(todo.due_date);
@@ -458,42 +536,35 @@
         chartCtx.font = '12px sans-serif';
         var maxW = 0;
         lines.forEach(function (l) { var m = chartCtx.measureText(l).width; if (m > maxW) maxW = m; });
-        var tw = maxW + 20;
-        var th = lines.length * 20 + 14;
-        var tx = pt.screenX + 14;
+        var tw = maxW + 24;
+        var th = lines.length * 22 + 16;
+        var tx = pt.screenX + 16;
         var ty = pt.screenY - th / 2;
-
-        // Keep in bounds
-        if (tx + tw > canvasW - 10) tx = pt.screenX - tw - 14;
+        if (tx + tw > canvasW - 10) tx = pt.screenX - tw - 16;
         if (ty < 5) ty = 5;
         if (ty + th > canvasH - 5) ty = canvasH - th - 5;
 
-        // Background
-        chartCtx.fillStyle = isDark ? 'rgba(40,40,40,0.95)' : 'rgba(255,255,255,0.97)';
-        chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)';
+        // 背景
+        chartCtx.shadowColor = 'rgba(0,0,0,0.15)';
+        chartCtx.shadowBlur = 12;
+        chartCtx.shadowOffsetY = 4;
+        chartCtx.fillStyle = isDark ? 'rgba(30,30,30,0.97)' : 'rgba(255,255,255,0.98)';
+        chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)';
         chartCtx.lineWidth = 1;
-        roundRect(chartCtx, tx, ty, tw, th, 8);
+        roundRect(chartCtx, tx, ty, tw, th, 10);
         chartCtx.fill();
         chartCtx.stroke();
-
-        // Shadow
-        chartCtx.shadowColor = 'rgba(0,0,0,0.1)';
-        chartCtx.shadowBlur = 8;
-        chartCtx.shadowOffsetX = 0;
-        chartCtx.shadowOffsetY = 2;
-        roundRect(chartCtx, tx, ty, tw, th, 8);
-        chartCtx.fill();
         chartCtx.shadowColor = 'transparent';
 
-        // Text
-        chartCtx.fillStyle = isDark ? 'rgba(255,255,255,0.9)' : '#333';
+        // 文字
+        chartCtx.fillStyle = isDark ? 'rgba(255,255,255,0.95)' : '#222';
         chartCtx.textAlign = 'left';
-        chartCtx.font = 'bold 12px sans-serif';
-        chartCtx.fillText(lines[0], tx + 10, ty + 20);
+        chartCtx.font = 'bold 13px sans-serif';
+        chartCtx.fillText(lines[0], tx + 12, ty + 22);
         chartCtx.font = '11px sans-serif';
-        chartCtx.fillStyle = isDark ? 'rgba(255,255,255,0.65)' : '#666';
+        chartCtx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : '#555';
         for (var i = 1; i < lines.length; i++) {
-            chartCtx.fillText(lines[i], tx + 10, ty + 20 + i * 20);
+            chartCtx.fillText(lines[i], tx + 12, ty + 22 + i * 22);
         }
     }
 
@@ -508,7 +579,7 @@
     }
 
     function findPointAt(mx, my) {
-        var closest = null, minDist = 20; // 20px tolerance
+        var closest = null, minDist = 20;
         chartPoints.forEach(function (pt) {
             var dx = pt.screenX - mx, dy = pt.screenY - my;
             var dist = Math.sqrt(dx * dx + dy * dy);
@@ -520,45 +591,32 @@
     function initChartEvents() {
         var canvas = document.getElementById('todo-chart');
         if (!canvas) return;
-
         canvas.addEventListener('mousemove', function (e) {
             var rect = canvas.getBoundingClientRect();
-            var mx = e.clientX - rect.left, my = e.clientY - rect.top;
-            var pt = findPointAt(mx, my);
+            var pt = findPointAt(e.clientX - rect.left, e.clientY - rect.top);
             if (pt !== hoveredPoint) {
                 hoveredPoint = pt;
                 canvas.style.cursor = pt ? 'pointer' : 'default';
                 if (currentView === 'chart') renderChart(getFilteredTodos());
             }
         });
-
         canvas.addEventListener('mouseleave', function () {
             if (hoveredPoint) { hoveredPoint = null; if (currentView === 'chart') renderChart(getFilteredTodos()); }
         });
-
         canvas.addEventListener('click', function (e) {
             var rect = canvas.getBoundingClientRect();
-            var mx = e.clientX - rect.left, my = e.clientY - rect.top;
-            var pt = findPointAt(mx, my);
-            if (pt) {
-                // Switch to list view and edit
-                setView('list');
-                startEdit(pt.todo.id);
-            }
+            var pt = findPointAt(e.clientX - rect.left, e.clientY - rect.top);
+            if (pt) { setView('list'); startEdit(pt.todo.id); }
         });
     }
 
     /* ========== Helpers ========== */
     function escapeHtml(str) { var d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-    function escapeHtmlPlain(str) {
-        return str.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
-    }
+    function escapeHtmlPlain(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
     /* ========== Init ========== */
     function init() {
-        todos = loadFromLocal();
-        render();
-        syncFromServer();
+        todos = loadFromLocal(); render(); syncFromServer();
 
         document.getElementById('todo-add-btn').addEventListener('click', addTodo);
         document.getElementById('todo-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') addTodo(); });
@@ -566,27 +624,20 @@
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.addEventListener('click', function () { setView(this.dataset.view); }); });
 
         initChartEvents();
-
-        // Resize handler for chart
         var resizeTimer;
         window.addEventListener('resize', function () {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function () { if (currentView === 'chart') render(); }, 200);
         });
 
-        // importance slider label
         var impSlider = document.getElementById('todo-importance');
         var impLabel = document.getElementById('todo-importance-label');
         if (impSlider && impLabel) {
-            impSlider.addEventListener('input', function () {
-                impLabel.textContent = importanceStars(this.value);
-            });
+            impSlider.addEventListener('input', function () { impLabel.textContent = importanceStars(this.value); });
         }
     }
 
     window._todo = { toggle: toggleTodo, deleteTodo: deleteTodo, startEdit: startEdit, saveEdit: saveEdit, cancelEdit: cancelEdit };
-
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
-
 })();

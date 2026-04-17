@@ -48,8 +48,8 @@ function document_todo_create() {
 		wp_send_json_error( '标题不能为空' );
 	}
 
-	if ( ! in_array( $priority, [ 'high', 'medium', 'low' ] ) ) {
-		$priority = 'medium';
+	if ( ! in_array( $priority, [ 'urgent', 'twodays', 'thisweek', 'anytime', 'high', 'medium', 'low' ] ) ) {
+		$priority = 'thisweek';
 	}
 
 	$importance = max( 1, min( 5, $importance ) );
@@ -100,7 +100,7 @@ function document_todo_update() {
 	}
 	if ( isset( $_POST['priority'] ) ) {
 		$p = sanitize_text_field( $_POST['priority'] );
-		if ( in_array( $p, [ 'high', 'medium', 'low' ] ) ) {
+		if ( in_array( $p, [ 'urgent', 'twodays', 'thisweek', 'anytime', 'high', 'medium', 'low' ] ) ) {
 			$update['priority'] = $p;
 			$format[]           = '%s';
 		}

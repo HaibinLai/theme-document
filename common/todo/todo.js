@@ -346,46 +346,46 @@
         // 上半: 重要, 下半: 不重要
 
         // 紧急+重要 (左上) — 深红
-        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.30)' : 'rgba(239,68,68,0.20)';
+        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.35)' : 'rgba(239,68,68,0.25)';
         chartCtx.fillRect(p.left, p.top, x7 - p.left, ch / 2);
         // 中间+重要 (中上) — 橙
-        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.25)' : 'rgba(245,158,11,0.18)';
+        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.30)' : 'rgba(245,158,11,0.22)';
         chartCtx.fillRect(x7, p.top, x14 - x7, ch / 2);
         // 不急+重要 (右上) — 蓝
-        chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.22)' : 'rgba(59,130,246,0.14)';
+        chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.28)' : 'rgba(59,130,246,0.18)';
         chartCtx.fillRect(x14, p.top, p.left + cw - x14, ch / 2);
         // 紧急+不重要 (左下) — 黄
-        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.25)' : 'rgba(234,179,8,0.18)';
+        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.30)' : 'rgba(234,179,8,0.22)';
         chartCtx.fillRect(p.left, halfY, x7 - p.left, ch / 2);
         // 中间+不重要 (中下) — 浅黄绿
-        chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.18)' : 'rgba(132,204,22,0.12)';
+        chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.22)' : 'rgba(132,204,22,0.16)';
         chartCtx.fillRect(x7, halfY, x14 - x7, ch / 2);
         // 不急+不重要 (右下) — 绿
-        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.22)' : 'rgba(16,185,129,0.14)';
+        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.28)' : 'rgba(16,185,129,0.18)';
         chartCtx.fillRect(x14, halfY, p.left + cw - x14, ch / 2);
 
-        // 象限文字 — 用各象限对应的颜色
-        chartCtx.font = 'bold 13px sans-serif';
+        // 象限文字 — 用各象限对应的纯色
+        chartCtx.font = 'bold 16px sans-serif';
         chartCtx.textAlign = 'center';
 
-        chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.7)' : 'rgba(220,38,38,0.5)';
-        chartCtx.fillText('紧急且重要', (p.left + x7) / 2, p.top + 24);
-        chartCtx.fillText('立即做!', (p.left + x7) / 2, p.top + 42);
+        chartCtx.fillStyle = isDark ? '#f87171' : '#dc2626';
+        chartCtx.fillText('紧急且重要', (p.left + x7) / 2, p.top + 26);
+        chartCtx.fillText('立即做!', (p.left + x7) / 2, p.top + 46);
 
-        chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.7)' : 'rgba(217,119,6,0.5)';
-        chartCtx.fillText('重要·计划做', (x7 + x14) / 2, p.top + 24);
+        chartCtx.fillStyle = isDark ? '#fbbf24' : '#d97706';
+        chartCtx.fillText('重要·计划做', (x7 + x14) / 2, p.top + 26);
 
-        chartCtx.fillStyle = isDark ? 'rgba(59,130,246,0.7)' : 'rgba(37,99,235,0.45)';
-        chartCtx.fillText('不急·可规划', (x14 + p.left + cw) / 2, p.top + 24);
+        chartCtx.fillStyle = isDark ? '#60a5fa' : '#2563eb';
+        chartCtx.fillText('不急·可规划', (x14 + p.left + cw) / 2, p.top + 26);
 
-        chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.7)' : 'rgba(180,130,0,0.5)';
-        chartCtx.fillText('紧急·快速做', (p.left + x7) / 2, halfY + 24);
+        chartCtx.fillStyle = isDark ? '#facc15' : '#b45309';
+        chartCtx.fillText('紧急·快速做', (p.left + x7) / 2, halfY + 26);
 
-        chartCtx.fillStyle = isDark ? 'rgba(132,204,22,0.6)' : 'rgba(80,140,10,0.45)';
-        chartCtx.fillText('一般事务', (x7 + x14) / 2, halfY + 24);
+        chartCtx.fillStyle = isDark ? '#a3e635' : '#4d7c0f';
+        chartCtx.fillText('一般事务', (x7 + x14) / 2, halfY + 26);
 
-        chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.6)' : 'rgba(5,120,80,0.45)';
-        chartCtx.fillText('可删除', (x14 + p.left + cw) / 2, halfY + 24);
+        chartCtx.fillStyle = isDark ? '#34d399' : '#047857';
+        chartCtx.fillText('可删除', (x14 + p.left + cw) / 2, halfY + 26);
 
         // 分割虚线
         chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)';
@@ -409,7 +409,7 @@
         chartCtx.setLineDash([]);
         // "今天"标注
         chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.8)' : 'rgba(220,38,38,0.65)';
-        chartCtx.font = 'bold 11px sans-serif';
+        chartCtx.font = 'bold 13px sans-serif';
         chartCtx.textAlign = 'center';
         chartCtx.fillText('TODAY', xToday, p.top - 6);
 
@@ -423,9 +423,9 @@
         chartCtx.lineWidth = 1;
 
         // X轴标签
-        var textColor = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)';
+        var textColor = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.7)';
         chartCtx.fillStyle = textColor;
-        chartCtx.font = '12px sans-serif';
+        chartCtx.font = '14px sans-serif';
         chartCtx.textAlign = 'center';
 
         var xTickDays = [-2, 0, 1, 2, 3, 7, 14, 21];
@@ -438,14 +438,15 @@
             chartCtx.beginPath(); chartCtx.moveTo(tx, p.top + ch); chartCtx.lineTo(tx, p.top + ch + 5); chartCtx.stroke();
         }
         chartCtx.fillStyle = textColor;
-        chartCtx.font = 'bold 12px sans-serif';
+        chartCtx.font = 'bold 14px sans-serif';
         chartCtx.fillText('← 紧急                              不紧急 →', p.left + cw / 2, p.top + ch + 40);
 
         // Y轴标签
-        chartCtx.font = '12px sans-serif';
+        chartCtx.font = '14px sans-serif';
         chartCtx.textAlign = 'right';
+        var yLabelPad = 0.08;
         for (var j = 1; j <= 5; j++) {
-            var yy = p.top + ch - (j - 1) / 4 * ch;
+            var yy = p.top + ch * (1 - yLabelPad) - (j - 1) / 4 * ch * (1 - 2 * yLabelPad);
             chartCtx.fillStyle = textColor;
             chartCtx.fillText(j + '★', p.left - 8, yy + 4);
         }
@@ -453,15 +454,15 @@
         chartCtx.translate(14, p.top + ch / 2);
         chartCtx.rotate(-Math.PI / 2);
         chartCtx.textAlign = 'center';
-        chartCtx.font = 'bold 12px sans-serif';
-        chartCtx.fillStyle = textColor;
+        chartCtx.font = 'bold 14px sans-serif';        chartCtx.fillStyle = textColor;
         chartCtx.fillText('重要程度', 0, 0);
         chartCtx.restore();
 
         // Y轴网格线
         chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+        var yGridPad = 0.08;
         for (var g = 1; g <= 5; g++) {
-            var gy = p.top + ch - (g - 1) / 4 * ch;
+            var gy = p.top + ch * (1 - yGridPad) - (g - 1) / 4 * ch * (1 - 2 * yGridPad);
             chartCtx.beginPath(); chartCtx.moveTo(p.left, gy); chartCtx.lineTo(p.left + cw, gy); chartCtx.stroke();
         }
 
@@ -477,12 +478,42 @@
 
             var imp = parseInt(todo.importance) || 3;
             var xRatio = (xVal + XOFFSET) / xTotalRange;
+            var yPad = 0.08; // 上下各留8%，避免5★顶到象限标题
             var yRatio = (imp - 1) / 4;
             var sx = p.left + xRatio * cw;
-            var sy = p.top + ch - yRatio * ch;
+            var sy = p.top + ch * (1 - yPad) - yRatio * ch * (1 - 2 * yPad);
 
             chartPoints.push({ x: xVal, y: imp, screenX: sx, screenY: sy, todo: todo });
         });
+
+        // 散开重叠的点 — 使用螺旋排列
+        var minDist = 22; // 两点最小间距
+        for (var i = 0; i < chartPoints.length; i++) {
+            var pi = chartPoints[i];
+            var angle = 0, ring = 0, step = 0;
+            var maxTries = 30;
+            while (step < maxTries) {
+                var collides = false;
+                for (var k = 0; k < i; k++) {
+                    var pk = chartPoints[k];
+                    var dx = pi.screenX - pk.screenX;
+                    var dy = pi.screenY - pk.screenY;
+                    if (Math.sqrt(dx * dx + dy * dy) < minDist) {
+                        collides = true;
+                        break;
+                    }
+                }
+                if (!collides) break;
+                step++;
+                angle = step * 2.4; // 黄金角螺旋
+                ring = minDist * 0.5 * Math.sqrt(step);
+                var origX = p.left + ((pi.x + XOFFSET) / xTotalRange) * cw;
+                var yPad2 = 0.08;
+                var origY = p.top + ch * (1 - yPad2) - ((pi.y - 1) / 4) * ch * (1 - 2 * yPad2);
+                pi.screenX = origX + Math.cos(angle) * ring;
+                pi.screenY = origY + Math.sin(angle) * ring;
+            }
+        }
 
         // 画散点
         chartPoints.forEach(function (pt) {

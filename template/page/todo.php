@@ -73,9 +73,12 @@ get_header();
                     <div class="todo-loading">加载中...</div>
                 </div>
 
-                <!-- 2D矩阵视图 -->
-                <div id="todo-chart-wrap" class="todo-chart-wrap" style="display:none;">
-                    <canvas id="todo-chart"></canvas>
+                <!-- 2D矩阵视图 + 侧边栏 -->
+                <div id="todo-matrix-wrap" class="todo-matrix-wrap" style="display:none;">
+                    <div id="todo-chart-wrap" class="todo-chart-wrap">
+                        <canvas id="todo-chart"></canvas>
+                    </div>
+                    <div id="todo-sidebar" class="todo-sidebar"></div>
                 </div>
             </div>
         </article>

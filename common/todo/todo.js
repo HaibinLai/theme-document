@@ -207,7 +207,7 @@
         currentView = v;
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === v); });
         document.getElementById('todo-list').style.display = v === 'list' ? 'block' : 'none';
-        document.getElementById('todo-chart-wrap').style.display = v === 'chart' ? 'block' : 'none';
+        document.getElementById('todo-matrix-wrap').style.display = v === 'chart' ? 'flex' : 'none';
         render();
     }
 
@@ -253,7 +253,60 @@
         document.querySelectorAll('.todo-filter-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.filter === currentFilter); });
 
         if (currentView === 'list') renderList(filtered);
-        else renderChart(filtered);
+        else { renderChart(filtered); renderSidebar(filtered); }
+    }
+
+    /* ========== 侧边栏：按象限分类 ========== */
+    function renderSidebar(filtered) {
+        var sidebar = document.getElementById('todo-sidebar');
+        if (!sidebar) return;
+
+        var IMP_SPLIT = 3.2;
+        var groups = {
+            do_now:   { label: '&#128308; 立即做', items: [] },
+            do_fast:  { label: '&#128992; 快速做', items: [] },
+            plan:     { label: '&#128993; 计划做', items: [] },
+            general:  { label: '&#128994; 一般事务', items: [] }
+        };
+
+        filtered.forEach(function (todo) {
+            if (todo.completed == 1) return;
+            var days = getDaysRemaining(todo.due_date);
+            var imp = getEffectiveImportance(todo);
+            var urgent = (days !== null && days <= 3);
+
+            if (urgent && imp >= IMP_SPLIT) groups.do_now.items.push(todo);
+            else if (urgent && imp < IMP_SPLIT) groups.do_fast.items.push(todo);
+            else if (imp >= IMP_SPLIT) groups.plan.items.push(todo);
+            else groups.general.items.push(todo);
+        });
+
+        var html = '';
+        ['do_now', 'do_fast', 'plan', 'general'].forEach(function (key) {
+            var g = groups[key];
+            html += '<div class="todo-sidebar-group">';
+            html += '<div class="todo-sidebar-title">' + g.label + ' <span class="todo-sidebar-count">' + g.items.length + '</span></div>';
+            if (g.items.length === 0) {
+                html += '<div class="todo-sidebar-empty">- 无 -</div>';
+            } else {
+                g.items.forEach(function (todo) {
+                    var effP = getEffectivePriority(todo);
+                    var css = priorityCss(effP);
+                    html += '<div class="todo-sidebar-item">';
+                    html += '<span class="todo-sidebar-dot ' + css + '"></span>';
+                    html += '<span class="todo-sidebar-text">' + escapeHtml(todo.title) + '</span>';
+                    if (todo.due_date) {
+                        var d = getDaysRemaining(todo.due_date);
+                        var dText = d < 0 ? '过期' + Math.abs(d) + '天' : d === 0 ? '今天' : d + '天';
+                        html += '<span class="todo-sidebar-due">' + dText + '</span>';
+                    }
+                    html += '</div>';
+                });
+            }
+            html += '</div>';
+        });
+
+        sidebar.innerHTML = html;
     }
 
     function renderList(filtered) {

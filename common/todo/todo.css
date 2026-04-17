@@ -1,7 +1,7 @@
 /* 待办事项样式 */
 
 .todo-container {
-    max-width: 860px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 30px 20px;
 }
@@ -523,9 +523,17 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* 矩阵视图整体布局 */
+.todo-matrix-wrap {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
 /* 2D图容器 */
 .todo-chart-wrap {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     border: 1px solid var(--theme-border-color, #e8e8e8);
     border-radius: 12px;
     overflow: hidden;
@@ -535,6 +543,84 @@
 .todo-chart-wrap canvas {
     display: block;
     width: 100%;
+}
+
+/* 侧边栏 */
+.todo-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.todo-sidebar-group {
+    background: var(--theme-bg-color, #fff);
+    border: 1px solid var(--theme-border-color, #e8e8e8);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.todo-sidebar-title {
+    font-size: var(--theme-secondary, 0.78rem);
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--theme-text-color, #333);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.todo-sidebar-count {
+    background: var(--theme-border-color, #eee);
+    color: var(--theme-text-secondary, rgba(0, 0, 0, 0.65));
+    font-size: var(--theme-text-more-mini-2, 0.62rem);
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+}
+
+.todo-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: var(--theme-text-mini, 0.76rem);
+    color: var(--theme-text-color, #333);
+    line-height: 1.4;
+}
+
+.todo-sidebar-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.todo-sidebar-dot.urgent { background: #ef4444; }
+.todo-sidebar-dot.twodays { background: #f59e0b; }
+.todo-sidebar-dot.thisweek { background: #3b82f6; }
+.todo-sidebar-dot.anytime { background: #10b981; }
+
+.todo-sidebar-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.todo-sidebar-due {
+    font-size: var(--theme-text-more-mini-2, 0.62rem);
+    color: var(--theme-text-secondary, rgba(0, 0, 0, 0.65));
+    flex-shrink: 0;
+}
+
+.todo-sidebar-empty {
+    font-size: var(--theme-text-more-mini, 0.69rem);
+    color: var(--theme-text-secondary, rgba(0, 0, 0, 0.65));
+    text-align: center;
+    padding: 4px 0;
 }
 
 /* 深色模式适配 */
@@ -639,6 +725,15 @@
     background: var(--theme-front-color, #2a2a2b);
 }
 
+.dark .todo-sidebar-group {
+    border-color: #3a3a3a;
+    background: var(--theme-front-color, #2a2a2b);
+}
+
+.dark .todo-sidebar-count {
+    background: #3a3a3a;
+}
+
 /* 响应式 */
 @media (max-width: 768px) {
     .todo-container {
@@ -657,6 +752,22 @@
     .todo-toolbar {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .todo-matrix-wrap {
+        flex-direction: column;
+    }
+
+    .todo-sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .todo-sidebar-group {
+        flex: 1;
+        min-width: 140px;
     }
 
     .todo-body {

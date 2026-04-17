@@ -65,7 +65,8 @@ if ( ! $is_admin && empty( $toys ) ) {
                 <!-- 卡片网格 -->
                 <div class="toys-grid">
                     <?php foreach ( $toys as $index => $toy ) : ?>
-                        <a href="<?php echo esc_url( home_url( $toy['url'] ) ); ?>" class="toys-card" data-index="<?php echo $index; ?>">
+                        <?php $toy_href = preg_match( '#^https?://#i', $toy['url'] ) ? $toy['url'] : home_url( $toy['url'] ); ?>
+                        <a href="<?php echo esc_url( $toy_href ); ?>" class="toys-card" data-index="<?php echo $index; ?>"<?php echo preg_match( '#^https?://#i', $toy['url'] ) ? ' target="_blank" rel="noopener"' : ''; ?>>
                             <div class="toys-card-icon"><?php echo $toy['icon']; ?></div>
                             <div class="toys-card-name"><?php echo esc_html( $toy['name'] ); ?></div>
                             <div class="toys-card-desc"><?php echo esc_html( $toy['desc'] ); ?></div>

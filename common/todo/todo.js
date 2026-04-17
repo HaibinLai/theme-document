@@ -300,6 +300,7 @@
                     var css = priorityCss(effP);
                     html += '<div class="todo-sidebar-item">';
                     html += '<span class="todo-sidebar-dot ' + css + '"></span>';
+                    html += '<button class="todo-sidebar-play" onclick="window._todo.startPomodoro(' + todo.id + ')" title="番茄钟">&#9654;</button>';
                     html += '<span class="todo-sidebar-text">' + escapeHtml(todo.title) + '</span>';
                     if (todo.due_date) {
                         var d = getDaysRemaining(todo.due_date);

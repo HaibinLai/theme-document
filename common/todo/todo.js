@@ -276,7 +276,7 @@
             if (todo.completed == 1) return;
             var days = getDaysRemaining(todo.due_date);
             var imp = getEffectiveImportance(todo);
-            var urgent = (days !== null && days <= 3);
+            var urgent = (days !== null && days <= 3.2);
 
             if (urgent && imp >= IMP_SPLIT) groups.do_now.items.push(todo);
             else if (urgent && imp < IMP_SPLIT) groups.do_fast.items.push(todo);
@@ -406,7 +406,7 @@
         var MAX_DAYS = 21; // X轴最大天数
         var XOFFSET = 3;   // 左边留给过期的
         var xTotalRange = MAX_DAYS + XOFFSET;
-        var x3 = p.left + ((3 + XOFFSET) / xTotalRange) * cw;
+        var x3 = p.left + ((3.2 + XOFFSET) / xTotalRange) * cw;
         var x14 = p.left + ((14 + XOFFSET) / xTotalRange) * cw;
         var IMP_SPLIT = 3.2; // 重要/不重要分界线
         var impYRatio = (IMP_SPLIT - 1) / 4; // 在0~1范围内的位置
@@ -594,8 +594,8 @@
 
             // 颜色根据4象限（紧急=3天内，重要=3.2★+含升星）
             var color;
-            if (pt.x <= 3 && pt.y >= 3.2) color = 'rgba(220,38,38,' + alpha + ')';       // 立即做 红
-            else if (pt.x <= 3 && pt.y < 3.2) color = 'rgba(217,119,6,' + alpha + ')';    // 快速做 橙
+            if (pt.x <= 3.2 && pt.y >= 3.2) color = 'rgba(220,38,38,' + alpha + ')';       // 立即做 红
+            else if (pt.x <= 3.2 && pt.y < 3.2) color = 'rgba(217,119,6,' + alpha + ')';    // 快速做 橙
             else if (pt.y >= 3.2) color = 'rgba(245,158,11,' + alpha + ')';                // 计划做 金橙
             else color = 'rgba(16,185,129,' + alpha + ')';                                  // 一般事务 绿
 

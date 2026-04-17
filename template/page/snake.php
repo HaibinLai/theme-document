@@ -7,9 +7,6 @@
  */
 
 get_header();
-
-// Generate anti-cheat salt for JS
-$snake_salt = 'snake_' . date( 'Y-m-d' ) . '_' . wp_salt( 'auth' );
 ?>
 
 <main class="main-container no-sidebar">
@@ -68,11 +65,5 @@ $snake_salt = 'snake_' . date( 'Y-m-d' ) . '_' . wp_salt( 'auth' );
         </article>
     </div>
 </main>
-
-<script>
-window.SNAKE_AJAX = '<?php echo admin_url( "admin-ajax.php" ); ?>';
-window.SNAKE_SALT = '<?php echo md5( $snake_salt ); ?>';
-window.SNAKE_DAY_SALT = '<?php echo esc_js( $snake_salt ); ?>';
-</script>
 
 <?php get_footer(); ?>

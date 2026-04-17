@@ -12,7 +12,7 @@
 
     let todos = [];
     let currentFilter = 'all';
-    let currentView = 'list';
+    let currentView = 'chart';
     let editingId = null;
     let dragItem = null;
 
@@ -794,7 +794,11 @@
 
     /* ========== Init ========== */
     function init() {
-        todos = loadFromLocal(); render(); syncFromServer();
+        todos = loadFromLocal();
+        // 默认矩阵视图，应用宽屏模式
+        var mainMain = document.querySelector('.main-main');
+        if (mainMain) mainMain.classList.add('todo-wide-mode');
+        render(); syncFromServer();
 
         document.getElementById('todo-add-btn').addEventListener('click', addTodo);
         document.getElementById('todo-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') addTodo(); });

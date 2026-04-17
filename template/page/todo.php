@@ -56,8 +56,8 @@ get_header();
                 <div class="todo-toolbar">
                     <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
                         <div class="todo-views">
-                            <button class="todo-view-btn active" data-view="list">&#128196; 列表</button>
-                            <button class="todo-view-btn" data-view="chart">&#128200; 矩阵</button>
+                            <button class="todo-view-btn" data-view="list">&#128196; 列表</button>
+                            <button class="todo-view-btn active" data-view="chart">&#128200; 矩阵</button>
                         </div>
                         <div class="todo-filters">
                             <button class="todo-filter-btn active" data-filter="all">全部</button>
@@ -69,12 +69,12 @@ get_header();
                 </div>
 
                 <!-- 列表视图 -->
-                <div id="todo-list" class="todo-list">
+                <div id="todo-list" class="todo-list" style="display:none;">
                     <div class="todo-loading">加载中...</div>
                 </div>
 
                 <!-- 2D矩阵视图 + 侧边栏 -->
-                <div id="todo-matrix-wrap" class="todo-matrix-wrap" style="display:none;">
+                <div id="todo-matrix-wrap" class="todo-matrix-wrap">
                     <div id="todo-chart-wrap" class="todo-chart-wrap">
                         <canvas id="todo-chart"></canvas>
                     </div>

@@ -277,10 +277,13 @@
             var days = getDaysRemaining(todo.due_date);
             var imp = getEffectiveImportance(todo);
             var urgent = (days !== null && days <= 3.2);
+            // 计划做阈值：x>14时沿升星斜线
+            var daysVal = (days === null) ? 21 : Math.max(-3, Math.min(21, days));
+            var impThreshold = daysVal > 14 ? 3 + (daysVal - 14) / 7 * 0.5 : IMP_SPLIT;
 
             if (urgent && imp >= IMP_SPLIT) groups.do_now.items.push(todo);
             else if (urgent && imp < IMP_SPLIT) groups.do_fast.items.push(todo);
-            else if (imp >= IMP_SPLIT) groups.plan.items.push(todo);
+            else if (imp >= impThreshold) groups.plan.items.push(todo);
             else groups.general.items.push(todo);
         });
 
@@ -413,23 +416,57 @@
         var yPadC = 0.08;
         var splitY = p.top + ch * (1 - yPadC) - impYRatio * ch * (1 - 2 * yPadC);
 
-        // 四象限背景
-        // 左(x≤3天): 紧急区，右(x>3天): 计划/一般区
-        // 上(y≥3.2★): 重要, 下(y<3.2★): 不重要
-        // x=14天仅作辅助参考线
+        // 辅助函数：天数→屏幕X，重要度→屏幕Y
+        function daysToX(d) { return p.left + ((d + XOFFSET) / xTotalRange) * cw; }
+        function impToY(v) { return p.top + ch * (1 - yPadC) - ((v - 1) / 4) * ch * (1 - 2 * yPadC); }
 
-        // 紧急+重要 (左上) — 红
+        // 升星分界线：x≤14天时 y=3.2★, x>14天时 y=3+(x-14)/7*0.5
+        // 这条线就是计划做和一般事务的边界
+        var slopeStartX = daysToX(14);
+        var slopeStartY = impToY(3.0); // 14天时boost=3
+        var slopeEndDays = MAX_DAYS;
+        var slopeEndImp = Math.min(5, 3 + (slopeEndDays - 14) / 7 * 0.5); // 21天时=3.5
+        var slopeEndX = daysToX(slopeEndDays);
+        var slopeEndY = impToY(slopeEndImp);
+
+        var chartLeft = p.left;
+        var chartRight = p.left + cw;
+        var chartTop = p.top;
+        var chartBottom = p.top + ch;
+
+        // 四象限背景 — 使用path绘制多边形
+
+        // 1. 紧急+重要 (左上) — 红：矩形
         chartCtx.fillStyle = isDark ? 'rgba(239,68,68,0.35)' : 'rgba(239,68,68,0.25)';
-        chartCtx.fillRect(p.left, p.top, x3 - p.left, splitY - p.top);
-        // 紧急+不重要 (左下) — 橙黄
+        chartCtx.fillRect(chartLeft, chartTop, x3 - chartLeft, splitY - chartTop);
+
+        // 2. 紧急+不重要 (左下) — 橙黄：矩形
         chartCtx.fillStyle = isDark ? 'rgba(234,179,8,0.30)' : 'rgba(234,179,8,0.22)';
-        chartCtx.fillRect(p.left, splitY, x3 - p.left, p.top + ch - splitY);
-        // 计划做 (右上) — 橙
+        chartCtx.fillRect(chartLeft, splitY, x3 - chartLeft, chartBottom - splitY);
+
+        // 3. 计划做 (右上) — 橙：梯形多边形
+        //    从x3到x14: 底边是splitY (y=3.2)
+        //    从x14到xEnd: 底边沿升星斜线上升
         chartCtx.fillStyle = isDark ? 'rgba(245,158,11,0.28)' : 'rgba(245,158,11,0.18)';
-        chartCtx.fillRect(x3, p.top, p.left + cw - x3, splitY - p.top);
-        // 一般事务 (右下) — 绿
+        chartCtx.beginPath();
+        chartCtx.moveTo(x3, chartTop);           // 左上角
+        chartCtx.lineTo(chartRight, chartTop);     // 右上角
+        chartCtx.lineTo(chartRight, slopeEndY);    // 右边沿斜线
+        chartCtx.lineTo(slopeStartX, slopeStartY); // 14天处 y=3
+        chartCtx.lineTo(x3, splitY);               // 3.2天处 y=3.2
+        chartCtx.closePath();
+        chartCtx.fill();
+
+        // 4. 一般事务 (右下) — 绿：梯形多边形（剩余区域）
         chartCtx.fillStyle = isDark ? 'rgba(16,185,129,0.25)' : 'rgba(16,185,129,0.16)';
-        chartCtx.fillRect(x3, splitY, p.left + cw - x3, p.top + ch - splitY);
+        chartCtx.beginPath();
+        chartCtx.moveTo(x3, splitY);               // 左边 y=3.2
+        chartCtx.lineTo(slopeStartX, slopeStartY); // 14天处 y=3
+        chartCtx.lineTo(chartRight, slopeEndY);     // 右边沿斜线
+        chartCtx.lineTo(chartRight, chartBottom);    // 右下角
+        chartCtx.lineTo(x3, chartBottom);            // 左下角
+        chartCtx.closePath();
+        chartCtx.fill();
 
         // 象限文字 — 用各象限对应的纯色
         chartCtx.font = 'bold 16px sans-serif';
@@ -448,19 +485,18 @@
         chartCtx.fillStyle = isDark ? '#34d399' : '#047857';
         chartCtx.fillText('一般事务', (x3 + p.left + cw) / 2, splitY + 20);
 
-        // 分割虚线 — x=3天为主分割线
+        // 分割虚线 — x=3.2天为主竖线，y=3.2★+升星斜线为横线
         chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
         chartCtx.setLineDash([6, 4]);
         chartCtx.lineWidth = 1.5;
         chartCtx.beginPath();
-        chartCtx.moveTo(x3, p.top); chartCtx.lineTo(x3, p.top + ch);
-        chartCtx.moveTo(p.left, splitY); chartCtx.lineTo(p.left + cw, splitY);
+        chartCtx.moveTo(x3, chartTop); chartCtx.lineTo(x3, chartBottom);
         chartCtx.stroke();
-        // x=14天为辅助参考线（更淡）
-        chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-        chartCtx.lineWidth = 1;
+        // 水平段 splitY (x3→x14) + 斜线段 (x14→xEnd)
         chartCtx.beginPath();
-        chartCtx.moveTo(x14, p.top); chartCtx.lineTo(x14, p.top + ch);
+        chartCtx.moveTo(x3, splitY);
+        chartCtx.lineTo(slopeStartX, slopeStartY);
+        chartCtx.lineTo(chartRight, slopeEndY);
         chartCtx.stroke();
         chartCtx.setLineDash([]);
 
@@ -592,12 +628,13 @@
             var r = completed ? 6 : 10;
             var alpha = completed ? 0.35 : 0.9;
 
-            // 颜色根据4象限（紧急=3天内，重要=3.2★+含升星）
+            // 颜色根据4象限（紧急=3.2天内，重要=3.2★+含升星斜线）
+            var impThreshold = pt.x > 14 ? 3 + (pt.x - 14) / 7 * 0.5 : 3.2;
             var color;
             if (pt.x <= 3.2 && pt.y >= 3.2) color = 'rgba(220,38,38,' + alpha + ')';       // 立即做 红
             else if (pt.x <= 3.2 && pt.y < 3.2) color = 'rgba(217,119,6,' + alpha + ')';    // 快速做 橙
-            else if (pt.y >= 3.2) color = 'rgba(245,158,11,' + alpha + ')';                // 计划做 金橙
-            else color = 'rgba(16,185,129,' + alpha + ')';                                  // 一般事务 绿
+            else if (pt.y >= impThreshold) color = 'rgba(245,158,11,' + alpha + ')';          // 计划做 金橙
+            else color = 'rgba(16,185,129,' + alpha + ')';                                     // 一般事务 绿
 
             // 阴影
             chartCtx.shadowColor = 'rgba(0,0,0,0.15)';

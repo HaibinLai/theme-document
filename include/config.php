@@ -39,7 +39,7 @@
 /*
  * 主题版本
  * */
-const DOCUMENT_VERSION = "1.3.1";
+const DOCUMENT_VERSION = "1.4.1";
 
 const ADMIN = [
 	/*菜单设置*/

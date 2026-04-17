@@ -523,14 +523,17 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 矩阵视图整体布局 — 突破容器宽度 */
+/* 矩阵视图宽屏模式 — 扩展外层容器 */
+.main-main.todo-wide-mode {
+    width: 90% !important;
+    max-width: 1400px !important;
+}
+
+/* 矩阵视图整体布局 */
 .todo-matrix-wrap {
     display: flex;
+    flex-direction: column;
     gap: 20px;
-    align-items: flex-start;
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-    padding: 0 max(20px, calc(50vw - 620px));
 }
 
 /* 2D图容器 */
@@ -548,20 +551,35 @@
     width: 100%;
 }
 
-/* 侧边栏 */
+/* 侧边栏 — 横排4列卡片 */
 .todo-sidebar {
-    width: 260px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
 }
 
 .todo-sidebar-group {
     background: var(--theme-bg-color, #fff);
     border: 1px solid var(--theme-border-color, #e8e8e8);
     border-radius: 10px;
-    padding: 10px 12px;
+    padding: 14px 16px;
+    min-height: 80px;
+}
+
+.todo-sidebar-group:nth-child(1) {
+    border-top: 3px solid #ef4444;
+}
+
+.todo-sidebar-group:nth-child(2) {
+    border-top: 3px solid #f59e0b;
+}
+
+.todo-sidebar-group:nth-child(3) {
+    border-top: 3px solid #f59e0b;
+}
+
+.todo-sidebar-group:nth-child(4) {
+    border-top: 3px solid #10b981;
 }
 
 .todo-sidebar-title {
@@ -762,15 +780,12 @@
     }
 
     .todo-sidebar {
-        width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
 
-    .todo-sidebar-group {
-        flex: 1;
-        min-width: 140px;
+    .main-main.todo-wide-mode {
+        width: 100% !important;
     }
 
     .todo-body {

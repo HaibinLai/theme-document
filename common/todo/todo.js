@@ -207,7 +207,10 @@
         currentView = v;
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === v); });
         document.getElementById('todo-list').style.display = v === 'list' ? 'block' : 'none';
-        document.getElementById('todo-matrix-wrap').style.display = v === 'chart' ? 'flex' : 'none';
+        document.getElementById('todo-matrix-wrap').style.display = v === 'chart' ? '' : 'none';
+        // 矩阵视图时扩展外层容器宽度
+        var mainMain = document.querySelector('.main-main');
+        if (mainMain) mainMain.classList.toggle('todo-wide-mode', v === 'chart');
         render();
     }
 
@@ -492,9 +495,14 @@
         chartCtx.textAlign = 'center';
 
         var xTickDays = [-2, 0, 1, 2, 3, 7, 14, 21];
-        var xTickLabels = ['过期', '今天', '明天', '后天', '3天', '7天', '14天', '14天后'];
+        var xTickLabels = ['过期', '今天', '明天', '后天', '3天', '1周', '2周', '3周'];
+
+        // 在3天处加粗刻度标注（主分割线）
         for (var i = 0; i < xTickDays.length; i++) {
             var tx = p.left + ((xTickDays[i] + XOFFSET) / xTotalRange) * cw;
+            var isSplit = (xTickDays[i] === 3);
+            chartCtx.font = isSplit ? 'bold 14px sans-serif' : '14px sans-serif';
+            chartCtx.fillStyle = isSplit ? (isDark ? '#f87171' : '#dc2626') : textColor;
             chartCtx.fillText(xTickLabels[i], tx, p.top + ch + 18);
             // 小刻度线
             chartCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';

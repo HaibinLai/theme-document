@@ -1,7 +1,7 @@
 <?php
 /**
- * 小玩具导航页面模板
- * Template Name: 小玩具
+ * My Corner - navigation page template
+ * Template Name: My Corner
  * @author Haibin
  * @date 2026-04-17
  */
@@ -11,22 +11,21 @@ get_header();
 $is_admin = current_user_can( 'administrator' );
 
 /**
- * 玩具配置列表
- * 每项: name=名称, icon=emoji, desc=描述, url=链接, admin_only=是否仅管理员可见
+ * Corner items config list
+ * Each item: name, icon (emoji), desc, url, admin_only (visibility)
  *
- * 管理员可在后台 "主题选项" 中管理，也可直接编辑此数组
- * admin_only = true  → 仅管理员可见（非管理员看不到该卡片）
- * admin_only = false → 所有人可见
+ * admin_only = true  -> visible to admin only (non-admin cannot see)
+ * admin_only = false -> visible to everyone
  */
 $toys = get_option( 'nicen_theme_toys', [] );
 
-// 默认玩具列表（首次使用时初始化）
+// Default items (initialized on first visit)
 if ( empty( $toys ) ) {
     $toys = [
         [
-            'name'       => '待办事项',
+            'name'       => 'Todo List',
             'icon'       => '&#128203;',
-            'desc'       => '管理日常任务，保持高效',
+            'desc'       => 'Manage daily tasks, stay productive',
             'url'        => '/index.php/todo-list/',
             'admin_only' => true,
         ],
@@ -34,14 +33,14 @@ if ( empty( $toys ) ) {
     update_option( 'nicen_theme_toys', $toys );
 }
 
-// 非管理员过滤掉仅管理员可见的玩具
+// Filter out admin-only items for non-admin users
 if ( ! $is_admin ) {
     $toys = array_filter( $toys, function( $toy ) {
         return empty( $toy['admin_only'] );
     });
 }
 
-// 如果非管理员且没有任何可见玩具，显示404
+// Show 404 if non-admin and no visible items
 if ( ! $is_admin && empty( $toys ) ) {
     global $wp_query;
     $wp_query->set_404();
@@ -56,13 +55,13 @@ if ( ! $is_admin && empty( $toys ) ) {
         <article class="main-content">
             <div class="toys-container">
 
-                <!-- 标题 -->
+                <!-- Header -->
                 <div class="toys-header">
-                    <h2>&#127922; 小玩具</h2>
-                    <p>点击卡片进入对应的小工具</p>
+                    <h2>&#127968; My Corner</h2>
+                    <p>Click a card to explore</p>
                 </div>
 
-                <!-- 卡片网格 -->
+                <!-- Card Grid -->
                 <div class="toys-grid">
                     <?php foreach ( $toys as $index => $toy ) : ?>
                         <?php $toy_href = preg_match( '#^https?://#i', $toy['url'] ) ? $toy['url'] : home_url( $toy['url'] ); ?>
@@ -71,16 +70,16 @@ if ( ! $is_admin && empty( $toys ) ) {
                             <div class="toys-card-name"><?php echo esc_html( $toy['name'] ); ?></div>
                             <div class="toys-card-desc"><?php echo esc_html( $toy['desc'] ); ?></div>
                             <?php if ( $is_admin && ! empty( $toy['admin_only'] ) ) : ?>
-                                <span class="toys-card-badge" title="仅管理员可见">&#128274;</span>
+                                <span class="toys-card-badge" title="Admin only">&#128274;</span>
                             <?php endif; ?>
                         </a>
                     <?php endforeach; ?>
 
                     <?php if ( $is_admin ) : ?>
-                        <!-- 管理员专属：添加新玩具的卡片 -->
-                        <div class="toys-card toys-card-add" id="toys-add-btn" title="添加新玩具">
+                        <!-- Admin: add new item -->
+                        <div class="toys-card toys-card-add" id="toys-add-btn" title="Add new item">
                             <div class="toys-card-icon">&#10133;</div>
-                            <div class="toys-card-name">添加玩具</div>
+                            <div class="toys-card-name">Add Item</div>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -91,42 +90,42 @@ if ( ! $is_admin && empty( $toys ) ) {
 </main>
 
 <?php if ( $is_admin ) : ?>
-<!-- 管理员：添加/编辑弹窗 -->
+<!-- Admin: add/edit modal -->
 <div class="toys-modal-overlay" id="toys-modal" style="display:none;">
     <div class="toys-modal">
         <div class="toys-modal-header">
-            <h3 id="toys-modal-title">添加新玩具</h3>
+            <h3 id="toys-modal-title">Add New Item</h3>
             <button class="toys-modal-close" id="toys-modal-close">&times;</button>
         </div>
         <div class="toys-modal-body">
             <input type="hidden" id="toys-edit-index" value="-1">
-            <label>名称
-                <input type="text" id="toys-input-name" placeholder="例如：待办事项" autocomplete="off">
+            <label>Name
+                <input type="text" id="toys-input-name" placeholder="e.g. Todo List" autocomplete="off">
             </label>
-            <label>图标 (Emoji)
-                <input type="text" id="toys-input-icon" placeholder="例如：📋 或粘贴任意 emoji" autocomplete="off">
+            <label>Icon (Emoji)
+                <input type="text" id="toys-input-icon" placeholder="e.g. &#128203; or paste any emoji" autocomplete="off">
             </label>
-            <label>描述
-                <input type="text" id="toys-input-desc" placeholder="简短描述" autocomplete="off">
+            <label>Description
+                <input type="text" id="toys-input-desc" placeholder="A short description" autocomplete="off">
             </label>
-            <label>链接路径
-                <input type="text" id="toys-input-url" placeholder="例如：/待办事项" autocomplete="off">
+            <label>URL
+                <input type="text" id="toys-input-url" placeholder="e.g. /todo-list/ or https://..." autocomplete="off">
             </label>
             <label class="toys-checkbox-label">
-                <input type="checkbox" id="toys-input-admin"> 仅管理员可见
+                <input type="checkbox" id="toys-input-admin"> Admin only
             </label>
         </div>
         <div class="toys-modal-footer">
-            <button class="toys-btn toys-btn-delete" id="toys-delete-btn" style="display:none;">删除</button>
+            <button class="toys-btn toys-btn-delete" id="toys-delete-btn" style="display:none;">Delete</button>
             <div style="flex:1;"></div>
-            <button class="toys-btn toys-btn-cancel" id="toys-cancel-btn">取消</button>
-            <button class="toys-btn toys-btn-save" id="toys-save-btn">保存</button>
+            <button class="toys-btn toys-btn-cancel" id="toys-cancel-btn">Cancel</button>
+            <button class="toys-btn toys-btn-save" id="toys-save-btn">Save</button>
         </div>
     </div>
 </div>
 
 <style>
-/* ===== 小玩具导航页样式 ===== */
+/* ===== My Corner page styles ===== */
 .toys-container {
     max-width: 960px;
     margin: 0 auto;
@@ -146,14 +145,14 @@ if ( ! $is_admin && empty( $toys ) ) {
     font-size: var(--theme-secondary);
 }
 
-/* 网格 */
+/* Grid */
 .toys-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 24px;
 }
 
-/* 卡片 */
+/* Card */
 .toys-card {
     position: relative;
     display: flex;
@@ -200,7 +199,7 @@ if ( ! $is_admin && empty( $toys ) ) {
     opacity: 0.5;
 }
 
-/* 添加卡片 */
+/* Add card */
 .toys-card-add {
     border: 2px dashed #ccc;
     background: transparent;
@@ -215,9 +214,9 @@ if ( ! $is_admin && empty( $toys ) ) {
     opacity: 0.4;
 }
 
-/* 管理员右键编辑提示 */
+/* Admin: right-click edit hint */
 .toys-card[data-index]:not(.toys-card-add)::after {
-    content: '长按/右键编辑';
+    content: 'Right-click to edit';
     position: absolute;
     bottom: 4px;
     font-size: 0.6rem;
@@ -228,7 +227,7 @@ if ( ! $is_admin && empty( $toys ) ) {
     color: #bbb;
 }
 
-/* ===== 弹窗 ===== */
+/* ===== Modal ===== */
 .toys-modal-overlay {
     position: fixed;
     inset: 0;
@@ -329,7 +328,7 @@ if ( ! $is_admin && empty( $toys ) ) {
 }
 .toys-btn-delete:hover { opacity: 0.85; }
 
-/* 响应式 */
+/* Responsive */
 @media (max-width: 640px) {
     .toys-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -349,7 +348,7 @@ if ( ! $is_admin && empty( $toys ) ) {
     var modal   = document.getElementById('toys-modal');
 
     function openModal(mode, data) {
-        document.getElementById('toys-modal-title').textContent = mode === 'edit' ? '编辑玩具' : '添加新玩具';
+        document.getElementById('toys-modal-title').textContent = mode === 'edit' ? 'Edit Item' : 'Add New Item';
         document.getElementById('toys-edit-index').value = data.index !== undefined ? data.index : -1;
         document.getElementById('toys-input-name').value = data.name || '';
         document.getElementById('toys-input-icon').value = data.icon || '';
@@ -372,15 +371,15 @@ if ( ! $is_admin && empty( $toys ) ) {
             .then(function(r){ return r.json(); })
             .then(function(res){
                 if (res.success) location.reload();
-                else alert(res.data || '操作失败');
+                else alert(res.data || 'Operation failed');
             });
     }
 
-    // 添加按钮
+    // Add button
     var addBtn = document.getElementById('toys-add-btn');
     if (addBtn) addBtn.addEventListener('click', function(){ openModal('add', {}); });
 
-    // 右键/长按编辑
+    // Right-click to edit
     document.querySelectorAll('.toys-card[data-index]').forEach(function(card){
         card.addEventListener('contextmenu', function(e){
             e.preventDefault();
@@ -396,10 +395,10 @@ if ( ! $is_admin && empty( $toys ) ) {
         });
     });
 
-    // 弹窗按钮
+    // Modal buttons
     document.getElementById('toys-modal-close').addEventListener('click', closeModal);
     document.getElementById('toys-cancel-btn').addEventListener('click', closeModal);
-    // 点击遮罩层不关闭，只能通过取消/关闭按钮退出
+    // Clicking overlay does not close modal - only via Cancel / X button
 
     document.getElementById('toys-save-btn').addEventListener('click', function(){
         var idx = parseInt(document.getElementById('toys-edit-index').value);
@@ -410,12 +409,12 @@ if ( ! $is_admin && empty( $toys ) ) {
             url:        document.getElementById('toys-input-url').value.trim(),
             admin_only: document.getElementById('toys-input-admin').checked
         };
-        if (!toy.name || !toy.url) { alert('名称和链接不能为空'); return; }
+        if (!toy.name || !toy.url) { alert('Name and URL are required'); return; }
         saveToy(idx >= 0 ? 'update' : 'add', { index: idx, toy: toy });
     });
 
     document.getElementById('toys-delete-btn').addEventListener('click', function(){
-        if (!confirm('确定删除？')) return;
+        if (!confirm('Are you sure you want to delete this item?')) return;
         var idx = parseInt(document.getElementById('toys-edit-index').value);
         saveToy('delete', { index: idx });
     });

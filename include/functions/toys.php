@@ -1,6 +1,6 @@
 <?php
 /**
- * 小玩具导航 AJAX 管理
+ * My Corner - AJAX management handler
  * @author Haibin
  * @date 2026-04-17
  */
@@ -8,12 +8,12 @@
 add_action( 'wp_ajax_toys_manage', 'nicen_theme_toys_manage' );
 
 function nicen_theme_toys_manage() {
-    // 验证权限和 nonce
+    // Verify permission and nonce
     if ( ! current_user_can( 'administrator' ) ) {
-        wp_send_json_error( '无权限' );
+        wp_send_json_error( 'Permission denied' );
     }
     if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'toys_nonce' ) ) {
-        wp_send_json_error( 'nonce 验证失败' );
+        wp_send_json_error( 'Nonce verification failed' );
     }
 
     $op   = sanitize_text_field( $_POST['op'] ?? '' );
@@ -24,7 +24,7 @@ function nicen_theme_toys_manage() {
         case 'add':
             $toy = nicen_theme_sanitize_toy( $data['toy'] ?? [] );
             if ( empty( $toy['name'] ) || empty( $toy['url'] ) ) {
-                wp_send_json_error( '名称和链接不能为空' );
+                wp_send_json_error( 'Name and URL are required' );
             }
             $toys[] = $toy;
             break;
@@ -32,11 +32,11 @@ function nicen_theme_toys_manage() {
         case 'update':
             $index = intval( $data['index'] ?? -1 );
             if ( ! isset( $toys[ $index ] ) ) {
-                wp_send_json_error( '玩具不存在' );
+                wp_send_json_error( 'Item not found' );
             }
             $toy = nicen_theme_sanitize_toy( $data['toy'] ?? [] );
             if ( empty( $toy['name'] ) || empty( $toy['url'] ) ) {
-                wp_send_json_error( '名称和链接不能为空' );
+                wp_send_json_error( 'Name and URL are required' );
             }
             $toys[ $index ] = $toy;
             break;
@@ -44,13 +44,13 @@ function nicen_theme_toys_manage() {
         case 'delete':
             $index = intval( $data['index'] ?? -1 );
             if ( ! isset( $toys[ $index ] ) ) {
-                wp_send_json_error( '玩具不存在' );
+                wp_send_json_error( 'Item not found' );
             }
             array_splice( $toys, $index, 1 );
             break;
 
         default:
-            wp_send_json_error( '未知操作' );
+            wp_send_json_error( 'Unknown operation' );
     }
 
     update_option( 'nicen_theme_toys', $toys );

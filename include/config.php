@@ -884,7 +884,7 @@ const PAGES = [
 	'留言板'   => [
 		'template' => 'template/page/board.php',
 	],
-	'小玩具'   => [
+	'My Corner'   => [
 		'template'  => 'template/page/toys.php',
 	],
 	'待办事项' => [

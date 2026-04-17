@@ -883,5 +883,16 @@ const PAGES = [
 	],
 	'留言板'   => [
 		'template' => 'template/page/board.php',
+	],
+	'待办事项' => [
+		'template'  => 'template/page/todo.php',
+		'dependent' => [
+			'styles'  => [
+				'/common/todo/todo.css'
+			],
+			'scripts' => [
+				'/common/todo/todo.js'
+			]
+		]
 	]
 ];

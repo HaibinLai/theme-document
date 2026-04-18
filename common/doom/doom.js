@@ -11,6 +11,7 @@
     var SCREEN_W = 960, SCREEN_H = 540;
     var FOV = Math.PI / 3; // 60 degrees
     var HALF_FOV = FOV / 2;
+    var BASE_FOV = FOV;
     var MOVE_SPEED = 3.0;
     var ROT_SPEED = 2.5;
     var MOUSE_SENS = 0.003;
@@ -18,35 +19,130 @@
     var MAX_DEPTH = 24;
     var TILE = 1;
 
-    // ======================== MAP ========================
-    // 0=empty, 1-4=wall types, 8=door(exit), 9=thin wall
-    var MAP = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,2,2,2,0,0,0,0,3,0,3,0,0,0,0,0,4,4,4,0,0,1],
-        [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,4,0,0,1],
-        [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,3,0,3,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
-        [1,1,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,1],
-        [1,1,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1],
-        [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1],
-        [1,0,0,3,0,3,0,0,0,0,4,4,4,0,0,0,0,0,2,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,4,0,4,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    // ======================== LEVELS ========================
+    // Each level: { map, entities, spawn: {x,y,angle} }
+    // Map tiles: 0=empty, 1-4=wall types, 5=locked door, 8=exit door, 9=thin wall
+    var LEVELS = [
+        // === LEVEL 1 ===
+        {
+            name: 'Level 1 - The Bunker',
+            spawn: { x: 1.5, y: 1.5, angle: 0 },
+            map: [
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,2,2,2,0,0,0,0,3,0,3,0,0,0,0,0,4,4,4,0,0,1],
+                [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,4,0,0,1],
+                [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,3,0,3,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+                [1,1,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,1],
+                [1,1,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,1],
+                [1,0,0,3,0,3,0,0,0,0,4,4,4,0,0,0,0,0,2,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,4,0,4,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            ],
+            entities: [
+                { type: 'guard', x: 5.5, y: 5.5 },
+                { type: 'guard', x: 10.5, y: 2.5 },
+                { type: 'guard', x: 18.5, y: 5.5 },
+                { type: 'guard', x: 3.5, y: 17.5 },
+                { type: 'guard', x: 15.5, y: 18.5 },
+                { type: 'soldier', x: 10.5, y: 10.5 },
+                { type: 'soldier', x: 20.5, y: 20.5 },
+                { type: 'soldier', x: 5.5, y: 14.5 },
+                { type: 'shotgun', x: 7.5, y: 3.5 },
+                { type: 'machinegun', x: 19.5, y: 19.5 },
+                { type: 'health', x: 11.5, y: 11.5 },
+                { type: 'health', x: 3.5, y: 21.5 },
+                { type: 'ammo', x: 15.5, y: 3.5 },
+                { type: 'ammo', x: 20.5, y: 14.5 },
+            ]
+        },
+        // === LEVEL 2 === The Fortress: complex corridors, locked doors, more enemies
+        {
+            name: 'Level 2 - The Fortress',
+            spawn: { x: 1.5, y: 22.5, angle: 0 },
+            map: [
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,8,1],
+                [1,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,3,0,2,2,2,2,0,3,0,4,4,4,4,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,2,0,0,2,0,0,0,4,0,0,4,0,0,0,0,0,1],
+                [1,3,3,3,3,3,0,2,0,0,2,0,3,3,4,0,0,4,0,3,3,3,3,1],
+                [1,0,0,0,0,0,0,2,0,0,0,0,0,0,4,0,0,4,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,2,2,5,2,2,0,0,4,4,5,4,0,0,0,0,0,1],
+                [1,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,1],
+                [1,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,1],
+                [1,1,1,5,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,5,1,1,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+                [1,1,1,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,0,1,1,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+                [1,0,2,2,2,0,0,0,1,1,1,0,0,1,1,1,0,0,0,4,4,4,0,1],
+                [1,0,2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,4,0,1],
+                [1,0,2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,4,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            ],
+            entities: [
+                // Guards — more numerous
+                { type: 'guard', x: 2.5, y: 2.5 },
+                { type: 'guard', x: 10.5, y: 2.5 },
+                { type: 'guard', x: 16.5, y: 4.5 },
+                { type: 'guard', x: 2.5, y: 8.5 },
+                { type: 'guard', x: 21.5, y: 8.5 },
+                { type: 'guard', x: 5.5, y: 15.5 },
+                { type: 'guard', x: 18.5, y: 15.5 },
+                // Soldiers — tougher
+                { type: 'soldier', x: 9.5, y: 5.5 },
+                { type: 'soldier', x: 15.5, y: 5.5 },
+                { type: 'soldier', x: 11.5, y: 12.5 },
+                { type: 'soldier', x: 3.5, y: 18.5 },
+                { type: 'soldier', x: 20.5, y: 18.5 },
+                { type: 'soldier', x: 20.5, y: 2.5 },
+                // Pickups
+                { type: 'health', x: 1.5, y: 6.5 },
+                { type: 'health', x: 22.5, y: 20.5 },
+                { type: 'health', x: 11.5, y: 15.5 },
+                { type: 'ammo', x: 9.5, y: 9.5 },
+                { type: 'ammo', x: 18.5, y: 9.5 },
+                { type: 'ammo', x: 12.5, y: 18.5 },
+                { type: 'shotgun', x: 3.5, y: 11.5 },
+                { type: 'machinegun', x: 20.5, y: 11.5 },
+                { type: 'sniper', x: 9.5, y: 12.5 },
+                { type: 'm4a1', x: 14.5, y: 12.5 },
+            ]
+        }
     ];
-    var MAP_H = MAP.length, MAP_W = MAP[0].length;
+
+    // Active map data (loaded from current level)
+    var MAP, MAP_H, MAP_W, ENTITIES_DEF;
+    var currentLevel = 0;
+    var levelScore = 0; // accumulated score from previous levels
+
+    function loadLevel(levelIdx) {
+        var lvl = LEVELS[levelIdx];
+        MAP = lvl.map;
+        MAP_H = MAP.length;
+        MAP_W = MAP[0].length;
+        ENTITIES_DEF = lvl.entities;
+    }
 
     // Wall colors by type
     var WALL_COLORS = {
@@ -54,6 +150,7 @@
         2: { r: 140, g: 60,  b: 60  }, // dark red brick
         3: { r: 60,  g: 100, b: 140 }, // blue steel
         4: { r: 80,  g: 130, b: 60  }, // green moss
+        5: { r: 100, g: 70,  b: 40  }, // locked door (brown)
         8: { r: 180, g: 140, b: 40  }, // gold exit door
         9: { r: 100, g: 100, b: 100 }, // thin wall
     };
@@ -61,33 +158,14 @@
     var CEIL_COLOR = '#222233';
     var FLOOR_COLOR = '#444433';
 
-    // Entities placed on map (initial state)
-    var ENTITIES_DEF = [
-        // Guards
-        { type: 'guard', x: 5.5, y: 5.5 },
-        { type: 'guard', x: 10.5, y: 2.5 },
-        { type: 'guard', x: 18.5, y: 5.5 },
-        { type: 'guard', x: 3.5, y: 17.5 },
-        { type: 'guard', x: 15.5, y: 18.5 },
-        // Soldiers
-        { type: 'soldier', x: 10.5, y: 10.5 },
-        { type: 'soldier', x: 20.5, y: 20.5 },
-        { type: 'soldier', x: 5.5, y: 14.5 },
-        // Pickups
-        { type: 'shotgun', x: 7.5, y: 3.5 },
-        { type: 'machinegun', x: 19.5, y: 19.5 },
-        { type: 'health', x: 11.5, y: 11.5 },
-        { type: 'health', x: 3.5, y: 21.5 },
-        { type: 'ammo', x: 15.5, y: 3.5 },
-        { type: 'ammo', x: 20.5, y: 14.5 },
-    ];
-
     // ======================== WEAPONS ========================
     var WEAPONS = {
         knife:      { name: 'Knife',       damage: 50, fireRate: 500, ammo: Infinity, spread: 0,    color: '#ccc', auto: false, melee: true, range: 1.0 },
         pistol:     { name: 'Pistol',      damage: 25, fireRate: 400, ammo: Infinity, spread: 0,    color: '#aaa', auto: false },
         shotgun:    { name: 'Shotgun',      damage: 80, fireRate: 800, ammo: 20,       spread: 0.15, color: '#c84', auto: false },
         machinegun: { name: 'Machine Gun',  damage: 15, fireRate: 100, ammo: 100,      spread: 0.05, color: '#4a4', auto: true  },
+        sniper:     { name: 'Sniper',       damage: 150, fireRate: 1200, ammo: 10,     spread: 0,    color: '#448', auto: false },
+        m4a1:       { name: 'M4A1',         damage: 20, fireRate: 120, ammo: 120,      spread: 0.04, color: '#886', auto: true  },
     };
 
     // ======================== STATE ========================
@@ -110,6 +188,11 @@
     var damageFlash = 0;
     var isFiring = false;
     var projectiles = []; // enemy bullet projectiles
+    var floatingTexts = []; // damage numbers {x, y, z, text, life, color}
+    var shakeIntensity = 0; // screen shake
+    var grenadeCount = 0;
+    var grenades = []; // active grenade projectiles {x, y, dx, dy, life}
+    var sniperZoom = false;
 
     // Leaderboard
     var leaderboardData = [];
@@ -322,6 +405,84 @@
                 osc.start(now);
                 osc.stop(now + 0.35);
                 break;
+
+            case 'door':
+                // Heavy door sliding open
+                osc = audioCtx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(80, now);
+                osc.frequency.linearRampToValueAtTime(50, now + 0.4);
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 400;
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+                break;
+
+            case 'explosion':
+                // Deep boom
+                bufferSize = audioCtx.sampleRate * 0.6;
+                buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                output = buffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.15));
+                noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 300;
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start(now);
+                break;
+
+            case 'sniper':
+                // Heavy rifle crack
+                osc = audioCtx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 800;
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+                break;
+
+            case 'm4a1':
+                // Rapid fire pop
+                bufferSize = audioCtx.sampleRate * 0.08;
+                buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                output = buffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.08));
+                noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1200;
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start(now);
+                break;
         }
     }
 
@@ -334,6 +495,9 @@
         ctx = canvas.getContext('2d');
         canvas.width = SCREEN_W;
         canvas.height = SCREEN_H;
+
+        // Load default level data
+        loadLevel(0);
 
         // Minimap canvas
         miniCanvas = document.createElement('canvas');
@@ -356,8 +520,12 @@
             if (e.code === 'Digit2' && hasWeapon.pistol) switchWeapon('pistol');
             if (e.code === 'Digit3' && hasWeapon.shotgun) switchWeapon('shotgun');
             if (e.code === 'Digit4' && hasWeapon.machinegun) switchWeapon('machinegun');
+            if (e.code === 'Digit5' && hasWeapon.sniper) switchWeapon('sniper');
+            if (e.code === 'Digit6' && hasWeapon.m4a1) switchWeapon('m4a1');
             if (e.code === 'KeyQ') cycleWeapon();
             if (e.code === 'KeyM') showMinimap = !showMinimap;
+            if (e.code === 'KeyE' && gameState === 'PLAYING') tryOpenDoor();
+            if (e.code === 'KeyG' && gameState === 'PLAYING') throwGrenade();
             if (e.code === 'Space' || e.code === 'Enter') {
                 if (gameState === 'MENU') return;
                 e.preventDefault();
@@ -385,16 +553,23 @@
         });
         document.addEventListener('mousedown', function (e) {
             if (pointerLocked && e.button === 0) isFiring = true;
+            if (pointerLocked && e.button === 2 && gameState === 'PLAYING') {
+                if (currentWeapon === 'sniper') {
+                    sniperZoom = !sniperZoom;
+                }
+            }
         });
         document.addEventListener('mouseup', function (e) {
             if (e.button === 0) isFiring = false;
         });
+        // Prevent context menu
+        canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
 
         // Scroll wheel weapon cycle
         canvas.addEventListener('wheel', function (e) {
             if (gameState !== 'PLAYING') return;
             e.preventDefault();
-            var order = ['knife', 'pistol', 'shotgun', 'machinegun'];
+            var order = ['knife', 'pistol', 'shotgun', 'machinegun', 'sniper', 'm4a1'];
             var owned = order.filter(function (w) { return hasWeapon[w]; });
             var idx = owned.indexOf(currentWeapon);
             if (e.deltaY > 0) idx = (idx + 1) % owned.length;
@@ -434,18 +609,41 @@
             localStorage.setItem('doom_player_name', playerName);
         }
 
-        // Reset player
-        player = { x: 1.5, y: 1.5, angle: 0, hp: 100 };
-        currentWeapon = 'knife';
-        hasWeapon = { knife: true, pistol: true, shotgun: false, machinegun: false };
-        weaponAmmo = { knife: Infinity, pistol: Infinity, shotgun: 0, machinegun: 0 };
-        kills = 0;
-        gameTime = 0;
+        currentLevel = 0;
+        levelScore = 0;
+        initLevel(currentLevel, true);
+
+        initAudio();
+        gameState = 'PLAYING';
+        hideOverlays();
+        canvas.requestPointerLock();
+    }
+
+    // Initialize a level. fullReset=true resets weapons/ammo (new game), false=keep (level transition)
+    function initLevel(levelIdx, fullReset) {
+        loadLevel(levelIdx);
+        var lvl = LEVELS[levelIdx];
+
+        // Reset player position
+        player = { x: lvl.spawn.x, y: lvl.spawn.y, angle: lvl.spawn.angle, hp: fullReset ? 100 : player.hp };
+
+        if (fullReset) {
+            currentWeapon = 'knife';
+            hasWeapon = { knife: true, pistol: true, shotgun: false, machinegun: false, sniper: false, m4a1: false };
+            weaponAmmo = { knife: Infinity, pistol: Infinity, shotgun: 0, machinegun: 0, sniper: 0, m4a1: 0 };
+            kills = 0;
+            gameTime = 0;
+        }
         lastFireTime = 0;
         weaponAnim = 0;
         damageFlash = 0;
         isFiring = false;
         projectiles = [];
+        floatingTexts = [];
+        grenades = [];
+        // Give grenades on level 2+
+        if (fullReset) grenadeCount = 0;
+        if (levelIdx >= 1) grenadeCount += 3;
 
         // Clone entities
         entities = [];
@@ -473,6 +671,10 @@
                 ent.pickupType = 'shotgun'; ent.color = '#c84';
             } else if (e.type === 'machinegun') {
                 ent.pickupType = 'machinegun'; ent.color = '#4a4';
+            } else if (e.type === 'sniper') {
+                ent.pickupType = 'sniper'; ent.color = '#448';
+            } else if (e.type === 'm4a1') {
+                ent.pickupType = 'm4a1'; ent.color = '#886';
             } else if (e.type === 'health') {
                 ent.pickupType = 'health'; ent.color = '#f44';
             } else if (e.type === 'ammo') {
@@ -480,22 +682,18 @@
             }
             entities.push(ent);
         });
-
-        initAudio();
-        gameState = 'PLAYING';
-        hideOverlays();
-        canvas.requestPointerLock();
     }
 
     function switchWeapon(w) {
         if (hasWeapon[w] && currentWeapon !== w) {
             currentWeapon = w;
             weaponAnim = 0;
+            if (w !== 'sniper') sniperZoom = false;
         }
     }
 
     function cycleWeapon() {
-        var order = ['knife', 'pistol', 'shotgun', 'machinegun'];
+        var order = ['knife', 'pistol', 'shotgun', 'machinegun', 'sniper', 'm4a1'];
         var owned = order.filter(function (w) { return hasWeapon[w]; });
         if (owned.length <= 1) return;
         var idx = (owned.indexOf(currentWeapon) + 1) % owned.length;
@@ -527,6 +725,8 @@
             updateProjectiles();
             checkPickups();
             checkWin();
+            updateFloatingTexts(dt);
+            updateGrenades();
         }
 
         render();
@@ -618,6 +818,7 @@
         weaponAnim = 1.0;
         var wp = WEAPONS[currentWeapon];
         playSound(currentWeapon);
+        if (currentWeapon === 'shotgun') shakeIntensity = Math.max(shakeIntensity, 0.3);
         // Alert nearby enemies
         alertNearbyEnemies(player.x, player.y, wp.melee ? 5 : 10);
 
@@ -633,6 +834,20 @@
         } else {
             var spread = (Math.random() - 0.5) * wp.spread * 2;
             castBullet(player.angle + spread, wp.damage);
+        }
+    }
+
+    // Spawn a floating damage number at world position
+    function spawnFloatText(x, y, text, color) {
+        floatingTexts.push({ x: x, y: y, z: 0.5, text: String(text), life: 1.0, color: color || '#ff0' });
+    }
+
+    function updateFloatingTexts(dt) {
+        for (var i = floatingTexts.length - 1; i >= 0; i--) {
+            var ft = floatingTexts[i];
+            ft.z += dt * 1.2; // float upward
+            ft.life -= dt;
+            if (ft.life <= 0) floatingTexts.splice(i, 1);
         }
     }
 
@@ -652,6 +867,7 @@
         }
         if (best) {
             best.hp -= damage;
+            spawnFloatText(best.x, best.y, damage, '#ff0');
             best.state = 'CHASE';
             best.alertTimer = 5;
             if (best.hp <= 0) {
@@ -659,6 +875,8 @@
                 best.state = 'DEAD';
                 kills++;
                 playSound('kill');
+                // Drop a coin
+                entities.push({ type: 'coin', x: best.x, y: best.y, alive: true, pickupType: 'coin', color: '#fc0' });
             } else {
                 playSound('hit');
             }
@@ -697,6 +915,7 @@
 
         if (best) {
             best.hp -= damage;
+            spawnFloatText(best.x, best.y, damage, '#ff0');
             best.state = 'CHASE';
             best.alertTimer = 5;
             if (best.hp <= 0) {
@@ -704,6 +923,8 @@
                 best.state = 'DEAD';
                 kills++;
                 playSound('kill');
+                // Drop a coin
+                entities.push({ type: 'coin', x: best.x, y: best.y, alive: true, pickupType: 'coin', color: '#fc0' });
             } else {
                 playSound('hit');
             }
@@ -779,12 +1000,12 @@
                         player.hp -= e.damage * 1.5;
                         damageFlash = 1.0;
                         playSound('hurt');
-                        e.lastFire = now;
+                        shakeIntensity = Math.max(shakeIntensity, 0.5);
                         if (player.hp <= 0) {
                             player.hp = 0;
                             gameState = 'GAMEOVER';
                             var goScore = document.getElementById('doom-go-score');
-                            if (goScore) goScore.textContent = calcScore();
+                            if (goScore) goScore.textContent = levelScore + calcScore();
                             var goKills = document.getElementById('doom-go-kills');
                             if (goKills) goKills.textContent = kills + '/' + totalEnemies;
                             var goTime = document.getElementById('doom-go-time');
@@ -861,12 +1082,13 @@
                 player.hp -= p.damage;
                 damageFlash = 1.0;
                 playSound('hurt');
+                shakeIntensity = Math.max(shakeIntensity, 0.5);
                 projectiles.splice(i, 1);
                 if (player.hp <= 0) {
                     player.hp = 0;
                     gameState = 'GAMEOVER';
                     var goScore = document.getElementById('doom-go-score');
-                    if (goScore) goScore.textContent = calcScore();
+                    if (goScore) goScore.textContent = levelScore + calcScore();
                     var goKills = document.getElementById('doom-go-kills');
                     if (goKills) goKills.textContent = kills + '/' + totalEnemies;
                     var goTime = document.getElementById('doom-go-time');
@@ -904,11 +1126,121 @@
                 } else if (e.pickupType === 'ammo') {
                     if (hasWeapon.shotgun) weaponAmmo.shotgun += 10;
                     if (hasWeapon.machinegun) weaponAmmo.machinegun += 50;
+                    if (hasWeapon.sniper) weaponAmmo.sniper += 5;
+                    if (hasWeapon.m4a1) weaponAmmo.m4a1 += 60;
+                    e.alive = false; picked = true;
+                } else if (e.pickupType === 'sniper') {
+                    hasWeapon.sniper = true;
+                    weaponAmmo.sniper += 10;
+                    switchWeapon('sniper');
+                    e.alive = false; picked = true;
+                } else if (e.pickupType === 'm4a1') {
+                    hasWeapon.m4a1 = true;
+                    weaponAmmo.m4a1 += 120;
+                    switchWeapon('m4a1');
+                    e.alive = false; picked = true;
+                } else if (e.pickupType === 'coin') {
+                    levelScore += 50;
+                    spawnFloatText(e.x, e.y, '+50', '#fc0');
                     e.alive = false; picked = true;
                 }
                 if (picked) playSound('pickup');
             }
         });
+    }
+
+    // Try to open a locked door (tile 5) near the player
+    function tryOpenDoor() {
+        var px = Math.floor(player.x), py = Math.floor(player.y);
+        var checks = [[px,py],[px+1,py],[px-1,py],[px,py+1],[px,py-1],
+                       [px+1,py+1],[px-1,py-1],[px+1,py-1],[px-1,py+1]];
+        for (var i = 0; i < checks.length; i++) {
+            var cx = checks[i][0], cy = checks[i][1];
+            if (cx >= 0 && cy >= 0 && cx < MAP_W && cy < MAP_H && MAP[cy][cx] === 5) {
+                var dx = (cx + 0.5) - player.x, dy = (cy + 0.5) - player.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 1.5) {
+                    MAP[cy][cx] = 0; // open the door
+                    playSound('door');
+                    return;
+                }
+            }
+        }
+    }
+
+    // Throw a grenade
+    function throwGrenade() {
+        if (grenadeCount <= 0) return;
+        grenadeCount--;
+        var cos = Math.cos(player.angle), sin = Math.sin(player.angle);
+        grenades.push({
+            x: player.x + cos * 0.5,
+            y: player.y + sin * 0.5,
+            dx: cos * 5,
+            dy: sin * 5,
+            life: 1.5
+        });
+    }
+
+    function updateGrenades() {
+        for (var i = grenades.length - 1; i >= 0; i--) {
+            var g = grenades[i];
+            g.life -= dt;
+            // Move grenade
+            var nx = g.x + g.dx * dt;
+            var ny = g.y + g.dy * dt;
+            var mx = Math.floor(nx), my = Math.floor(ny);
+            if (mx < 0 || my < 0 || mx >= MAP_W || my >= MAP_H || MAP[my][mx] !== 0) {
+                // Hit wall — explode
+                g.life = 0;
+            } else {
+                g.x = nx;
+                g.y = ny;
+            }
+            // Slow down
+            g.dx *= 0.98;
+            g.dy *= 0.98;
+
+            if (g.life <= 0) {
+                // Explode!
+                explodeGrenade(g.x, g.y);
+                grenades.splice(i, 1);
+            }
+        }
+    }
+
+    function explodeGrenade(ex, ey) {
+        var radius = 2.5;
+        shakeIntensity = Math.max(shakeIntensity, 0.8);
+        damageFlash = 0.3;
+        playSound('explosion');
+        // Damage all enemies in radius
+        for (var i = 0; i < entities.length; i++) {
+            var e = entities[i];
+            if (!e.alive || e.pickupType || e.hp === undefined) continue;
+            var dx = e.x - ex, dy = e.y - ey;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < radius) {
+                var dmg = Math.floor(120 * (1 - dist / radius));
+                e.hp -= dmg;
+                spawnFloatText(e.x, e.y, dmg, '#f80');
+                e.state = 'CHASE';
+                e.alertTimer = 5;
+                if (e.hp <= 0) {
+                    e.alive = false;
+                    e.state = 'DEAD';
+                    kills++;
+                    playSound('kill');
+                    entities.push({ type: 'coin', x: e.x, y: e.y, alive: true, pickupType: 'coin', color: '#fc0' });
+                }
+            }
+        }
+        // Damage player if close
+        var pd = Math.sqrt((player.x - ex) * (player.x - ex) + (player.y - ey) * (player.y - ey));
+        if (pd < radius) {
+            var pdmg = Math.floor(60 * (1 - pd / radius));
+            player.hp -= pdmg;
+            damageFlash = 1.0;
+        }
     }
 
     function checkWin() {
@@ -921,9 +1253,17 @@
             if (cx >= 0 && cy >= 0 && cx < MAP_W && cy < MAP_H && MAP[cy][cx] === 8) {
                 var dx = (cx + 0.5) - player.x, dy = (cy + 0.5) - player.y;
                 if (Math.sqrt(dx * dx + dy * dy) < 0.8) {
+                    // Check if there are more levels
+                    if (currentLevel < LEVELS.length - 1) {
+                        // Transition to next level — keep weapons, hp, accumulate score
+                        levelScore += calcScore();
+                        currentLevel++;
+                        initLevel(currentLevel, false);
+                        return;
+                    }
+                    // Final level — win!
                     gameState = 'WIN';
-                    // Show score
-                    var score = calcScore();
+                    var score = levelScore + calcScore();
                     var scoreEl = document.getElementById('doom-win-score');
                     if (scoreEl) scoreEl.textContent = score;
                     var killsEl = document.getElementById('doom-win-kills');
@@ -950,6 +1290,20 @@
 
     // ======================== RENDERING ========================
     function render() {
+        // Sniper zoom FOV
+        FOV = (sniperZoom && currentWeapon === 'sniper') ? BASE_FOV / 2 : BASE_FOV;
+        HALF_FOV = FOV / 2;
+
+        // Screen shake
+        var shakeX = 0, shakeY = 0;
+        if (shakeIntensity > 0) {
+            shakeX = (Math.random() - 0.5) * shakeIntensity * 20;
+            shakeY = (Math.random() - 0.5) * shakeIntensity * 20;
+            shakeIntensity = Math.max(0, shakeIntensity - dt * 5);
+            ctx.save();
+            ctx.translate(shakeX, shakeY);
+        }
+
         // Clear
         ctx.fillStyle = CEIL_COLOR;
         ctx.fillRect(0, 0, SCREEN_W, SCREEN_H / 2);
@@ -967,6 +1321,8 @@
         drawSprites();
         // Projectiles
         drawProjectiles();
+        // Floating damage numbers
+        drawFloatingTexts();
         // Weapon
         drawWeapon();
         // HUD
@@ -976,8 +1332,34 @@
             ctx.fillStyle = 'rgba(255,0,0,' + (damageFlash * 0.35) + ')';
             ctx.fillRect(0, 0, SCREEN_W, SCREEN_H);
         }
+        // Sniper scope overlay
+        if (sniperZoom && currentWeapon === 'sniper') {
+            var cx = SCREEN_W / 2, cy = SCREEN_H / 2;
+            var scopeR = Math.min(SCREEN_W, SCREEN_H) * 0.4;
+            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+            ctx.beginPath();
+            ctx.rect(0, 0, SCREEN_W, SCREEN_H);
+            ctx.arc(cx, cy, scopeR, 0, Math.PI * 2, true);
+            ctx.fill();
+            // Crosshair lines
+            ctx.strokeStyle = 'rgba(0,255,0,0.5)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(cx - scopeR, cy); ctx.lineTo(cx + scopeR, cy);
+            ctx.moveTo(cx, cy - scopeR); ctx.lineTo(cx, cy + scopeR);
+            ctx.stroke();
+            // Scope ring
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(cx, cy, scopeR, 0, Math.PI * 2);
+            ctx.stroke();
+        }
         // Minimap
         if (showMinimap) drawMinimap();
+
+        // Restore shake transform
+        if (shakeX !== 0 || shakeY !== 0) ctx.restore();
     }
 
     function drawMenuScreen() {
@@ -1199,6 +1581,34 @@
                 ctx.fill();
             }
         });
+
+        // Draw grenades
+        grenades.forEach(function (g) {
+            var dx = g.x - player.x, dy = g.y - player.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 0.2 || dist > MAX_DEPTH) return;
+            var spriteAngle = Math.atan2(dy, dx) - player.angle;
+            while (spriteAngle > Math.PI) spriteAngle -= 2 * Math.PI;
+            while (spriteAngle < -Math.PI) spriteAngle += 2 * Math.PI;
+            if (Math.abs(spriteAngle) > HALF_FOV + 0.1) return;
+            var screenX = Math.floor(SCREEN_W / 2 * (1 + spriteAngle / HALF_FOV));
+            var size = Math.floor(SCREEN_H / dist * 0.1);
+            if (size < 2) size = 2;
+            var screenY = Math.floor(SCREEN_H / 2 + size);
+            if (screenX >= 0 && screenX < SCREEN_W && dist < depthBuf[screenX]) {
+                ctx.fillStyle = '#4a4';
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+                ctx.fill();
+                // Blinking fuse
+                if (Math.floor(g.life * 6) % 2 === 0) {
+                    ctx.fillStyle = '#f80';
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY - size, size * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        });
     }
 
     // ======================== WEAPON ========================
@@ -1292,6 +1702,38 @@
         ctx.restore();
     }
 
+    // ======================== FLOATING DAMAGE NUMBERS ========================
+    function drawFloatingTexts() {
+        for (var i = 0; i < floatingTexts.length; i++) {
+            var ft = floatingTexts[i];
+            // Project world position to screen
+            var dx = ft.x - player.x, dy = ft.y - player.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 0.1) continue;
+            var angle = Math.atan2(dy, dx) - player.angle;
+            // Normalize angle
+            while (angle < -Math.PI) angle += Math.PI * 2;
+            while (angle > Math.PI) angle -= Math.PI * 2;
+            if (Math.abs(angle) > HALF_FOV + 0.1) continue;
+
+            var screenX = Math.floor((1 + angle / HALF_FOV) * SCREEN_W / 2);
+            var scale = SCREEN_H / dist;
+            // ft.z is the height offset (floats upward from 0.5)
+            var screenY = Math.floor(SCREEN_H / 2 - ft.z * scale + scale * 0.3);
+
+            var alpha = Math.min(1, ft.life * 2); // fade out in last 0.5s
+            var fontSize = Math.max(12, Math.min(32, Math.floor(scale * 0.25)));
+            ctx.font = 'bold ' + fontSize + 'px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = ft.color.replace(')', ',' + alpha + ')').replace('rgb', 'rgba');
+            // Simple color with alpha
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = ft.color;
+            ctx.fillText(ft.text, screenX, screenY);
+            ctx.globalAlpha = 1;
+        }
+    }
+
     // ======================== HUD ========================
     function drawHUD() {
         ctx.save();
@@ -1341,7 +1783,20 @@
 
         // Score
         ctx.textAlign = 'right';
-        ctx.fillText('SCORE: ' + calcScore(), SCREEN_W - 20, 30);
+        ctx.fillText('SCORE: ' + (levelScore + calcScore()), SCREEN_W - 20, 30);
+
+        // Level indicator (top left, below kills)
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#aaa';
+        ctx.fillText('LEVEL ' + (currentLevel + 1), 20, 50);
+
+        // Grenade count (above ammo, bottom right)
+        if (grenadeCount > 0) {
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#4a4';
+            ctx.font = 'bold 12px monospace';
+            ctx.fillText('GRENADES: ' + grenadeCount, SCREEN_W - 20, SCREEN_H - 70);
+        }
 
         ctx.restore();
     }
@@ -1412,7 +1867,7 @@
     }
 
     function submitScore() {
-        var score = calcScore();
+        var score = levelScore + calcScore();
         var duration = Math.floor(gameTime);
         var salt = window.DOOM_DAY_SALT || '';
         var token = md5(score + '_' + duration + '_' + salt);

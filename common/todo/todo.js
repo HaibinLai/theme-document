@@ -822,15 +822,14 @@
     var POMODORO_STATE = 'pomodoro_state';
     var MAX_POMODORO = 3;
 
+    var pomodoroCounts = {}; // 番茄计数缓存
+
     function getPomodoroCount(todoId) {
-        try { var d = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}'); return d[todoId] || 0; } catch (e) { return 0; }
+        return pomodoroCounts[todoId] || 0;
     }
     function addPomodoroCount(todoId) {
-        try {
-            var d = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}');
-            d[todoId] = (d[todoId] || 0) + 1;
-            localStorage.setItem(POMODORO_STORAGE, JSON.stringify(d));
-        } catch (e) { }
+        pomodoroCounts[todoId] = (pomodoroCounts[todoId] || 0) + 1;
+        savePomodoroToServer();
     }
 
     function findSlot(todoId) {
@@ -839,52 +838,84 @@
     function isPomodoring(todoId) { return !!findSlot(todoId); }
 
     function savePomodoroState() {
-        if (pomodoroSlots.length === 0) { localStorage.removeItem(POMODORO_STATE); return; }
+        var stateData = pomodoroSlots.map(function (s) {
+            return {
+                todoId: s.todoId, phase: s.phase, count: s.count, paused: s.paused,
+                endTime: s.paused ? null : Date.now() + s.remaining * 1000,
+                remaining: s.remaining
+            };
+        });
+        // 本地缓存
         try {
-            localStorage.setItem(POMODORO_STATE, JSON.stringify(pomodoroSlots.map(function (s) {
+            if (pomodoroSlots.length === 0) localStorage.removeItem(POMODORO_STATE);
+            else localStorage.setItem(POMODORO_STATE, JSON.stringify(stateData));
+            localStorage.setItem(POMODORO_STORAGE, JSON.stringify(pomodoroCounts));
+        } catch (e) { }
+        // 同步到服务端
+        savePomodoroToServer();
+    }
+
+    var _pomodoroSaveTimer = null;
+    function savePomodoroToServer() {
+        // 防抖：500ms 内多次调用只发一次请求
+        clearTimeout(_pomodoroSaveTimer);
+        _pomodoroSaveTimer = setTimeout(function () {
+            var stateData = pomodoroSlots.map(function (s) {
                 return {
                     todoId: s.todoId, phase: s.phase, count: s.count, paused: s.paused,
                     endTime: s.paused ? null : Date.now() + s.remaining * 1000,
                     remaining: s.remaining
                 };
-            })));
-        } catch (e) { }
+            });
+            ajax('pomodoro_save', {
+                state: JSON.stringify(stateData),
+                counts: JSON.stringify(pomodoroCounts)
+            }).catch(function () { });
+        }, 500);
     }
 
     function restorePomodoro() {
-        try {
-            var arr = JSON.parse(localStorage.getItem(POMODORO_STATE));
-            if (!Array.isArray(arr) || arr.length === 0) {
-                // 兼容旧格式（单个对象）
-                var old = JSON.parse(localStorage.getItem(POMODORO_STATE));
-                if (old && old.todoId && !Array.isArray(old)) {
-                    arr = [old];
-                } else return;
+        // 优先从服务端加载，失败则用 localStorage
+        ajax('pomodoro_get').then(function (data) {
+            applyPomodoroData(data.state || [], data.counts || {});
+        }).catch(function () {
+            // 降级到本地
+            try {
+                var arr = JSON.parse(localStorage.getItem(POMODORO_STATE));
+                var counts = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}');
+                applyPomodoroData(Array.isArray(arr) ? arr : [], counts || {});
+            } catch (e) { }
+        });
+    }
+
+    function applyPomodoroData(arr, counts) {
+        pomodoroCounts = counts || {};
+        if (!Array.isArray(arr) || arr.length === 0) return;
+        arr.forEach(function (s) {
+            var todo = todos.find(function (t) { return t.id == s.todoId; });
+            if (!todo) return;
+            // 避免重复恢复
+            if (findSlot(s.todoId)) return;
+            var slot = {
+                todoId: s.todoId, phase: s.phase, count: s.count || 0,
+                paused: s.paused || false, remaining: 0, timer: null
+            };
+            if (s.paused) {
+                slot.remaining = s.remaining || 0;
+            } else {
+                slot.remaining = Math.max(0, Math.round((s.endTime - Date.now()) / 1000));
             }
-            arr.forEach(function (s) {
-                var todo = todos.find(function (t) { return t.id == s.todoId; });
-                if (!todo) return;
-                var slot = {
-                    todoId: s.todoId, phase: s.phase, count: s.count || 0,
-                    paused: s.paused || false, remaining: 0, timer: null
-                };
-                if (s.paused) {
-                    slot.remaining = s.remaining || 0;
-                } else {
-                    slot.remaining = Math.max(0, Math.round((s.endTime - Date.now()) / 1000));
-                }
-                pomodoroSlots.push(slot);
-                slot.timer = setInterval(function () { tickSlot(slot); }, 1000);
-                if (slot.remaining <= 0 && !slot.paused) {
-                    endSlotPhase(slot);
-                }
-            });
-            if (pomodoroSlots.length > 0) {
-                pomodoroOrigTitle = document.title;
-                renderPomodoroUI();
-                startPomodoroAnim();
+            pomodoroSlots.push(slot);
+            slot.timer = setInterval(function () { tickSlot(slot); }, 1000);
+            if (slot.remaining <= 0 && !slot.paused) {
+                endSlotPhase(slot);
             }
-        } catch (e) { localStorage.removeItem(POMODORO_STATE); }
+        });
+        if (pomodoroSlots.length > 0) {
+            pomodoroOrigTitle = document.title;
+            renderPomodoroUI();
+            startPomodoroAnim();
+        }
     }
 
     function startPomodoro(todoId) {

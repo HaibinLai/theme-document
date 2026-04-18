@@ -173,3 +173,30 @@ function document_todo_reorder() {
 	wp_send_json_success( true );
 }
 add_action( 'wp_ajax_todo_reorder', 'document_todo_reorder' );
+
+/**
+ * 获取番茄钟状态（多端同步）
+ */
+function document_pomodoro_get() {
+	document_todo_check_permission();
+	$state  = get_option( 'document_pomodoro_state', '[]' );
+	$counts = get_option( 'document_pomodoro_counts', '{}' );
+	wp_send_json_success( [ 'state' => json_decode( $state, true ) ?: [], 'counts' => json_decode( $counts, true ) ?: new \stdClass() ] );
+}
+add_action( 'wp_ajax_pomodoro_get', 'document_pomodoro_get' );
+
+/**
+ * 保存番茄钟状态（多端同步）
+ */
+function document_pomodoro_save() {
+	document_todo_check_permission();
+	$state  = stripslashes( $_POST['state'] ?? '[]' );
+	$counts = stripslashes( $_POST['counts'] ?? '{}' );
+	// 基本校验
+	if ( ! is_array( json_decode( $state, true ) ) ) $state = '[]';
+	if ( ! is_object( json_decode( $counts ) ) && ! is_array( json_decode( $counts, true ) ) ) $counts = '{}';
+	update_option( 'document_pomodoro_state', $state, false );
+	update_option( 'document_pomodoro_counts', $counts, false );
+	wp_send_json_success( true );
+}
+add_action( 'wp_ajax_pomodoro_save', 'document_pomodoro_save' );

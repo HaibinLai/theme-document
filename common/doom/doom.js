@@ -91,6 +91,7 @@
 
     // ======================== STATE ========================
     var canvas, ctx, miniCanvas, miniCtx;
+    var audioCtx = null; // Web Audio context, created on first user interaction
     var gameState = 'MENU'; // MENU, PLAYING, WIN, GAMEOVER
     var player, entities, depthBuf;
     var keys = {};
@@ -115,6 +116,195 @@
 
     // ======================== MD5 (for anti-cheat) ========================
     function md5(s){function L(k,d){return(k<<d)|(k>>>(32-d))}function K(G,k){var I,d,F,H,x;F=(G&2147483648);H=(k&2147483648);I=(G&1073741824);d=(k&1073741824);x=(G&1073741823)+(k&1073741823);if(I&d)return(x^2147483648^F^H);if(I|d){if(x&1073741824)return(x^3221225472^F^H);else return(x^1073741824^F^H)}else return(x^F^H)}function w(a,b,c){return(a&b)|((~a)&c)}function v(a,b,c){return(a&c)|(b&(~c))}function u(a,b,c){return(a^b^c)}function t(a,b,c){return(b^(a|(~c)))}function C(a,b,c,d,e,f,g){a=K(a,K(K(w(b,c,d),e),g));return K(L(a,f),b)}function B(a,b,c,d,e,f,g){a=K(a,K(K(v(b,c,d),e),g));return K(L(a,f),b)}function A(a,b,c,d,e,f,g){a=K(a,K(K(u(b,c,d),e),g));return K(L(a,f),b)}function z(a,b,c,d,e,f,g){a=K(a,K(K(t(b,c,d),e),g));return K(L(a,f),b)}function D(str){var r='',i,c;for(i=0;i<str.length;i++){c=str.charCodeAt(i);r+=String.fromCharCode(c&0xFF,(c>>8)&0xFF)}return r}function E(str){var arr=[],len=str.length*8,i;for(i=0;i<len;i+=8)arr[i>>5]|=(str.charCodeAt(i/8)&0xFF)<<(i%32);return arr}function F(arr,len){arr[len>>5]|=0x80<<(len%32);arr[(((len+64)>>>9)<<4)+14]=len;var a=1732584193,b=-271733879,c=-1732584194,d=271733878,i;for(i=0;i<arr.length;i+=16){var p=a,q=b,r=c,s=d;a=C(a,b,c,d,arr[i+0],7,-680876936);d=C(d,a,b,c,arr[i+1],12,-389564586);c=C(c,d,a,b,arr[i+2],17,606105819);b=C(b,c,d,a,arr[i+3],22,-1044525330);a=C(a,b,c,d,arr[i+4],7,-176418897);d=C(d,a,b,c,arr[i+5],12,1200080426);c=C(c,d,a,b,arr[i+6],17,-1473231341);b=C(b,c,d,a,arr[i+7],22,-45705983);a=C(a,b,c,d,arr[i+8],7,1770035416);d=C(d,a,b,c,arr[i+9],12,-1958414417);c=C(c,d,a,b,arr[i+10],17,-42063);b=C(b,c,d,a,arr[i+11],22,-1990404162);a=C(a,b,c,d,arr[i+12],7,1804603682);d=C(d,a,b,c,arr[i+13],12,-40341101);c=C(c,d,a,b,arr[i+14],17,-1502002290);b=C(b,c,d,a,arr[i+15],22,1236535329);a=B(a,b,c,d,arr[i+1],5,-165796510);d=B(d,a,b,c,arr[i+6],9,-1069501632);c=B(c,d,a,b,arr[i+11],14,643717713);b=B(b,c,d,a,arr[i+0],20,-373897302);a=B(a,b,c,d,arr[i+5],5,-701558691);d=B(d,a,b,c,arr[i+10],9,38016083);c=B(c,d,a,b,arr[i+15],14,-660478335);b=B(b,c,d,a,arr[i+4],20,-405537848);a=B(a,b,c,d,arr[i+9],5,568446438);d=B(d,a,b,c,arr[i+14],9,-1019803690);c=B(c,d,a,b,arr[i+3],14,-187363961);b=B(b,c,d,a,arr[i+8],20,1163531501);a=B(a,b,c,d,arr[i+13],5,-1444681467);d=B(d,a,b,c,arr[i+2],9,-51403784);c=B(c,d,a,b,arr[i+7],14,1735328473);b=B(b,c,d,a,arr[i+12],20,-1926607734);a=A(a,b,c,d,arr[i+5],4,-378558);d=A(d,a,b,c,arr[i+8],11,-2022574463);c=A(c,d,a,b,arr[i+11],16,1839030562);b=A(b,c,d,a,arr[i+14],23,-35309556);a=A(a,b,c,d,arr[i+1],4,-1530992060);d=A(d,a,b,c,arr[i+4],11,1272893353);c=A(c,d,a,b,arr[i+7],16,-155497632);b=A(b,c,d,a,arr[i+10],23,-1094730640);a=A(a,b,c,d,arr[i+13],4,681279174);d=A(d,a,b,c,arr[i+0],11,-358537222);c=A(c,d,a,b,arr[i+3],16,-722521979);b=A(b,c,d,a,arr[i+6],23,76029189);a=A(a,b,c,d,arr[i+9],4,-640364487);d=A(d,a,b,c,arr[i+12],11,-421815835);c=A(c,d,a,b,arr[i+15],16,530742520);b=A(b,c,d,a,arr[i+2],23,-995338651);a=z(a,b,c,d,arr[i+0],6,-198630844);d=z(d,a,b,c,arr[i+7],10,1126891415);c=z(c,d,a,b,arr[i+14],15,-1416354905);b=z(b,c,d,a,arr[i+5],21,-57434055);a=z(a,b,c,d,arr[i+12],6,1700485571);d=z(d,a,b,c,arr[i+3],10,-1894986606);c=z(c,d,a,b,arr[i+10],15,-1051523);b=z(b,c,d,a,arr[i+1],21,-2054922799);a=z(a,b,c,d,arr[i+8],6,1873313359);d=z(d,a,b,c,arr[i+15],10,-30611744);c=z(c,d,a,b,arr[i+6],15,-1560198380);b=z(b,c,d,a,arr[i+13],21,1309151649);a=z(a,b,c,d,arr[i+4],6,-145523070);d=z(d,a,b,c,arr[i+11],10,-1120210379);c=z(c,d,a,b,arr[i+2],15,718787259);b=z(b,c,d,a,arr[i+9],21,-343485551);a=K(a,p);b=K(b,q);c=K(c,r);d=K(d,s)}var hex='0123456789abcdef',out='',i;var arr2=[a,b,c,d];for(i=0;i<4;i++){var n=arr2[i],j;for(j=0;j<4;j++)out+=hex.charAt((n>>(j*8+4))&0x0F)+hex.charAt((n>>(j*8))&0x0F)}return out}var utf8=[];for(var i=0;i<s.length;i++){var code=s.charCodeAt(i);if(code<0x80)utf8.push(code);else if(code<0x800){utf8.push(0xC0|(code>>6));utf8.push(0x80|(code&0x3F))}else{utf8.push(0xE0|(code>>12));utf8.push(0x80|((code>>6)&0x3F));utf8.push(0x80|(code&0x3F))}}var str='';for(var i=0;i<utf8.length;i++)str+=String.fromCharCode(utf8[i]);return F(E(str),utf8.length*8)}
+
+    // ======================== SOUND SYSTEM ========================
+    function initAudio() {
+        if (audioCtx) return;
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch(e) { audioCtx = null; }
+    }
+
+    // Procedural sound effect generator — no external audio files needed
+    function playSound(type) {
+        if (!audioCtx) return;
+        var now = audioCtx.currentTime;
+        var osc, gain, osc2, noise, bufferSize, buffer, output, filter;
+
+        switch (type) {
+            case 'pistol':
+                // Sharp snap
+                gain = audioCtx.createGain();
+                gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                // Noise burst
+                bufferSize = audioCtx.sampleRate * 0.15;
+                buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                output = buffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.1));
+                noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 1500;
+                noise.connect(filter);
+                filter.connect(gain);
+                noise.start(now);
+                // Low thump
+                osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.08);
+                var g2 = audioCtx.createGain();
+                g2.gain.setValueAtTime(0.4, now);
+                g2.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.connect(g2);
+                g2.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+                break;
+
+            case 'shotgun':
+                // Loud boom + longer noise
+                gain = audioCtx.createGain();
+                gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                bufferSize = audioCtx.sampleRate * 0.3;
+                buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                output = buffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.08));
+                noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 800;
+                noise.connect(filter);
+                filter.connect(gain);
+                noise.start(now);
+                // Deep thump
+                osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+                g2 = audioCtx.createGain();
+                g2.gain.setValueAtTime(0.5, now);
+                g2.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.connect(g2);
+                g2.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.2);
+                break;
+
+            case 'machinegun':
+                // Quick tick
+                gain = audioCtx.createGain();
+                gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                bufferSize = audioCtx.sampleRate * 0.06;
+                buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                output = buffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.15));
+                noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 2000;
+                noise.connect(filter);
+                filter.connect(gain);
+                noise.start(now);
+                osc = audioCtx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.04);
+                g2 = audioCtx.createGain();
+                g2.gain.setValueAtTime(0.15, now);
+                g2.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(g2);
+                g2.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+                break;
+
+            case 'hit':
+                // Meaty impact
+                osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+                break;
+
+            case 'hurt':
+                // Player pain — descending tone
+                osc = audioCtx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+                break;
+
+            case 'step':
+                // Soft footstep thud
+                osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(80 + Math.random() * 40, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.06);
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+                break;
+
+            case 'pickup':
+                // Happy ascending chime
+                osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.linearRampToValueAtTime(900, now + 0.15);
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.2);
+                break;
+
+            case 'kill':
+                // Enemy death — descending buzz
+                osc = audioCtx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.3);
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.35);
+                break;
+        }
+    }
+
+    var lastStepTime = 0;
 
     // ======================== INIT ========================
     function init() {
@@ -269,6 +459,7 @@
             entities.push(ent);
         });
 
+        initAudio();
         gameState = 'PLAYING';
         hideOverlays();
         canvas.requestPointerLock();
@@ -353,6 +544,13 @@
             // Slide along walls
             if (!isWall(newX, player.y)) player.x = newX;
             if (!isWall(player.x, newY)) player.y = newY;
+
+            // Footstep sound every 0.35s while moving
+            var now2 = performance.now();
+            if (now2 - lastStepTime > 350) {
+                playSound('step');
+                lastStepTime = now2;
+            }
         }
 
         // Shooting
@@ -397,6 +595,7 @@
     function shoot() {
         weaponAnim = 1.0;
         var wp = WEAPONS[currentWeapon];
+        playSound(currentWeapon);
         // Alert nearby enemies
         alertNearbyEnemies(player.x, player.y, 10);
 
@@ -450,6 +649,9 @@
                 best.alive = false;
                 best.state = 'DEAD';
                 kills++;
+                playSound('kill');
+            } else {
+                playSound('hit');
             }
         }
     }
@@ -581,6 +783,7 @@
             if (Math.sqrt(dx * dx + dy * dy) < 0.4) {
                 player.hp -= p.damage;
                 damageFlash = 1.0;
+                playSound('hurt');
                 projectiles.splice(i, 1);
                 if (player.hp <= 0) {
                     player.hp = 0;
@@ -605,26 +808,28 @@
             if (!e.alive || !e.pickupType) return;
             var dx = player.x - e.x, dy = player.y - e.y;
             if (Math.sqrt(dx * dx + dy * dy) < 0.6) {
+                var picked = false;
                 if (e.pickupType === 'shotgun') {
                     hasWeapon.shotgun = true;
                     weaponAmmo.shotgun += 20;
                     switchWeapon('shotgun');
-                    e.alive = false;
+                    e.alive = false; picked = true;
                 } else if (e.pickupType === 'machinegun') {
                     hasWeapon.machinegun = true;
                     weaponAmmo.machinegun += 100;
                     switchWeapon('machinegun');
-                    e.alive = false;
+                    e.alive = false; picked = true;
                 } else if (e.pickupType === 'health') {
                     if (player.hp < 100) {
                         player.hp = Math.min(100, player.hp + 30);
-                        e.alive = false;
+                        e.alive = false; picked = true;
                     }
                 } else if (e.pickupType === 'ammo') {
                     if (hasWeapon.shotgun) weaponAmmo.shotgun += 10;
                     if (hasWeapon.machinegun) weaponAmmo.machinegun += 50;
-                    e.alive = false;
+                    e.alive = false; picked = true;
                 }
+                if (picked) playSound('pickup');
             }
         });
     }

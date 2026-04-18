@@ -626,11 +626,11 @@
 
             // Project enemy onto ray
             var dot = dx * rayX + dy * rayY;
-            if (dot < 0.3) continue; // behind player or too close
+            if (dot < 0.1) continue; // behind player
 
             // Perpendicular distance from ray to enemy center
             var perpDist = Math.abs(dx * rayY - dy * rayX);
-            var hitRadius = 0.4; // enemy hitbox radius
+            var hitRadius = dist < 1.5 ? 0.6 : 0.4; // larger hitbox at close range
 
             if (perpDist < hitRadius) {
                 // Check wall between player and enemy

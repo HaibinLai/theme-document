@@ -41,6 +41,59 @@ Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 
 </details>
 
+# v1.5.1 (2026-04-18) - 前端资源压缩优化
+
+Haibin
+
+**这是一次重大架构变更，引入了前端构建流程。**
+
+### 变更概述
+
+引入 esbuild 构建工具，对主题所有前端 JS/CSS 文件进行压缩（minify），减少页面加载体积约 206 KB（约 40-50%）。
+
+### 具体变更
+
+1. **新增构建系统**
+   - 新增 `build.js` 构建脚本，基于 [esbuild](https://esbuild.github.io/)，一键压缩所有前端 JS 和 CSS
+   - 新增 `package.json`，声明 esbuild 开发依赖
+   - 运行 `node build.js` 即可生成所有 `.min.js` / `.min.css` 压缩文件
+
+2. **修改资源加载逻辑 (`include/themes/load.php`)**
+   - 新增 `nicen_theme_min_path()` 辅助函数：自动检测压缩版文件是否存在，存在则加载 `.min.js`/`.min.css`，否则回退到原版文件
+   - 所有前端 `wp_enqueue_script` / `wp_enqueue_style` 调用均改为通过该函数加载
+   - **向下兼容**：如果 `.min` 文件不存在（比如未执行构建），主题仍然正常加载原版文件，不会报错
+
+3. **压缩效果**
+
+   | 文件 | 压缩前 | 压缩后 | 缩减 |
+   |------|--------|--------|------|
+   | `common/main.js` | 24.5 KB | 5.0 KB | **-80%** |
+   | `common/inline/*.js` (6个) | 31 KB | 10 KB | **-68%** |
+   | `common/prism/prism.js` | 119 KB | 86 KB | -28% |
+   | `style.css` | 109 KB | 75 KB | -31% |
+   | 小游戏/工具 JS | 139 KB | 68 KB | -51% |
+   | 各页面 CSS | 41 KB | 29 KB | -29% |
+   | **总计节省** | | | **206 KB** |
+
+4. **新增 `CLAUDE.md`**
+   - 为 Claude Code AI 助手提供项目上下文和开发工作流说明
+   - 包含构建、测试、提交的标准流程
+
+### 开发工作流变更
+
+从此版本开始，修改 JS 或 CSS 后需要重新构建压缩文件：
+
+```bash
+node build.js    # 重新压缩所有文件（约1秒）
+```
+
+详见 `CLAUDE.md`。
+
+### 注意事项
+
+- `node_modules/` 目录已在 `.gitignore` 中忽略，首次 clone 后需运行 `npm install`
+- 原版未压缩的源文件全部保留，`.min` 文件是额外生成的
+- 后台管理页面的资源（vue.min.js、antd.min.js 等）未做改动，仅优化前端访客页面
 
 # 2026-04-18
 

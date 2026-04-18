@@ -1,0 +1,25 @@
+{
+  "name": "theme-document",
+  "version": "1.0.0",
+  "description": "<details>\r <summary>点击展开查看原作者对本仓库介绍</summary>",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HaibinLai/theme-document.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/HaibinLai/theme-document/issues"
+  },
+  "homepage": "https://github.com/HaibinLai/theme-document#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}

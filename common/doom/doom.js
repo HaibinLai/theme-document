@@ -163,7 +163,13 @@
             pointerLocked = document.pointerLockElement === canvas;
         });
         document.addEventListener('mousemove', function (e) {
-            if (pointerLocked) mouseMovX += e.movementX;
+            if (pointerLocked) {
+                // Clamp each individual event to prevent sudden jumps
+                var mx = e.movementX;
+                if (mx > 50) mx = 50;
+                if (mx < -50) mx = -50;
+                mouseMovX += mx;
+            }
         });
         document.addEventListener('mousedown', function (e) {
             if (pointerLocked && e.button === 0) isFiring = true;
@@ -332,7 +338,7 @@
 
         // Mouse rotation (clamp to prevent sudden jumps)
         if (pointerLocked) {
-            var maxMov = 150; // max pixels per frame
+            var maxMov = 80; // max total pixels per frame
             if (mouseMovX > maxMov) mouseMovX = maxMov;
             if (mouseMovX < -maxMov) mouseMovX = -maxMov;
             player.angle += mouseMovX * MOUSE_SENS;

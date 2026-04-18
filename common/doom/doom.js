@@ -107,6 +107,7 @@
     var playerName = '';
     var damageFlash = 0;
     var isFiring = false;
+    var projectiles = []; // enemy bullet projectiles
 
     // Leaderboard
     var leaderboardData = [];
@@ -143,6 +144,7 @@
             if (e.code === 'Digit1' && hasWeapon.pistol) switchWeapon('pistol');
             if (e.code === 'Digit2' && hasWeapon.shotgun) switchWeapon('shotgun');
             if (e.code === 'Digit3' && hasWeapon.machinegun) switchWeapon('machinegun');
+            if (e.code === 'KeyQ') cycleWeapon();
             if (e.code === 'KeyM') showMinimap = !showMinimap;
             if (e.code === 'Space' || e.code === 'Enter') {
                 if (gameState === 'MENU') return;
@@ -225,6 +227,7 @@
         weaponAnim = 0;
         damageFlash = 0;
         isFiring = false;
+        projectiles = [];
 
         // Clone entities
         entities = [];
@@ -269,6 +272,14 @@
         }
     }
 
+    function cycleWeapon() {
+        var order = ['pistol', 'shotgun', 'machinegun'];
+        var owned = order.filter(function (w) { return hasWeapon[w]; });
+        if (owned.length <= 1) return;
+        var idx = (owned.indexOf(currentWeapon) + 1) % owned.length;
+        switchWeapon(owned[idx]);
+    }
+
     function hideOverlays() {
         var ids = ['doom-start-overlay', 'doom-gameover-overlay', 'doom-win-overlay'];
         ids.forEach(function (id) {
@@ -291,6 +302,7 @@
             gameTime += dt;
             processInput();
             updateEntities();
+            updateProjectiles();
             checkPickups();
             checkWin();
         }
@@ -320,6 +332,10 @@
             player.angle += mouseMovX * MOUSE_SENS;
             mouseMovX = 0;
         }
+
+        // Normalize angle to prevent jumps
+        player.angle = player.angle % (2 * Math.PI);
+        if (player.angle < 0) player.angle += 2 * Math.PI;
 
         // Collision-checked movement
         if (moveX !== 0 || moveY !== 0) {
@@ -495,25 +511,16 @@
 
                     // Attack if in range and can see
                     if (canSee && dist < e.range && now - e.lastFire > e.fireRate) {
-                        // Enemy shoots player
-                        var accuracy = Math.max(0.3, 1 - dist / e.range);
-                        if (Math.random() < accuracy) {
-                            player.hp -= e.damage;
-                            damageFlash = 1.0;
-                            if (player.hp <= 0) {
-                                player.hp = 0;
-                                gameState = 'GAMEOVER';
-                                var goScore = document.getElementById('doom-go-score');
-                                if (goScore) goScore.textContent = calcScore();
-                                var goKills = document.getElementById('doom-go-kills');
-                                if (goKills) goKills.textContent = kills + '/' + totalEnemies;
-                                var goTime = document.getElementById('doom-go-time');
-                                if (goTime) goTime.textContent = formatTime(gameTime);
-                                showOverlay('doom-gameover-overlay');
-                                document.exitPointerLock();
-                                submitScore();
-                            }
-                        }
+                        // Spawn a projectile toward player
+                        var spread = (Math.random() - 0.5) * 0.15;
+                        projectiles.push({
+                            x: e.x, y: e.y,
+                            dx: Math.cos(angleToPlayer + spread) * 6,
+                            dy: Math.sin(angleToPlayer + spread) * 6,
+                            damage: e.damage,
+                            life: 3, // seconds before despawn
+                            color: e.type === 'soldier' ? '#88f' : '#fa0',
+                        });
                         e.lastFire = now;
                     }
 
@@ -536,6 +543,47 @@
             if (Math.sqrt(dx * dx + dy * dy) < 0.6) return true;
         }
         return false;
+    }
+
+    // ======================== PROJECTILES ========================
+    function updateProjectiles() {
+        for (var i = projectiles.length - 1; i >= 0; i--) {
+            var p = projectiles[i];
+            p.life -= dt;
+            if (p.life <= 0) { projectiles.splice(i, 1); continue; }
+
+            p.x += p.dx * dt;
+            p.y += p.dy * dt;
+
+            // Hit wall?
+            var mx = Math.floor(p.x), my = Math.floor(p.y);
+            if (mx < 0 || my < 0 || mx >= MAP_W || my >= MAP_H || MAP[my][mx] !== 0) {
+                projectiles.splice(i, 1);
+                continue;
+            }
+
+            // Hit player?
+            var dx = p.x - player.x, dy = p.y - player.y;
+            if (Math.sqrt(dx * dx + dy * dy) < 0.4) {
+                player.hp -= p.damage;
+                damageFlash = 1.0;
+                projectiles.splice(i, 1);
+                if (player.hp <= 0) {
+                    player.hp = 0;
+                    gameState = 'GAMEOVER';
+                    var goScore = document.getElementById('doom-go-score');
+                    if (goScore) goScore.textContent = calcScore();
+                    var goKills = document.getElementById('doom-go-kills');
+                    if (goKills) goKills.textContent = kills + '/' + totalEnemies;
+                    var goTime = document.getElementById('doom-go-time');
+                    if (goTime) goTime.textContent = formatTime(gameTime);
+                    showOverlay('doom-gameover-overlay');
+                    document.exitPointerLock();
+                    submitScore();
+                    return;
+                }
+            }
+        }
     }
 
     function checkPickups() {
@@ -621,6 +669,8 @@
         castRays();
         // Sprites
         drawSprites();
+        // Projectiles
+        drawProjectiles();
         // Weapon
         drawWeapon();
         // HUD
@@ -820,6 +870,39 @@
             ctx.fillStyle = color;
             ctx.fillRect(col, Math.max(0, drawTop), 1, Math.max(0, drawBot - drawTop));
         }
+    }
+
+    // ======================== PROJECTILE RENDERING ========================
+    function drawProjectiles() {
+        projectiles.forEach(function (p) {
+            var dx = p.x - player.x, dy = p.y - player.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 0.2 || dist > MAX_DEPTH) return;
+
+            var spriteAngle = Math.atan2(dy, dx) - player.angle;
+            while (spriteAngle > Math.PI) spriteAngle -= 2 * Math.PI;
+            while (spriteAngle < -Math.PI) spriteAngle += 2 * Math.PI;
+            if (Math.abs(spriteAngle) > HALF_FOV + 0.1) return;
+
+            var screenX = Math.floor(SCREEN_W / 2 * (1 + spriteAngle / HALF_FOV));
+            var size = Math.floor(SCREEN_H / dist * 0.15);
+            if (size < 2) size = 2;
+            var screenY = Math.floor(SCREEN_H / 2);
+
+            // Check depth buffer at center column
+            if (screenX >= 0 && screenX < SCREEN_W && dist < depthBuf[screenX]) {
+                // Glowing orb
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+                ctx.fill();
+                // Glow
+                ctx.fillStyle = 'rgba(255,255,200,0.4)';
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, size * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
     }
 
     // ======================== WEAPON ========================

@@ -24,7 +24,7 @@ get_header();
                         <p class="doom-subtitle">Navigate the maze. Kill enemies. Find the exit.</p>
                         <input type="text" id="doom-name-input" placeholder="Enter your name" maxlength="20" autocomplete="off">
                         <button class="doom-btn" id="doom-start-btn">START</button>
-                        <p class="doom-subtitle" style="margin-top:20px;font-size:12px;">WASD move &bull; Mouse aim &bull; Click shoot &bull; 1/2/3 weapons &bull; M minimap</p>
+                        <p class="doom-subtitle" style="margin-top:20px;font-size:12px;">WASD move &bull; Mouse aim &bull; Click shoot &bull; Q/1/2/3 weapons &bull; M minimap</p>
                     </div>
 
                     <!-- Game Over overlay -->

@@ -1174,17 +1174,23 @@
         if (grenadeCount <= 0) return;
         grenadeCount--;
         var cos = Math.cos(player.angle), sin = Math.sin(player.angle);
+        // Player velocity from current movement keys
+        var pvx = 0, pvy = 0;
+        if (keys['KeyW'] || keys['ArrowUp'])   { pvx += cos * MOVE_SPEED; pvy += sin * MOVE_SPEED; }
+        if (keys['KeyS'] || keys['ArrowDown']) { pvx -= cos * MOVE_SPEED; pvy -= sin * MOVE_SPEED; }
+        if (keys['KeyA'])                       { pvx += sin * MOVE_SPEED; pvy -= cos * MOVE_SPEED; }
+        if (keys['KeyD'])                       { pvx -= sin * MOVE_SPEED; pvy += cos * MOVE_SPEED; }
         grenades.push({
             x: player.x + cos * 0.5,
             y: player.y + sin * 0.5,
-            dx: cos * 6,
-            dy: sin * 6,
-            z: 0.5,       // vertical height (0 = ground, 1 = eye level)
-            dz: 3.0,      // upward throw velocity
-            life: 3.0,    // longer fuse since it bounces
+            dx: cos * 6 + pvx,
+            dy: sin * 6 + pvy,
+            z: 0.5,
+            dz: 3.0,
+            life: 3.0,
             bounces: 0
         });
-        playSound('door'); // reuse door sound as throw sound
+        playSound('door');
     }
 
     function updateGrenades() {

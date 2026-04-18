@@ -84,6 +84,7 @@
 
     // ======================== WEAPONS ========================
     var WEAPONS = {
+        knife:      { name: 'Knife',       damage: 50, fireRate: 500, ammo: Infinity, spread: 0,    color: '#ccc', auto: false, melee: true, range: 1.0 },
         pistol:     { name: 'Pistol',      damage: 25, fireRate: 400, ammo: Infinity, spread: 0,    color: '#aaa', auto: false },
         shotgun:    { name: 'Shotgun',      damage: 80, fireRate: 800, ammo: 20,       spread: 0.15, color: '#c84', auto: false },
         machinegun: { name: 'Machine Gun',  damage: 15, fireRate: 100, ammo: 100,      spread: 0.05, color: '#4a4', auto: true  },
@@ -131,6 +132,26 @@
         var osc, gain, osc2, noise, bufferSize, buffer, output, filter;
 
         switch (type) {
+            case 'knife':
+                // Quick slash/swoosh
+                bufferSize = audioCtx.sampleRate * 0.12;
+                buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                output = buffer.getChannelData(0);
+                for (var i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+                noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                filter = audioCtx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 3000;
+                gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start(now);
+                break;
+
             case 'pistol':
                 // Sharp snap
                 gain = audioCtx.createGain();
@@ -331,9 +352,10 @@
         document.addEventListener('keydown', function (e) {
             keys[e.code] = true;
             // Weapon switch
-            if (e.code === 'Digit1' && hasWeapon.pistol) switchWeapon('pistol');
-            if (e.code === 'Digit2' && hasWeapon.shotgun) switchWeapon('shotgun');
-            if (e.code === 'Digit3' && hasWeapon.machinegun) switchWeapon('machinegun');
+            if (e.code === 'Digit1' && hasWeapon.knife) switchWeapon('knife');
+            if (e.code === 'Digit2' && hasWeapon.pistol) switchWeapon('pistol');
+            if (e.code === 'Digit3' && hasWeapon.shotgun) switchWeapon('shotgun');
+            if (e.code === 'Digit4' && hasWeapon.machinegun) switchWeapon('machinegun');
             if (e.code === 'KeyQ') cycleWeapon();
             if (e.code === 'KeyM') showMinimap = !showMinimap;
             if (e.code === 'Space' || e.code === 'Enter') {
@@ -372,7 +394,7 @@
         canvas.addEventListener('wheel', function (e) {
             if (gameState !== 'PLAYING') return;
             e.preventDefault();
-            var order = ['pistol', 'shotgun', 'machinegun'];
+            var order = ['knife', 'pistol', 'shotgun', 'machinegun'];
             var owned = order.filter(function (w) { return hasWeapon[w]; });
             var idx = owned.indexOf(currentWeapon);
             if (e.deltaY > 0) idx = (idx + 1) % owned.length;
@@ -414,9 +436,9 @@
 
         // Reset player
         player = { x: 1.5, y: 1.5, angle: 0, hp: 100 };
-        currentWeapon = 'pistol';
-        hasWeapon = { pistol: true, shotgun: false, machinegun: false };
-        weaponAmmo = { pistol: Infinity, shotgun: 0, machinegun: 0 };
+        currentWeapon = 'knife';
+        hasWeapon = { knife: true, pistol: true, shotgun: false, machinegun: false };
+        weaponAmmo = { knife: Infinity, pistol: Infinity, shotgun: 0, machinegun: 0 };
         kills = 0;
         gameTime = 0;
         lastFireTime = 0;
@@ -473,7 +495,7 @@
     }
 
     function cycleWeapon() {
-        var order = ['pistol', 'shotgun', 'machinegun'];
+        var order = ['knife', 'pistol', 'shotgun', 'machinegun'];
         var owned = order.filter(function (w) { return hasWeapon[w]; });
         if (owned.length <= 1) return;
         var idx = (owned.indexOf(currentWeapon) + 1) % owned.length;
@@ -597,9 +619,12 @@
         var wp = WEAPONS[currentWeapon];
         playSound(currentWeapon);
         // Alert nearby enemies
-        alertNearbyEnemies(player.x, player.y, 10);
+        alertNearbyEnemies(player.x, player.y, wp.melee ? 5 : 10);
 
-        if (currentWeapon === 'shotgun') {
+        if (wp.melee) {
+            // Melee attack: hit closest enemy within range and in front of player
+            knifeStab(wp.damage, wp.range);
+        } else if (currentWeapon === 'shotgun') {
             // Shotgun: multiple pellets
             for (var p = 0; p < 5; p++) {
                 var spread = (Math.random() - 0.5) * wp.spread * 2;
@@ -608,6 +633,35 @@
         } else {
             var spread = (Math.random() - 0.5) * wp.spread * 2;
             castBullet(player.angle + spread, wp.damage);
+        }
+    }
+
+    function knifeStab(damage, range) {
+        var best = null, bestDist = range + 0.1;
+        var cos = Math.cos(player.angle), sin = Math.sin(player.angle);
+        for (var i = 0; i < entities.length; i++) {
+            var e = entities[i];
+            if (!e.alive || e.pickupType || e.hp <= 0) continue;
+            var dx = e.x - player.x, dy = e.y - player.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > range) continue;
+            // Must be roughly in front (within ~90 degrees)
+            var dot = dx * cos + dy * sin;
+            if (dot < 0) continue;
+            if (dist < bestDist) { bestDist = dist; best = e; }
+        }
+        if (best) {
+            best.hp -= damage;
+            best.state = 'CHASE';
+            best.alertTimer = 5;
+            if (best.hp <= 0) {
+                best.alive = false;
+                best.state = 'DEAD';
+                kills++;
+                playSound('kill');
+            } else {
+                playSound('hit');
+            }
         }
     }
 
@@ -1166,7 +1220,34 @@
 
         ctx.save();
 
-        if (currentWeapon === 'pistol') {
+        if (currentWeapon === 'knife') {
+            // Knife — blade + handle, slash animation
+            var slashAngle = weaponAnim * 0.8;
+            ctx.save();
+            ctx.translate(cx, cy + 20);
+            ctx.rotate(-0.3 + slashAngle);
+            // Handle
+            ctx.fillStyle = '#8B6914';
+            ctx.fillRect(-5, 0, 10, 30);
+            // Guard
+            ctx.fillStyle = '#888';
+            ctx.fillRect(-10, -2, 20, 5);
+            // Blade
+            ctx.fillStyle = '#ccc';
+            ctx.beginPath();
+            ctx.moveTo(-4, -2);
+            ctx.lineTo(0, -50);
+            ctx.lineTo(4, -2);
+            ctx.fill();
+            // Edge highlight
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.moveTo(0, -2);
+            ctx.lineTo(1, -45);
+            ctx.lineTo(2, -2);
+            ctx.fill();
+            ctx.restore();
+        } else if (currentWeapon === 'pistol') {
             // Simple pistol shape
             ctx.fillStyle = '#888';
             ctx.fillRect(cx - 6, cy, 12, 50);   // barrel
@@ -1195,8 +1276,8 @@
             ctx.fillRect(cx + 8, cy + 10, 6, 20);   // magazine
         }
 
-        // Muzzle flash
-        if (weaponAnim > 0.6) {
+        // Muzzle flash (not for knife)
+        if (weaponAnim > 0.6 && currentWeapon !== 'knife') {
             var flashSize = weaponAnim * 30;
             ctx.fillStyle = 'rgba(255,200,50,' + weaponAnim + ')';
             ctx.beginPath();

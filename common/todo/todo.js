@@ -308,7 +308,13 @@
                         html += '<span class="todo-sidebar-due">' + dText + '</span>';
                     }
                     var pc = getPomodoroCount(todo.id);
-                    if (pc > 0) html += '<span class="todo-sidebar-pomodoro">&#127813;' + pc + '</span>';
+                    var pm = getPomodoroMinutes(todo.id);
+                    if (pc > 0 || pm > 0) {
+                        var parts = [];
+                        if (pc > 0) parts.push('&#127813;' + pc);
+                        if (pm > 0) parts.push(formatMinutes(pm));
+                        html += '<span class="todo-sidebar-pomodoro">' + parts.join(' &middot; ') + '</span>';
+                    }
                     html += '</div>';
                 });
             }
@@ -823,13 +829,26 @@
     var MAX_POMODORO = 3;
 
     var pomodoroCounts = {}; // 番茄计数缓存
+    var pomodoroMinutes = {}; // 累计专注分钟数
 
     function getPomodoroCount(todoId) {
         return pomodoroCounts[todoId] || 0;
     }
+    function getPomodoroMinutes(todoId) {
+        return pomodoroMinutes[todoId] || 0;
+    }
     function addPomodoroCount(todoId) {
         pomodoroCounts[todoId] = (pomodoroCounts[todoId] || 0) + 1;
-        savePomodoroToServer();
+    }
+    function addPomodoroMinutes(todoId, mins) {
+        pomodoroMinutes[todoId] = (pomodoroMinutes[todoId] || 0) + mins;
+    }
+    function formatMinutes(m) {
+        m = Math.round(m);
+        if (m < 60) return m + '分钟';
+        var h = Math.floor(m / 60);
+        var r = m % 60;
+        return r > 0 ? h + 'h' + r + 'm' : h + 'h';
     }
 
     function findSlot(todoId) {
@@ -850,6 +869,7 @@
             if (pomodoroSlots.length === 0) localStorage.removeItem(POMODORO_STATE);
             else localStorage.setItem(POMODORO_STATE, JSON.stringify(stateData));
             localStorage.setItem(POMODORO_STORAGE, JSON.stringify(pomodoroCounts));
+            localStorage.setItem('pomodoro_minutes', JSON.stringify(pomodoroMinutes));
         } catch (e) { }
         // 同步到服务端
         savePomodoroToServer();
@@ -869,7 +889,8 @@
             });
             ajax('pomodoro_save', {
                 state: JSON.stringify(stateData),
-                counts: JSON.stringify(pomodoroCounts)
+                counts: JSON.stringify(pomodoroCounts),
+                minutes: JSON.stringify(pomodoroMinutes)
             }).catch(function () { });
         }, 500);
     }
@@ -877,19 +898,21 @@
     function restorePomodoro() {
         // 优先从服务端加载，失败则用 localStorage
         ajax('pomodoro_get').then(function (data) {
-            applyPomodoroData(data.state || [], data.counts || {});
+            applyPomodoroData(data.state || [], data.counts || {}, data.minutes || {});
         }).catch(function () {
             // 降级到本地
             try {
                 var arr = JSON.parse(localStorage.getItem(POMODORO_STATE));
                 var counts = JSON.parse(localStorage.getItem(POMODORO_STORAGE) || '{}');
-                applyPomodoroData(Array.isArray(arr) ? arr : [], counts || {});
+                var minutes = JSON.parse(localStorage.getItem('pomodoro_minutes') || '{}');
+                applyPomodoroData(Array.isArray(arr) ? arr : [], counts || {}, minutes || {});
             } catch (e) { }
         });
     }
 
-    function applyPomodoroData(arr, counts) {
+    function applyPomodoroData(arr, counts, minutes) {
         pomodoroCounts = counts || {};
+        pomodoroMinutes = minutes || {};
         if (!Array.isArray(arr) || arr.length === 0) return;
         arr.forEach(function (s) {
             var todo = todos.find(function (t) { return t.id == s.todoId; });
@@ -931,7 +954,7 @@
         var todo = todos.find(function (t) { return t.id == todoId; });
         var slot = {
             todoId: todoId, phase: 'focus', remaining: FOCUS_DURATION,
-            paused: false, count: 0, timer: null
+            paused: false, count: 0, timer: null, phaseStartedAt: Date.now()
         };
         pomodoroSlots.push(slot);
         slot.timer = setInterval(function () { tickSlot(slot); }, 1000);
@@ -960,6 +983,7 @@
         if (slot.phase === 'focus') {
             slot.count++;
             addPomodoroCount(slot.todoId);
+            addPomodoroMinutes(slot.todoId, FOCUS_DURATION / 60);
             render();
             if (slot.count % 4 === 0) {
                 slot.phase = 'longbreak';
@@ -989,7 +1013,14 @@
     function stopSlot(todoId) {
         var idx = pomodoroSlots.findIndex(function (s) { return s.todoId == todoId; });
         if (idx === -1) return;
-        clearInterval(pomodoroSlots[idx].timer);
+        var slot = pomodoroSlots[idx];
+        // 如果在专注阶段，记录已经专注的分钟数
+        if (slot.phase === 'focus') {
+            var totalSec = FOCUS_DURATION;
+            var elapsed = totalSec - slot.remaining;
+            if (elapsed > 0) addPomodoroMinutes(todoId, elapsed / 60);
+        }
+        clearInterval(slot.timer);
         pomodoroSlots.splice(idx, 1);
         if (pomodoroSlots.length === 0) {
             stopPomodoroAnim();
@@ -1062,8 +1093,12 @@
 
     function pomodoroCountHtml(todoId) {
         var c = getPomodoroCount(todoId);
-        if (c === 0) return '';
-        return '<span class="todo-pomodoro-count">&#127813;' + (c > 1 ? '&times;' + c : '') + '</span>';
+        var m = getPomodoroMinutes(todoId);
+        if (c === 0 && m === 0) return '';
+        var parts = [];
+        if (c > 0) parts.push('&#127813;' + (c > 1 ? '&times;' + c : ''));
+        if (m > 0) parts.push(formatMinutes(m));
+        return '<span class="todo-pomodoro-count">' + parts.join(' &middot; ') + '</span>';
     }
 
     function startPomodoroAnim() {

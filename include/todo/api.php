@@ -179,9 +179,14 @@ add_action( 'wp_ajax_todo_reorder', 'document_todo_reorder' );
  */
 function document_pomodoro_get() {
 	document_todo_check_permission();
-	$state  = get_option( 'document_pomodoro_state', '[]' );
-	$counts = get_option( 'document_pomodoro_counts', '{}' );
-	wp_send_json_success( [ 'state' => json_decode( $state, true ) ?: [], 'counts' => json_decode( $counts, true ) ?: new \stdClass() ] );
+	$state   = get_option( 'document_pomodoro_state', '[]' );
+	$counts  = get_option( 'document_pomodoro_counts', '{}' );
+	$minutes = get_option( 'document_pomodoro_minutes', '{}' );
+	wp_send_json_success( [
+		'state'   => json_decode( $state, true ) ?: [],
+		'counts'  => json_decode( $counts, true ) ?: new \stdClass(),
+		'minutes' => json_decode( $minutes, true ) ?: new \stdClass(),
+	] );
 }
 add_action( 'wp_ajax_pomodoro_get', 'document_pomodoro_get' );
 
@@ -190,13 +195,16 @@ add_action( 'wp_ajax_pomodoro_get', 'document_pomodoro_get' );
  */
 function document_pomodoro_save() {
 	document_todo_check_permission();
-	$state  = stripslashes( $_POST['state'] ?? '[]' );
-	$counts = stripslashes( $_POST['counts'] ?? '{}' );
+	$state   = stripslashes( $_POST['state'] ?? '[]' );
+	$counts  = stripslashes( $_POST['counts'] ?? '{}' );
+	$minutes = stripslashes( $_POST['minutes'] ?? '{}' );
 	// 基本校验
 	if ( ! is_array( json_decode( $state, true ) ) ) $state = '[]';
 	if ( ! is_object( json_decode( $counts ) ) && ! is_array( json_decode( $counts, true ) ) ) $counts = '{}';
+	if ( ! is_object( json_decode( $minutes ) ) && ! is_array( json_decode( $minutes, true ) ) ) $minutes = '{}';
 	update_option( 'document_pomodoro_state', $state, false );
 	update_option( 'document_pomodoro_counts', $counts, false );
+	update_option( 'document_pomodoro_minutes', $minutes, false );
 	wp_send_json_success( true );
 }
 add_action( 'wp_ajax_pomodoro_save', 'document_pomodoro_save' );

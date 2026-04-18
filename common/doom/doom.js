@@ -551,25 +551,16 @@
                 }
             }
         });
-        var sniperZoomTimer = null;
         document.addEventListener('mousedown', function (e) {
-            if (pointerLocked && e.button === 0) {
-                isFiring = true;
-                // Long-press left click to scope sniper
-                if (gameState === 'PLAYING' && currentWeapon === 'sniper' && !sniperZoom) {
-                    sniperZoomTimer = setTimeout(function () {
-                        sniperZoom = true;
-                        sniperZoomTimer = null;
-                    }, 300);
+            if (pointerLocked && e.button === 0) isFiring = true;
+            if (pointerLocked && e.button === 2 && gameState === 'PLAYING') {
+                if (currentWeapon === 'sniper') {
+                    sniperZoom = !sniperZoom;
                 }
             }
         });
         document.addEventListener('mouseup', function (e) {
-            if (e.button === 0) {
-                isFiring = false;
-                if (sniperZoomTimer) { clearTimeout(sniperZoomTimer); sniperZoomTimer = null; }
-                if (sniperZoom) sniperZoom = false;
-            }
+            if (e.button === 0) isFiring = false;
         });
         // Prevent context menu
         canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });

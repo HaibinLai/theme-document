@@ -95,6 +95,7 @@
     var player, entities, depthBuf;
     var keys = {};
     var mouseMovX = 0;
+    var smoothMouseX = 0; // EMA smoothed mouse input
     var pointerLocked = false;
     var lastTime = 0, dt = 0, gameTime = 0;
     var kills = 0, totalEnemies = 0;
@@ -164,11 +165,7 @@
         });
         document.addEventListener('mousemove', function (e) {
             if (pointerLocked) {
-                // Clamp each individual event to prevent sudden jumps
-                var mx = e.movementX;
-                if (mx > 50) mx = 50;
-                if (mx < -50) mx = -50;
-                mouseMovX += mx;
+                mouseMovX += e.movementX;
             }
         });
         document.addEventListener('mousedown', function (e) {
@@ -336,12 +333,17 @@
         if (keys['ArrowLeft']) player.angle -= ROT_SPEED * dt;
         if (keys['ArrowRight']) player.angle += ROT_SPEED * dt;
 
-        // Mouse rotation (clamp to prevent sudden jumps)
+        // Mouse rotation — EMA smoothing to prevent sudden jumps
         if (pointerLocked) {
-            var maxMov = 80; // max total pixels per frame
-            if (mouseMovX > maxMov) mouseMovX = maxMov;
-            if (mouseMovX < -maxMov) mouseMovX = -maxMov;
-            player.angle += mouseMovX * MOUSE_SENS;
+            // Exponential moving average: smoothFactor 0=no smoothing, 1=frozen
+            var smoothFactor = 0.6;
+            smoothMouseX = smoothMouseX * smoothFactor + mouseMovX * (1 - smoothFactor);
+            // Also cap max rotation per frame (~18° max)
+            var maxRot = 0.32;
+            var rot = smoothMouseX * MOUSE_SENS;
+            if (rot > maxRot) rot = maxRot;
+            if (rot < -maxRot) rot = -maxRot;
+            player.angle += rot;
             mouseMovX = 0;
         }
 

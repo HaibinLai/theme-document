@@ -628,7 +628,7 @@
         player = { x: lvl.spawn.x, y: lvl.spawn.y, angle: lvl.spawn.angle, hp: fullReset ? 100 : player.hp };
 
         if (fullReset) {
-            currentWeapon = 'knife';
+            currentWeapon = 'pistol';
             hasWeapon = { knife: true, pistol: true, shotgun: false, machinegun: false, sniper: false, m4a1: false };
             weaponAmmo = { knife: Infinity, pistol: Infinity, shotgun: 0, machinegun: 0, sniper: 0, m4a1: 0 };
             kills = 0;
@@ -1175,33 +1175,87 @@
         grenades.push({
             x: player.x + cos * 0.5,
             y: player.y + sin * 0.5,
-            dx: cos * 5,
-            dy: sin * 5,
-            life: 1.5
+            dx: cos * 6,
+            dy: sin * 6,
+            z: 0.5,       // vertical height (0 = ground, 1 = eye level)
+            dz: 3.0,      // upward throw velocity
+            life: 3.0,    // longer fuse since it bounces
+            bounces: 0
         });
+        playSound('door'); // reuse door sound as throw sound
     }
 
     function updateGrenades() {
+        var GRAVITY = 9.8;
+        var BOUNCE_DAMPEN = 0.45;  // energy retained on bounce
+        var FRICTION = 0.97;       // ground friction per frame
+        var WALL_BOUNCE = 0.5;     // wall bounce energy
+
         for (var i = grenades.length - 1; i >= 0; i--) {
             var g = grenades[i];
             g.life -= dt;
-            // Move grenade
+
+            // Apply gravity to vertical velocity
+            g.dz -= GRAVITY * dt;
+            g.z += g.dz * dt;
+
+            // Ground bounce
+            if (g.z <= 0) {
+                g.z = 0;
+                if (Math.abs(g.dz) > 0.5) {
+                    // Bounce!
+                    g.dz = -g.dz * BOUNCE_DAMPEN;
+                    g.bounces++;
+                    // Reduce horizontal speed on bounce
+                    g.dx *= 0.7;
+                    g.dy *= 0.7;
+                    // Bounce sound (quieter each time)
+                    if (g.bounces <= 3) playSound('step');
+                } else {
+                    // Settled on ground
+                    g.dz = 0;
+                    g.z = 0;
+                    // Rolling friction
+                    g.dx *= 0.92;
+                    g.dy *= 0.92;
+                }
+            }
+
+            // Horizontal movement with wall collision/bounce
             var nx = g.x + g.dx * dt;
             var ny = g.y + g.dy * dt;
-            var mx = Math.floor(nx), my = Math.floor(ny);
-            if (mx < 0 || my < 0 || mx >= MAP_W || my >= MAP_H || MAP[my][mx] !== 0) {
-                // Hit wall — explode
-                g.life = 0;
-            } else {
-                g.x = nx;
-                g.y = ny;
+
+            var mxN = Math.floor(nx), myN = Math.floor(ny);
+            var mxO = Math.floor(g.x), myO = Math.floor(g.y);
+
+            // Check X axis wall collision
+            var hitX = false, hitY = false;
+            if (mxN < 0 || mxN >= MAP_W || MAP[myO][mxN] !== 0) {
+                g.dx = -g.dx * WALL_BOUNCE;
+                nx = g.x;
+                hitX = true;
             }
-            // Slow down
-            g.dx *= 0.98;
-            g.dy *= 0.98;
+            // Check Y axis wall collision
+            if (myN < 0 || myN >= MAP_H || MAP[myN][Math.floor(nx)] !== 0) {
+                g.dy = -g.dy * WALL_BOUNCE;
+                ny = g.y;
+                hitY = true;
+            }
+            if (hitX || hitY) {
+                g.bounces++;
+                if (g.bounces <= 3) playSound('step');
+            }
+
+            g.x = nx;
+            g.y = ny;
+
+            // Air friction
+            if (g.z > 0.01) {
+                g.dx *= FRICTION;
+                g.dy *= FRICTION;
+            }
 
             if (g.life <= 0) {
-                // Explode!
                 explodeGrenade(g.x, g.y);
                 grenades.splice(i, 1);
             }
@@ -1592,10 +1646,12 @@
             while (spriteAngle < -Math.PI) spriteAngle += 2 * Math.PI;
             if (Math.abs(spriteAngle) > HALF_FOV + 0.1) return;
             var screenX = Math.floor(SCREEN_W / 2 * (1 + spriteAngle / HALF_FOV));
-            var size = Math.floor(SCREEN_H / dist * 0.1);
-            if (size < 2) size = 2;
-            var screenY = Math.floor(SCREEN_H / 2 + size);
+            var scale = SCREEN_H / dist;
+            var size = Math.max(2, Math.floor(scale * 0.08));
+            // g.z controls vertical position: 0=ground, higher=up
+            var screenY = Math.floor(SCREEN_H / 2 + scale * 0.5 - g.z * scale);
             if (screenX >= 0 && screenX < SCREEN_W && dist < depthBuf[screenX]) {
+                // Grenade body
                 ctx.fillStyle = '#4a4';
                 ctx.beginPath();
                 ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
@@ -1607,6 +1663,12 @@
                     ctx.arc(screenX, screenY - size, size * 0.4, 0, Math.PI * 2);
                     ctx.fill();
                 }
+                // Shadow on ground
+                var groundY = Math.floor(SCREEN_H / 2 + scale * 0.5);
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(screenX, groundY, size * 0.8, size * 0.3, 0, 0, Math.PI * 2);
+                ctx.fill();
             }
         });
     }

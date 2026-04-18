@@ -24,7 +24,7 @@ get_header();
                         <p class="doom-subtitle">Navigate the maze. Kill enemies. Find the exit.</p>
                         <input type="text" id="doom-name-input" placeholder="Enter your name" maxlength="20" autocomplete="off">
                         <button class="doom-btn" id="doom-start-btn">START</button>
-                        <p class="doom-subtitle" style="margin-top:20px;font-size:12px;">WASD move &bull; Mouse aim &bull; Click shoot &bull; Right-click scope &bull; Q/1-6 weapons &bull; E door &bull; G grenade &bull; M minimap</p>
+                        <p class="doom-subtitle" style="margin-top:20px;font-size:12px;">WASD move &bull; Mouse aim &bull; Click shoot &bull; Hold-click scope &bull; Q/1-6 weapons &bull; E door &bull; G grenade &bull; M minimap</p>
                     </div>
 
                     <!-- Game Over overlay -->
@@ -71,9 +71,16 @@ get_header();
                 <!-- Technical Blog Article -->
                 <div class="main-article doom-blog">
                     <div class="doom-blog-header">
-                        <h1>在浏览器里复刻 Doom：Canvas 2D Raycasting 全解析</h1>
-                        <div class="doom-blog-meta">Haibin &bull; 2026-04-18 &bull; 游戏开发 / 图形学</div>
+                        <div>
+                            <h1 id="doom-blog-title-zh">在浏览器里复刻 Doom：Canvas 2D Raycasting 全解析</h1>
+                            <h1 id="doom-blog-title-en" style="display:none">Recreating Doom in the Browser: A Canvas 2D Raycasting Deep Dive</h1>
+                            <div class="doom-blog-meta">Haibin &bull; 2026-04-18 &bull; <span id="doom-blog-cat-zh">游戏开发 / 图形学</span><span id="doom-blog-cat-en" style="display:none">Game Dev / Graphics</span></div>
+                        </div>
+                        <button class="doom-lang-btn" id="doom-lang-btn" onclick="(function(){var z=document.querySelectorAll('[id$=-zh]'),e=document.querySelectorAll('[id$=-en]'),b=document.getElementById('doom-lang-btn'),isZh=z[0].style.display!=='none';for(var i=0;i<z.length;i++)z[i].style.display=isZh?'none':'';for(var i=0;i<e.length;i++)e[i].style.display=isZh?'':'none';b.textContent=isZh?'中文':'EN'})()">EN</button>
                     </div>
+
+                    <!-- Chinese Version -->
+                    <div id="doom-blog-content-zh">
 
                     <h2 class="doom-section-title">&#127918; Doom 的故事</h2>
 
@@ -190,10 +197,10 @@ mouseMovX = 0;</code></pre>
 
                     <table>
                         <tr><th>尝试</th><th>方案</th><th>结果</th></tr>
-                        <tr><td>第 1 次</td><td>角度归一化到 [0, 2π]</td><td>❌ 没用</td></tr>
-                        <tr><td>第 2 次</td><td>per-event clamp ±50px + 帧级 clamp ±150px</td><td>❌ 依然跳变</td></tr>
-                        <tr><td>第 3 次</td><td>指数移动平均 (EMA) 平滑</td><td>❌ 更糟了 —— 操作感变得迟钝粘滞</td></tr>
-                        <tr><td>第 4 次</td><td>直接丢弃 |movementX| > 200 的异常事件</td><td>✅ 完美解决！</td></tr>
+                        <tr><td>第 1 次</td><td>角度归一化到 [0, 2π]</td><td>&#10060; 没用</td></tr>
+                        <tr><td>第 2 次</td><td>per-event clamp ±50px + 帧级 clamp ±150px</td><td>&#10060; 依然跳变</td></tr>
+                        <tr><td>第 3 次</td><td>指数移动平均 (EMA) 平滑</td><td>&#10060; 更糟了 —— 操作感变得迟钝粘滞</td></tr>
+                        <tr><td>第 4 次</td><td>直接丢弃 |movementX| > 200 的异常事件</td><td>&#9989; 完美解决！</td></tr>
                     </table>
 
                     <p>最终的原因是 <strong>浏览器的 Pointer Lock 实现存在 bug</strong>：某些帧会报出离谱的 <code>movementX</code> 值（比如突然 +500），这并不是真实的鼠标移动。</p>
@@ -236,7 +243,7 @@ g.z  += g.dz * dt;   // 更新高度</code></pre>
 
                     <h3>地面弹跳</h3>
 
-                    <p>当手雷落到地面（<code>z ≤ 0</code>）时，垂直速度反转并乘以衰减系数，模拟非弹性碰撞：</p>
+                    <p>当手雷落到地面（<code>z &le; 0</code>）时，垂直速度反转并乘以衰减系数，模拟非弹性碰撞：</p>
 
                     <pre><code>if (g.z &lt;= 0) {
     g.z = 0;
@@ -275,10 +282,10 @@ if (MAP[myN][mxO] !== 0) {
 
                     <table>
                         <tr><th>状态</th><th>行为</th><th>转换条件</th></tr>
-                        <tr><td><strong>IDLE</strong></td><td>原地缓慢巡逻</td><td>听到枪声或看到玩家 → ALERT</td></tr>
-                        <tr><td><strong>ALERT</strong></td><td>朝声音方向转身</td><td>看到玩家 → CHASE</td></tr>
-                        <tr><td><strong>CHASE</strong></td><td>朝玩家移动</td><td>进入攻击范围 → ATTACK</td></tr>
-                        <tr><td><strong>ATTACK</strong></td><td>开火或近战</td><td>失去视线 → IDLE</td></tr>
+                        <tr><td><strong>IDLE</strong></td><td>原地缓慢巡逻</td><td>听到枪声或看到玩家 &rarr; ALERT</td></tr>
+                        <tr><td><strong>ALERT</strong></td><td>朝声音方向转身</td><td>看到玩家 &rarr; CHASE</td></tr>
+                        <tr><td><strong>CHASE</strong></td><td>朝玩家移动</td><td>进入攻击范围 &rarr; ATTACK</td></tr>
+                        <tr><td><strong>ATTACK</strong></td><td>开火或近战</td><td>失去视线 &rarr; IDLE</td></tr>
                     </table>
 
                     <p>"看到玩家"的判定用的是一个简化的 Raycast：沿敌人到玩家的方向，每步 0.3 检查是否碰到墙壁。如果一路畅通，就说明视线没被遮挡。</p>
@@ -295,7 +302,7 @@ if (MAP[myN][mxO] !== 0) {
                         <tr><td>手枪</td><td>白噪声 + 低通滤波器 800Hz + 快速衰减</td></tr>
                         <tr><td>霰弹枪</td><td>白噪声 + 低通 600Hz + 更长的衰减</td></tr>
                         <tr><td>机枪</td><td>白噪声 + 带通滤波器 + 极短脉冲</td></tr>
-                        <tr><td>狙击枪</td><td>锯齿波 150→30Hz + 低通 800Hz（深沉的开裂声）</td></tr>
+                        <tr><td>狙击枪</td><td>锯齿波 150&rarr;30Hz + 低通 800Hz（深沉的开裂声）</td></tr>
                         <tr><td>爆炸</td><td>长白噪声 + 低通 300Hz + 慢衰减（沉闷的轰鸣）</td></tr>
                         <tr><td>匕首</td><td>白噪声 + 高通 3000Hz（尖锐的挥砍声）</td></tr>
                         <tr><td>脚步</td><td>白噪声 + 低通 200Hz + 极短脉冲</td></tr>
@@ -344,6 +351,284 @@ case 'pistol':
                     <p>整个游戏的代码量约 1800 行 JavaScript，加上 300 行 CSS 和 80 行 PHP，是一个完全自包含的小项目。它证明了即使在 2026 年，Raycasting 这个 1992 年的技术依然有它独特的魅力 —— 简单、高效、而且实现起来非常有趣。</p>
 
                     <p>如果你想挑战一下，试试通关两个关卡吧！ &#128522;</p>
+
+                    </div><!-- end zh -->
+
+                    <!-- English Version -->
+                    <div id="doom-blog-content-en" style="display:none">
+
+                    <h2 class="doom-section-title">&#127918; The Story of Doom</h2>
+
+                    <p>In 1993, id Software released a game that changed the industry forever &mdash; <em>Doom</em>. In an era when CPUs ran at 66 MHz and GPUs didn't exist, John Carmack achieved smooth "pseudo-3D" rendering through pure software, giving the world its first taste of the first-person shooter (FPS) genre.</p>
+
+                    <p>Doom isn't truly a 3D game. Its world is fundamentally a 2D grid map, projected into a 3D-looking image through an algorithm called <strong>Raycasting</strong>. This technique came to be known as <strong>2.5D</strong> &mdash; somewhere between 2D and 3D.</p>
+
+                    <blockquote>
+                        <p>One day, after building a Snake game for my blog, I thought: could I recreate Doom in the browser using Canvas 2D? And so this project was born &mdash; an FPS game built entirely with JavaScript + Canvas 2D. No WebGL, no external assets &mdash; all rendering, sound effects, and physics are procedurally generated.</p>
+                    </blockquote>
+
+
+                    <h2 class="doom-section-title">&#128270; Raycasting: From 2D Maps to Pseudo-3D</h2>
+
+                    <p>The core idea of Raycasting is elegant: <strong>for each column of pixels on screen, cast a ray from the player's position, find the first wall it hits, and draw that wall at a height determined by the distance.</strong></p>
+
+                    <p>Imagine standing in a maze made of blocks. Your field of view is 60 degrees, and the screen is 960 pixels wide. You cast 960 rays, evenly distributed across that 60-degree arc:</p>
+
+                    <pre><code>// Cast a ray for each screen column
+for (var col = 0; col &lt; SCREEN_W; col++) {
+    // Ray angle = player facing - half FOV + column offset
+    var rayAngle = player.angle - HALF_FOV + (col / SCREEN_W) * FOV;
+    // ... find wall using DDA algorithm
+}</code></pre>
+
+                    <h3>The DDA Algorithm</h3>
+
+                    <p><strong>DDA (Digital Differential Analyzer)</strong> is the heart of Raycasting. Instead of stepping along the ray in tiny increments (too slow), it jumps along grid boundaries &mdash; each step lands exactly on the next grid line, checking if that cell is a wall:</p>
+
+                    <pre><code>// DDA core: alternate between X and Y grid boundaries
+if (sideDistX &lt; sideDistY) {
+    sideDistX += deltaDistX;  // jump to next vertical grid line
+    mapX += stepX;
+    side = 0;  // hit an East/West wall face
+} else {
+    sideDistY += deltaDistY;  // jump to next horizontal grid line
+    mapY += stepY;
+    side = 1;  // hit a North/South wall face
+}</code></pre>
+
+                    <p>The beauty of this algorithm: each iteration needs only one comparison and one addition &mdash; no trigonometry &mdash; so it could run at 30+ FPS even on 1993 hardware.</p>
+
+                    <h3>Fish-eye Correction</h3>
+
+                    <p>If you use the raw Euclidean distance from ray to wall, you get a bizarre "fish-eye" effect &mdash; walls at the screen edges appear to bulge outward. This happens because edge rays travel further than center rays.</p>
+
+                    <p>The fix is simple &mdash; use <strong>perpendicular distance</strong> instead of actual distance:</p>
+
+                    <pre><code>// Fish-eye correction: use perpendicular distance
+// DDA naturally provides this:
+var perpDist;
+if (side === 0) perpDist = sideDistX - deltaDistX;
+else            perpDist = sideDistY - deltaDistY;
+
+// Wall height = screen height / perpendicular distance
+var wallH = Math.floor(SCREEN_H / perpDist);</code></pre>
+
+                    <h3>Distance &amp; Face Shading</h3>
+
+                    <p>To enhance depth perception, two techniques are used:</p>
+                    <ul>
+                        <li><strong>Distance attenuation</strong>: Wall colors darken with distance, <code>shade = max(0.15, 1 - dist / MAX_DEPTH)</code></li>
+                        <li><strong>Face orientation</strong>: N/S faces (side=1) are dimmed by an extra 0.7x, creating visible light/dark alternation at corners</li>
+                    </ul>
+
+
+                    <h2 class="doom-section-title">&#128100; Sprite System: 2D Characters in 3D Space</h2>
+
+                    <p>Enemies and items in a Raycasting engine are <strong>Billboard Sprites</strong> &mdash; flat 2D images that always face the player (like a billboard). This makes them "look" 3D from any angle.</p>
+
+                    <p>Key steps in sprite rendering:</p>
+
+                    <ol>
+                        <li><strong>World &rarr; Screen projection</strong>: Calculate the sprite's angular offset from the player, map to screen X position</li>
+                        <li><strong>Distance sorting</strong>: Draw far sprites first, near ones last (painter's algorithm)</li>
+                        <li><strong>Depth buffer clipping</strong>: Compare sprite distance against wall distance column-by-column, only draw where the sprite is closer</li>
+                    </ol>
+
+                    <pre><code>// Sprite projection: world coords &rarr; screen position
+var spriteAngle = Math.atan2(dy, dx) - player.angle;
+var screenX = SCREEN_W / 2 * (1 + spriteAngle / HALF_FOV);
+var spriteH = SCREEN_H / dist;  // closer = larger
+
+// Depth clipping: per-column check
+for (var col = startX; col &lt; endX; col++) {
+    if (dist &lt; depthBuf[col]) {
+        // This column is in front of the wall, draw it
+        drawSpriteColumn(col, ...);
+    }
+}</code></pre>
+
+                    <p>Interestingly, enemies in this project aren't texture-mapped &mdash; they're <strong>drawn procedurally with Canvas</strong>. Heads, bodies, arms, and legs are assembled from <code>fillRect</code> and <code>arc</code> calls. This means the entire game has zero external asset files.</p>
+
+
+                    <h2 class="doom-section-title">&#128433; The Mouse Rotation Bug</h2>
+
+                    <p>Mouse aiming is the most critical interaction in an FPS. In the browser, we use the <strong>Pointer Lock API</strong> to capture relative mouse movement and convert it to view rotation:</p>
+
+                    <pre><code>canvas.requestPointerLock();  // lock the mouse
+
+document.addEventListener('mousemove', function(e) {
+    if (pointerLocked) {
+        mouseMovX += e.movementX;  // accumulate horizontal movement
+    }
+});
+
+// Apply rotation each frame
+player.angle += mouseMovX * MOUSE_SENS;
+mouseMovX = 0;</code></pre>
+
+                    <p>Sounds simple, but in practice, <strong>the view would suddenly snap</strong> &mdash; spinning 90 degrees in a single frame.</p>
+
+                    <p>This bug tormented me through <strong>4 fix iterations</strong>:</p>
+
+                    <table>
+                        <tr><th>Attempt</th><th>Approach</th><th>Result</th></tr>
+                        <tr><td>#1</td><td>Normalize angle to [0, 2&pi;]</td><td>&#10060; No effect</td></tr>
+                        <tr><td>#2</td><td>Per-event clamp &plusmn;50px + frame clamp &plusmn;150px</td><td>&#10060; Still snapping</td></tr>
+                        <tr><td>#3</td><td>Exponential Moving Average (EMA) smoothing</td><td>&#10060; Worse &mdash; controls felt sluggish and drifty</td></tr>
+                        <tr><td>#4</td><td>Discard events with |movementX| &gt; 200</td><td>&#9989; Perfect fix!</td></tr>
+                    </table>
+
+                    <p>The root cause: <strong>a browser bug in the Pointer Lock implementation</strong> that occasionally reports wildly incorrect <code>movementX</code> values (e.g., a sudden +500), which don't represent real mouse movement.</p>
+
+                    <pre><code>// Final solution: discard outliers
+document.addEventListener('mousemove', function(e) {
+    if (pointerLocked) {
+        // Discard anomalous jumps (browser Pointer Lock bug)
+        if (Math.abs(e.movementX) &lt; 200) {
+            mouseMovX += e.movementX;
+        }
+    }
+});</code></pre>
+
+                    <blockquote>
+                        <p><strong>Lesson learned</strong>: Sometimes the simplest solution is the most effective. Complex smoothing algorithms didn't solve the problem &mdash; they made it worse. Identifying and discarding anomalous data was the real fix.</p>
+                    </blockquote>
+
+
+                    <h2 class="doom-section-title">&#128163; Grenade Physics Simulation</h2>
+
+                    <p>The grenade physics system is one of the most satisfying parts of this project. It simulates realistic parabolic motion and bouncing with just a few dozen lines of code.</p>
+
+                    <h3>Three-Axis Motion</h3>
+
+                    <p>Despite being a 2.5D game, grenade motion uses 3 axes: <code>x</code>/<code>y</code> for horizontal position (map coordinates), and <code>z</code> for vertical height.</p>
+
+                    <pre><code>// Throw a grenade
+grenades.push({
+    x: player.x, y: player.y,
+    dx: cos * 6, dy: sin * 6,  // horizontal velocity (facing direction)
+    z: 0.5,                     // initial height (hand level)
+    dz: 3.0,                    // upward throw velocity
+    life: 3.0                   // 3-second fuse
+});
+
+// Per-frame update
+g.dz -= 9.8 * dt;    // gravity
+g.z  += g.dz * dt;   // update height</code></pre>
+
+                    <h3>Ground Bounce</h3>
+
+                    <p>When the grenade hits the ground (<code>z &le; 0</code>), vertical velocity is reversed and multiplied by a damping factor, simulating inelastic collision:</p>
+
+                    <pre><code>if (g.z &lt;= 0) {
+    g.z = 0;
+    if (Math.abs(g.dz) &gt; 0.5) {
+        g.dz = -g.dz * 0.45;  // bounce, retain 45% energy
+        g.dx *= 0.7;           // horizontal speed also decays
+        g.dy *= 0.7;
+    } else {
+        g.dz = 0;             // not enough energy, stop bouncing
+        g.dx *= 0.92;         // rolling friction
+        g.dy *= 0.92;
+    }
+}</code></pre>
+
+                    <h3>Wall Bounce</h3>
+
+                    <p>Wall collisions are detected <strong>independently on the X and Y axes</strong>. This means a grenade hitting a corner naturally reverses both directions:</p>
+
+                    <pre><code>// Hit wall on X axis? Reverse X velocity
+if (MAP[myO][mxN] !== 0) {
+    g.dx = -g.dx * 0.5;  // 50% energy retained
+    nx = g.x;             // don't pass through
+}
+// Hit wall on Y axis? Reverse Y velocity
+if (MAP[myN][mxO] !== 0) {
+    g.dy = -g.dy * 0.5;
+    ny = g.y;
+}</code></pre>
+
+                    <p>During flight, the grenade also casts an elliptical shadow on the ground to help players judge the landing point.</p>
+
+
+                    <h2 class="doom-section-title">&#129302; Enemy AI State Machine</h2>
+
+                    <p>Each enemy runs a simple state machine with 4 states:</p>
+
+                    <table>
+                        <tr><th>State</th><th>Behavior</th><th>Transition</th></tr>
+                        <tr><td><strong>IDLE</strong></td><td>Slow patrol in place</td><td>Hears gunfire or sees player &rarr; ALERT</td></tr>
+                        <tr><td><strong>ALERT</strong></td><td>Turn toward sound</td><td>Sees player &rarr; CHASE</td></tr>
+                        <tr><td><strong>CHASE</strong></td><td>Move toward player</td><td>In attack range &rarr; ATTACK</td></tr>
+                        <tr><td><strong>ATTACK</strong></td><td>Fire or melee</td><td>Loses line of sight &rarr; IDLE</td></tr>
+                    </table>
+
+                    <p>"Seeing the player" uses a simplified raycast: step along the enemy-to-player direction in 0.3 increments, checking for wall hits. If the path is clear, line of sight is confirmed.</p>
+
+                    <p>Enemies also have <strong>mutual collision blocking</strong> with each other and with the player, preventing overlap. The collision radius went through several adjustments &mdash; too small and they overlap, too large and they get stuck in doorways.</p>
+
+
+                    <h2 class="doom-section-title">&#127925; Procedural Sound Effects</h2>
+
+                    <p>Every sound in the game is generated in real-time using the <strong>Web Audio API</strong> &mdash; not a single audio file is loaded. Each weapon and effect is composed from Oscillators, Noise Buffers, BiquadFilters, and Gain nodes:</p>
+
+                    <table>
+                        <tr><th>Sound</th><th>Implementation</th></tr>
+                        <tr><td>Pistol</td><td>White noise + lowpass 800Hz + fast decay</td></tr>
+                        <tr><td>Shotgun</td><td>White noise + lowpass 600Hz + longer decay</td></tr>
+                        <tr><td>Machine gun</td><td>White noise + bandpass filter + ultra-short pulse</td></tr>
+                        <tr><td>Sniper</td><td>Sawtooth 150&rarr;30Hz + lowpass 800Hz (deep crack)</td></tr>
+                        <tr><td>Explosion</td><td>Long white noise + lowpass 300Hz + slow decay (muffled boom)</td></tr>
+                        <tr><td>Knife</td><td>White noise + highpass 3000Hz (sharp slash)</td></tr>
+                        <tr><td>Footstep</td><td>White noise + lowpass 200Hz + ultra-short pulse</td></tr>
+                    </table>
+
+                    <pre><code>// Example: Pistol - white noise + lowpass + fast decay
+case 'pistol':
+    bufferSize = audioCtx.sampleRate * 0.15;
+    buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    output = buffer.getChannelData(0);
+    for (var i = 0; i &lt; bufferSize; i++)
+        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.1));
+    // ... connect lowpass filter and gain node</code></pre>
+
+
+                    <h2 class="doom-section-title">&#128274; Anti-Cheat Design</h2>
+
+                    <p>The leaderboard needs protection against score manipulation. While no client-side solution is bulletproof, reasonable design can raise the barrier significantly:</p>
+
+                    <ul>
+                        <li><strong>Token verification</strong>: Score submissions require <code>md5(score + '_' + duration + '_' + md5(serverSalt))</code>, with the salt rotating daily</li>
+                        <li><strong>Sanity checks</strong>: Score 0&ndash;99999, duration 0&ndash;36000 seconds</li>
+                        <li><strong>IP rate limiting</strong>: One submission per IP every 5 seconds</li>
+                        <li><strong>Data cleanup</strong>: Keep only top 20, auto-delete records older than 3 weeks</li>
+                    </ul>
+
+                    <blockquote>
+                        <p>A fun gotcha: initially the salt was passed to the frontend via WordPress's <code>esc_js()</code>, which escapes special characters in the salt, causing token mismatches between client and server. The fix was to <code>md5()</code> the salt before passing it &mdash; hex digests contain only 0-9a-f and can't be corrupted by escaping.</p>
+                    </blockquote>
+
+
+                    <h2 class="doom-section-title">&#128640; Tech Stack Summary</h2>
+
+                    <table>
+                        <tr><th>Module</th><th>Technology</th></tr>
+                        <tr><td>Rendering</td><td>Canvas 2D + Raycasting (DDA algorithm)</td></tr>
+                        <tr><td>Input</td><td>Pointer Lock API + outlier filtering</td></tr>
+                        <tr><td>Audio</td><td>Web Audio API procedural generation</td></tr>
+                        <tr><td>Physics</td><td>Euler integration + inelastic collision</td></tr>
+                        <tr><td>AI</td><td>Finite state machine + line-of-sight detection</td></tr>
+                        <tr><td>Backend</td><td>WordPress AJAX + MySQL</td></tr>
+                        <tr><td>Anti-cheat</td><td>MD5 token + server-side salt</td></tr>
+                        <tr><td>Dependencies</td><td>None (vanilla JS, no frameworks, no images, no audio files)</td></tr>
+                    </table>
+
+                    <p>The entire game is roughly 1,800 lines of JavaScript, plus 300 lines of CSS and 80 lines of PHP &mdash; a fully self-contained mini-project. It proves that even in 2026, Raycasting &mdash; a technique from 1992 &mdash; still has a unique charm: simple, efficient, and incredibly fun to implement.</p>
+
+                    <p>If you're up for a challenge, try beating both levels! &#128522;</p>
+
+                    </div><!-- end en -->
+
                 </div>
 
             </div>

@@ -374,6 +374,27 @@
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.doom-lang-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px 14px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: transparent;
+    font: bold 13px monospace;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.doom-lang-btn:hover {
+    background: var(--theme-color, #c33);
+    color: #fff;
+    border-color: var(--theme-color, #c33);
 }
 
 .doom-blog .doom-blog-header h1 {

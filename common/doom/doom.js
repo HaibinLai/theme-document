@@ -161,7 +161,7 @@
     // ======================== WEAPONS ========================
     var WEAPONS = {
         knife:      { name: 'Knife',       damage: 50, fireRate: 500, ammo: Infinity, spread: 0,    color: '#ccc', auto: false, melee: true, range: 1.0 },
-        pistol:     { name: 'Pistol',      damage: 25, fireRate: 400, ammo: Infinity, spread: 0,    color: '#aaa', auto: false },
+        pistol:     { name: 'Pistol',      damage: 15, fireRate: 400, ammo: Infinity, spread: 0,    color: '#aaa', auto: false },
         shotgun:    { name: 'Shotgun',      damage: 80, fireRate: 800, ammo: 20,       spread: 0.15, color: '#c84', auto: false },
         machinegun: { name: 'Machine Gun',  damage: 15, fireRate: 100, ammo: 100,      spread: 0.05, color: '#4a4', auto: true  },
         sniper:     { name: 'Sniper',       damage: 150, fireRate: 1200, ammo: 10,     spread: 0,    color: '#448', auto: false },
@@ -551,16 +551,25 @@
                 }
             }
         });
+        var sniperZoomTimer = null;
         document.addEventListener('mousedown', function (e) {
-            if (pointerLocked && e.button === 0) isFiring = true;
-            if (pointerLocked && e.button === 2 && gameState === 'PLAYING') {
-                if (currentWeapon === 'sniper') {
-                    sniperZoom = !sniperZoom;
+            if (pointerLocked && e.button === 0) {
+                isFiring = true;
+                // Long-press left click to scope sniper
+                if (gameState === 'PLAYING' && currentWeapon === 'sniper' && !sniperZoom) {
+                    sniperZoomTimer = setTimeout(function () {
+                        sniperZoom = true;
+                        sniperZoomTimer = null;
+                    }, 300);
                 }
             }
         });
         document.addEventListener('mouseup', function (e) {
-            if (e.button === 0) isFiring = false;
+            if (e.button === 0) {
+                isFiring = false;
+                if (sniperZoomTimer) { clearTimeout(sniperZoomTimer); sniperZoomTimer = null; }
+                if (sniperZoom) sniperZoom = false;
+            }
         });
         // Prevent context menu
         canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });

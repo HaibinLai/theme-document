@@ -165,7 +165,7 @@
         shotgun:    { name: 'Shotgun',      damage: 80, fireRate: 800, ammo: 20,       spread: 0.15, color: '#c84', auto: false },
         machinegun: { name: 'Machine Gun',  damage: 15, fireRate: 100, ammo: 100,      spread: 0.05, color: '#4a4', auto: true  },
         sniper:     { name: 'Sniper',       damage: 150, fireRate: 1200, ammo: 10,     spread: 0,    color: '#448', auto: false },
-        m4a1:       { name: 'M4A1',         damage: 20, fireRate: 120, ammo: 120,      spread: 0.04, color: '#886', auto: true  },
+        m4a1:       { name: 'M4A1',         damage: 25, fireRate: 120, ammo: 120,      spread: 0.04, color: '#886', auto: true  },
     };
 
     // ======================== STATE ========================
@@ -177,7 +177,7 @@
     var mouseMovX = 0;
     var pointerLocked = false;
     var lastTime = 0, dt = 0, gameTime = 0;
-    var kills = 0, totalEnemies = 0;
+    var kills = 0, totalEnemies = 0, coins = 0;
     var currentWeapon = 'pistol';
     var weaponAmmo = {};
     var hasWeapon = {};
@@ -641,6 +641,7 @@
             hasWeapon = { knife: true, pistol: true, shotgun: false, machinegun: false, sniper: false, m4a1: false };
             weaponAmmo = { knife: Infinity, pistol: Infinity, shotgun: 0, machinegun: 0, sniper: 0, m4a1: 0 };
             kills = 0;
+            coins = 0;
             gameTime = 0;
         }
         lastFireTime = 0;
@@ -1149,8 +1150,9 @@
                     switchWeapon('m4a1');
                     e.alive = false; picked = true;
                 } else if (e.pickupType === 'coin') {
+                    coins++;
                     levelScore += 50;
-                    spawnFloatText(e.x, e.y, '+50', '#fc0');
+                    spawnFloatText(e.x, e.y, '+50 🪙', '#fc0');
                     e.alive = false; picked = true;
                 }
                 if (picked) playSound('pickup');
@@ -1927,6 +1929,12 @@
         ctx.textAlign = 'left';
         ctx.fillStyle = '#aaa';
         ctx.fillText('LEVEL ' + (currentLevel + 1), 20, 50);
+
+        // Coins (top left, below level)
+        if (coins > 0) {
+            ctx.fillStyle = '#fc0';
+            ctx.fillText('COINS: ' + coins, 20, 70);
+        }
 
         // Grenade count (above ammo, bottom right)
         if (grenadeCount > 0) {

@@ -586,7 +586,7 @@
             var e = entities[i];
             if (!e.alive || e.pickupType) continue;
             var dx = x - e.x, dy = y - e.y;
-            if (Math.sqrt(dx * dx + dy * dy) < 0.5) return true;
+            if (Math.sqrt(dx * dx + dy * dy) < 0.7) return true;
         }
         return false;
     }
@@ -778,6 +778,9 @@
             var dx = x - e.x, dy = y - e.y;
             if (Math.sqrt(dx * dx + dy * dy) < 0.6) return true;
         }
+        // Don't walk into player
+        var pdx = x - player.x, pdy = y - player.y;
+        if (Math.sqrt(pdx * pdx + pdy * pdy) < 0.7) return true;
         return false;
     }
 

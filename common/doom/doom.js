@@ -67,7 +67,7 @@
         { type: 'guard', x: 5.5, y: 5.5 },
         { type: 'guard', x: 10.5, y: 2.5 },
         { type: 'guard', x: 18.5, y: 5.5 },
-        { type: 'guard', x: 3.5, y: 18.5 },
+        { type: 'guard', x: 3.5, y: 17.5 },
         { type: 'guard', x: 15.5, y: 18.5 },
         // Soldiers
         { type: 'soldier', x: 10.5, y: 10.5 },
@@ -233,6 +233,9 @@
         entities = [];
         totalEnemies = 0;
         ENTITIES_DEF.forEach(function (e) {
+            // Skip entities placed inside walls
+            var gx = Math.floor(e.x), gy = Math.floor(e.y);
+            if (gx < 0 || gy < 0 || gx >= MAP_W || gy >= MAP_H || MAP[gy][gx] !== 0) return;
             var ent = { type: e.type, x: e.x, y: e.y, alive: true };
             if (e.type === 'guard') {
                 ent.hp = 50; ent.speed = 1.5; ent.damage = 8; ent.range = 8;
@@ -327,8 +330,11 @@
         if (keys['ArrowLeft']) player.angle -= ROT_SPEED * dt;
         if (keys['ArrowRight']) player.angle += ROT_SPEED * dt;
 
-        // Mouse rotation
+        // Mouse rotation (clamp to prevent sudden jumps)
         if (pointerLocked) {
+            var maxMov = 150; // max pixels per frame
+            if (mouseMovX > maxMov) mouseMovX = maxMov;
+            if (mouseMovX < -maxMov) mouseMovX = -maxMov;
             player.angle += mouseMovX * MOUSE_SENS;
             mouseMovX = 0;
         }
@@ -532,9 +538,14 @@
     }
 
     function isWallForEnemy(x, y, self) {
-        var mx = Math.floor(x), my = Math.floor(y);
-        if (mx < 0 || my < 0 || mx >= MAP_W || my >= MAP_H) return true;
-        if (MAP[my][mx] !== 0 && MAP[my][mx] !== 8) return true;
+        // Check with radius (0.3) to prevent clipping into walls
+        var r = 0.3;
+        var checks = [[x-r,y-r],[x+r,y-r],[x-r,y+r],[x+r,y+r],[x,y]];
+        for (var c = 0; c < checks.length; c++) {
+            var mx = Math.floor(checks[c][0]), my = Math.floor(checks[c][1]);
+            if (mx < 0 || my < 0 || mx >= MAP_W || my >= MAP_H) return true;
+            if (MAP[my][mx] !== 0 && MAP[my][mx] !== 8) return true;
+        }
         // Don't overlap other enemies
         for (var i = 0; i < entities.length; i++) {
             var e = entities[i];

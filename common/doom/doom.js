@@ -8,7 +8,7 @@
     'use strict';
 
     // ======================== CONFIG ========================
-    var SCREEN_W = 640, SCREEN_H = 480;
+    var SCREEN_W = 960, SCREEN_H = 540;
     var FOV = Math.PI / 3; // 60 degrees
     var HALF_FOV = FOV / 2;
     var MOVE_SPEED = 3.0;

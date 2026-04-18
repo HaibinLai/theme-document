@@ -16,7 +16,7 @@ get_header();
 
                 <!-- Game Area -->
                 <div class="doom-game">
-                    <canvas id="doom-canvas" width="640" height="480"></canvas>
+                    <canvas id="doom-canvas" width="960" height="540"></canvas>
 
                     <!-- Start overlay -->
                     <div class="doom-overlay" id="doom-start-overlay">

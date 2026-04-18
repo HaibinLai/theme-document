@@ -919,5 +919,16 @@ const PAGES = [
 				'/common/snake/snake.js'
 			]
 		]
+	],
+	'Doom FPS' => [
+		'template'  => 'template/page/doom.php',
+		'dependent' => [
+			'styles'  => [
+				'/common/doom/doom.css'
+			],
+			'scripts' => [
+				'/common/doom/doom.js'
+			]
+		]
 	]
 ];

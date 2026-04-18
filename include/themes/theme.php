@@ -18,4 +18,6 @@ include_once get_template_directory() . '/include/clipboard/install.php'; //剪�
 include_once get_template_directory() . '/include/clipboard/api.php'; //剪贴板-接口
 include_once get_template_directory() . '/include/snake/install.php'; //贪吃蛇-数据库
 include_once get_template_directory() . '/include/snake/api.php'; //贪吃蛇-接口
+include_once get_template_directory() . '/include/doom/install.php'; //Doom-数据库
+include_once get_template_directory() . '/include/doom/api.php'; //Doom-接口
 

@@ -42,6 +42,22 @@ Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 </details>
 
 
+# 2026-04-18
+
+Haibin
+
+1. 新增 **Doom FPS** 第一人称射击小游戏
+   - Raycasting 引擎，Wolfenstein 3D / Doom 风格，纯 Canvas 2D 无外部依赖
+   - 24×24 迷宫地图，4 种颜色墙面 + 距离着色 + 侧面明暗
+   - 3 把武器：手枪（无限弹药）、霰弹枪（散射）、机关枪（连射），地图内拾取
+   - 2 类敌人：Guard（巡逻）和 Soldier（追击），AI 状态机（IDLE → ALERT → CHASE → ATTACK）
+   - HUD：血量条、弹药、击杀数、准星、小地图（M 键切换）
+   - 操作：WASD 移动 + 鼠标瞄准射击 + 滚轮/数字键切武器
+   - 通关条件：找到出口金色门，评分 = 击杀×100 + 剩余血量×10 + 时间奖励
+   - 永久排行榜：All Time（前 20）和 This Week（前 10），3 周自动清理
+   - Anti-cheat token + IP 速率限制
+   - 使用方式：后台新建页面 → 选择"Doom FPS"模板 → 发布
+
 # 2026-04-17
 
 Haibin

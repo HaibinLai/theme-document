@@ -218,6 +218,14 @@ function nicen_theme_load_source() {
 			$snake_salt = md5( 'snake_' . date( 'Y-m-d' ) . '_' . wp_salt( 'auth' ) );
 			wp_add_inline_script( $key, 'window.SNAKE_DAY_SALT="' . $snake_salt . '";window.SNAKE_AJAX="' . admin_url( 'admin-ajax.php' ) . '";', 'before' );
 		}
+
+		/*
+		 * Doom FPS: inject anti-cheat salt before game script
+		 */
+		if ( $key === 'Doom FPS' ) {
+			$doom_salt = md5( 'doom_' . date( 'Y-m-d' ) . '_' . wp_salt( 'auth' ) );
+			wp_add_inline_script( $key, 'window.DOOM_DAY_SALT="' . $doom_salt . '";window.DOOM_AJAX="' . admin_url( 'admin-ajax.php' ) . '";', 'before' );
+		}
 	}
 
 }

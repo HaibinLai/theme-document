@@ -1,29 +1,37 @@
 /* ===== Doom FPS Page Styles ===== */
 
+/* Override theme content area for Doom page */
+.doom-page-wrapper .main-content {
+    background: transparent !important;
+    padding: 0 !important;
+    max-width: 100%;
+}
+
 .doom-container {
-    max-width: 1400px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 24px;
-    align-items: flex-start;
 }
 
 /* Game Area */
 .doom-game {
-    flex: 0 0 auto;
     position: relative;
+    width: 100%;
+    max-width: 960px;
 }
 
 .doom-game canvas {
     display: block;
+    width: 100%;
+    height: auto;
     background: #111;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     cursor: crosshair;
-    image-rendering: pixelated;
-    width: 960px;
-    height: 540px;
 }
 
 .doom-score-bar {
@@ -47,7 +55,11 @@
 /* Overlays */
 .doom-overlay {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* Cover only the canvas area, not the hint text below */
+    aspect-ratio: 16/9;
     background: rgba(0,0,0,0.85);
     display: flex;
     flex-direction: column;
@@ -137,11 +149,10 @@
     margin: 8px 0;
 }
 
-/* Leaderboard */
+/* Leaderboard — full width below game */
 .doom-leaderboard {
-    flex: 1;
-    min-width: 260px;
-    max-width: 320px;
+    width: 100%;
+    max-width: 960px;
     background: var(--theme-front-main-color, #fff);
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
@@ -151,10 +162,13 @@
 .doom-lb-header {
     padding: 16px 18px 12px;
     border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .doom-lb-header h3 {
-    margin: 0 0 10px 0;
+    margin: 0;
     font-size: 1.1rem;
     color: var(--theme-text-color, #333);
 }
@@ -182,7 +196,7 @@
 }
 
 .doom-lb-body {
-    max-height: 460px;
+    max-height: 400px;
     overflow-y: auto;
     padding: 8px 0;
 }
@@ -257,24 +271,11 @@
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-    .doom-container {
-        flex-direction: column;
-        align-items: center;
-    }
-    .doom-game canvas {
-        width: 100%;
-        height: auto;
-        max-width: 960px;
-    }
-    .doom-leaderboard {
-        max-width: 960px;
-        width: 100%;
-    }
-}
-
 @media (max-width: 480px) {
     .doom-container {
         padding: 10px;
+    }
+    .doom-overlay h2 {
+        font-size: 32px;
     }
 }

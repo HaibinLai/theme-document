@@ -11,7 +11,7 @@ get_header();
 
 <main class="main-container no-sidebar">
     <div class="main-main">
-        <article class="main-content">
+        <article class="main-content doom-page-wrapper">
             <div class="doom-container">
 
                 <!-- Game Area -->

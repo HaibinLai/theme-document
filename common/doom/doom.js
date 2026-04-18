@@ -720,8 +720,28 @@
                     var my = e.y + Math.sin(angleToPlayer) * e.speed * dt;
                     if (!isWallForEnemy(mx, my, e)) { e.x = mx; e.y = my; }
 
-                    // Attack if in range and can see
-                    if (canSee && dist < e.range && now - e.lastFire > e.fireRate) {
+                    // Melee attack when very close
+                    if (dist < 0.8 && now - e.lastFire > e.fireRate) {
+                        player.hp -= e.damage * 1.5;
+                        damageFlash = 1.0;
+                        playSound('hurt');
+                        e.lastFire = now;
+                        if (player.hp <= 0) {
+                            player.hp = 0;
+                            gameState = 'GAMEOVER';
+                            var goScore = document.getElementById('doom-go-score');
+                            if (goScore) goScore.textContent = calcScore();
+                            var goKills = document.getElementById('doom-go-kills');
+                            if (goKills) goKills.textContent = kills + '/' + totalEnemies;
+                            var goTime = document.getElementById('doom-go-time');
+                            if (goTime) goTime.textContent = formatTime(gameTime);
+                            showOverlay('doom-gameover-overlay');
+                            document.exitPointerLock();
+                            submitScore();
+                        }
+                    }
+                    // Ranged attack if in range and can see
+                    else if (canSee && dist < e.range && now - e.lastFire > e.fireRate) {
                         // Spawn a projectile toward player
                         var spread = (Math.random() - 0.5) * 0.15;
                         projectiles.push({

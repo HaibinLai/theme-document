@@ -1746,6 +1746,73 @@
             ctx.fillRect(cx - 8, cy + 40, 16, 25);  // grip
             ctx.fillStyle = '#444';
             ctx.fillRect(cx + 8, cy + 10, 6, 20);   // magazine
+        } else if (currentWeapon === 'sniper') {
+            // Sniper rifle — long barrel, scope, stock
+            ctx.fillStyle = '#4a4a5a';
+            ctx.fillRect(cx - 4, cy - 30, 8, 75);   // long barrel
+            ctx.fillStyle = '#3a3a48';
+            ctx.fillRect(cx - 8, cy + 25, 16, 12);   // receiver
+            ctx.fillStyle = '#8B6914';
+            ctx.fillRect(cx - 6, cy + 37, 12, 30);   // stock
+            ctx.fillRect(cx + 5, cy + 42, 8, 22);    // cheek rest
+            // Scope
+            ctx.fillStyle = '#222';
+            ctx.fillRect(cx - 3, cy - 10, 6, 18);    // scope mount
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(cx, cy - 15, 6, 0, Math.PI * 2); // scope front lens
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(cx, cy + 5, 5, 0, Math.PI * 2);  // scope rear lens
+            ctx.fill();
+            ctx.fillStyle = '#2a2a38';
+            ctx.fillRect(cx - 2, cy - 15, 4, 20);    // scope tube
+            // Bipod legs
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cx - 3, cy + 20); ctx.lineTo(cx - 14, cy + 50);
+            ctx.moveTo(cx + 3, cy + 20); ctx.lineTo(cx + 14, cy + 50);
+            ctx.stroke();
+            // Bolt handle
+            ctx.fillStyle = '#666';
+            ctx.fillRect(cx + 6, cy + 15, 10, 4);
+        } else if (currentWeapon === 'm4a1') {
+            // M4A1 assault rifle — barrel, handguard, stock, magazine
+            ctx.fillStyle = '#555';
+            ctx.fillRect(cx - 4, cy - 20, 8, 65);    // barrel + handguard
+            // Handguard rails
+            ctx.fillStyle = '#4a4a4a';
+            ctx.fillRect(cx - 7, cy - 10, 3, 30);
+            ctx.fillRect(cx + 4, cy - 10, 3, 30);
+            // Upper receiver
+            ctx.fillStyle = '#606060';
+            ctx.fillRect(cx - 9, cy + 20, 18, 15);
+            // Carry handle / sight
+            ctx.fillStyle = '#444';
+            ctx.fillRect(cx - 3, cy - 8, 6, 5);
+            ctx.fillRect(cx - 2, cy - 13, 4, 5);     // front sight post
+            // Magazine (curved)
+            ctx.fillStyle = '#3a3a3a';
+            ctx.save();
+            ctx.translate(cx + 2, cy + 35);
+            ctx.rotate(0.1);
+            ctx.fillRect(-5, 0, 10, 22);
+            ctx.restore();
+            // Stock (collapsible)
+            ctx.fillStyle = '#666';
+            ctx.fillRect(cx - 5, cy + 35, 10, 8);
+            ctx.fillStyle = '#8B6914';
+            ctx.fillRect(cx - 6, cy + 43, 12, 22);
+            // Buffer tube
+            ctx.fillStyle = '#555';
+            ctx.fillRect(cx - 3, cy + 33, 6, 12);
+            // Trigger guard
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(cx, cy + 38, 6, 0, Math.PI);
+            ctx.stroke();
         }
 
         // Muzzle flash (not for knife)

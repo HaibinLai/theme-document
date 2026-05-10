@@ -56,5 +56,20 @@
   --theme-error-title-color: #dfdfd6;
   --theme-error-text-color: #dfdfd6;
 
+  --theme-code-bg: #1e1e1e;
+  --theme-code-text: #9cdcfe;
+  --theme-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.5);
+  --theme-placeholder: #666;
+
+  --theme-border-color: #3a3a3a;
+  --theme-input-border-color: #4a4a4a;
+  --theme-table-border-color: #4a4a4a;
+  --theme-table-row-hover: #{rgba(#ffffff, 0.04)};
+  --theme-pagination-bg: #{rgba(255, 255, 255, 0.08)};
+  --theme-pre-text: #9cdcfe;
+  --theme-tooltip-bg: #3a3a3a;
+  --theme-tooltip-shadow: #{rgba(0, 0, 0, 0.5)};
+  --theme-search-placeholder: #888;
+
 
 }

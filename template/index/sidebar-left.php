@@ -37,10 +37,6 @@ if ( nicen_theme_showCatelog() ) {
                         <span class="number"><?php echo nicen_theme_getPostNice( get_the_ID() ); ?></span>
                         <img src="<?php echo get_template_directory_uri(); ?>/assets/images/zan.svg" title="点赞"/>
                     </div>
-                    <div>
-                        <span class="number"><?php echo nicen_theme_getPostBad( get_the_ID() ); ?></span>
-                        <img src="<?php echo get_template_directory_uri(); ?>/assets/images/cai.svg" title="踩"/>
-                    </div>
                 </div>
             </aside>
         </div>

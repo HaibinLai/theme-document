@@ -371,29 +371,15 @@ $(function ($) {
 
 
     /*
-    * 文章踩、文章点赞
+    * 文章点赞
     * */
     (function () {
 
         $('.icp-beian div').click(function () {
-
-            /*
-            * 判断点赞的是哪一个
-            * */
-            if ($('.icp-beian div').index(this) == 0) {
-                /* 点赞  */
-                let that = $(this);
-                $.post("/?document_nice=" + Current, function () {
-                    that.find('span').text(parseInt(that.find('span').text()) + 1);
-                });
-            } else {
-                /* 踩 */
-                let that = $(this);
-                $.post("/?document_bad=" + Current, function () {
-                    that.find('span').text(parseInt(that.find('span').text()) + 1);
-                });
-            }
-
+            let that = $(this);
+            $.post("/?document_nice=" + Current, function () {
+                that.find('span').text(parseInt(that.find('span').text()) + 1);
+            });
         });
     })();
 

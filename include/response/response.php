@@ -60,20 +60,6 @@ if ( isset( $_GET['document_view'] ) ) {
 
 
 /*
- * 踩
- * */
-if ( isset( $_GET['document_bad'] ) ) {
-	if ( is_numeric( $_GET['document_bad'] ) ) {
-		nicen_theme_setPostBad( $_GET['document_bad'] );
-		exit( json_encode( [
-			'code'   => 1,
-			'errMsg' => "踩成功！"
-		] ) );
-	}
-}
-
-
-/*
  * 百度链接提交
  * */
 if ( isset( $_GET['baidu_submit'] ) ) {

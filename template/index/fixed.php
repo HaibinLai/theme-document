@@ -60,5 +60,14 @@
 	?>
     <!--  阅读进度  -->
     <button id="progress" data-text="阅读进度">0%</button>
+
+	<?php
+	if ( nicen_theme_config( 'document_header_show_readmode', false ) ) {
+		?>
+        <!--  暗色模式切换  -->
+        <button class="read-mode" data-text="暗色模式"><i class="iconfont icon-baitian-qing"></i></button>
+		<?php
+	}
+	?>
 </div>
 

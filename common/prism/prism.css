@@ -1,7 +1,7 @@
 /* PrismJS 1.29.0
 https://prismjs.com/download.html#themes=prism&languages=markup+css+clike+javascript+bash+c+csharp+cpp+css-extras+docker+git+go+http+icon+ini+java+javadoclike+jq+js-extras+json+json5+markdown+markup-templating+nginx+php+phpdoc+php-extras+plsql+python+sql+typescript+visual-basic&plugins=line-highlight+line-numbers+highlight-keywords+remove-initial-line-feed+inline-color+toolbar+copy-to-clipboard */
 code[class*=language-], pre[class*=language-] {
-    color: #000;
+    color: var(--theme-text-color);
     background: 0 0;
     text-shadow: 0 1px var(--theme-pre-code-shadow);
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
@@ -231,12 +231,33 @@ span.inline-color {
 }
 
 .copy-to-clipboard-button {
-    cursor: pointer
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color .2s, opacity .2s;
+    opacity: 0.6
+}
+
+.copy-to-clipboard-button:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.1)
+}
+
+.dark .copy-to-clipboard-button:hover {
+    background-color: rgba(255, 255, 255, 0.1)
 }
 
 .copy-to-clipboard-button span {
-    color: #690 !important;
-    font-size: 0.6rem;
+    color: var(--theme-text-secondary) !important;
+    font-size: 0.6rem
+}
+
+.copy-to-clipboard-button[data-copy-state="copy-success"] {
+    opacity: 1
+}
+
+.copy-to-clipboard-button[data-copy-state="copy-success"] span {
+    color: var(--theme-color) !important
 }
 
 
@@ -283,7 +304,7 @@ div.code-toolbar > .toolbar > .toolbar-item > button {
 }
 
 div.code-toolbar > .toolbar > .toolbar-item > a, div.code-toolbar > .toolbar > .toolbar-item > button, div.code-toolbar > .toolbar > .toolbar-item > span {
-    color: #bbb;
+    color: var(--theme-text-secondary);
     font-size: .8em;
     padding: 0 .5em 0 0;
     background: transparent;

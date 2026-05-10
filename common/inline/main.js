@@ -1,28 +1,22 @@
 /*
 * 切换主题皮肤
 * */
-function toggleTheme(flag = true) {
+function toggleTheme(flag = true, persist = true) {
     if (flag) {
-        //暗黑主题
         $('html')
             .addClass('dark')
             .removeClass('personal');
-        //标记暗黑模式
-        localStorage.setItem('night', 1);
-        //改变图标
+        if (persist) localStorage.setItem('night', '1');
         $(function () {
             $('.read-mode i')
                 .removeClass("icon-baitian-qing")
                 .addClass("icon-yueliang");
         });
     } else {
-        //暗黑主题
         $('html')
             .removeClass('dark')
             .addClass('personal');
-        //移除暗黑模式标记
-        localStorage.removeItem('night');
-        //改变图标
+        if (persist) localStorage.setItem('night', '0');
         $(function () {
             $('.read-mode i')
                 .removeClass("icon-yueliang")
@@ -49,12 +43,28 @@ if (!!theme) {
 }
 /*同步阅读模式 */
 let night = localStorage.getItem('night');
+let prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-/*
-* 是否需要切换模式
-* */
-if (!!night) {
-    toggleTheme(true); //切换暗黑
+if (night === '1' || (night === null && prefersDark)) {
+    if (!$('html').hasClass('dark')) {
+        toggleTheme(true, false);
+    } else {
+        $(function () {
+            $('.read-mode i')
+                .removeClass("icon-baitian-qing")
+                .addClass("icon-yueliang");
+        });
+    }
+}
+
+/* 监听系统暗色偏好变化 */
+if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        var n = localStorage.getItem('night');
+        if (n === null) {
+            toggleTheme(e.matches, false);
+        }
+    });
 }
 
 /*

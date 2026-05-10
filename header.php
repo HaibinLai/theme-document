@@ -7,6 +7,21 @@
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn" xmlns="http://www.w3.org/1999/html" class="personal">
+<script>
+(function(){
+  try {
+    var d = document.documentElement;
+    var night = localStorage.getItem('night');
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (night === '1' || (night === null && prefersDark)) {
+      d.classList.add('dark');
+      d.classList.remove('personal');
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#141414');
+    }
+  } catch(e) {}
+})();
+</script>
 <head>
     <meta name="theme-color" content="#ffffff"/>
     <meta charset="<?php bloginfo( 'charset' ); ?>"/>

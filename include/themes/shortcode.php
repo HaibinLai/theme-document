@@ -144,6 +144,72 @@ function nicen_theme_init_shortcode()
 
 	add_shortcode('mark', 'mark');
 
+
+	function runcode_shortcode($atts, $content = null, $code = "")
+	{
+		$atts = shortcode_atts(array('lang' => 'javascript'), $atts, 'runcode');
+		$lang = strtolower(trim($atts['lang']));
+
+		if (!in_array($lang, array('python', 'javascript', 'js', 'html'))) {
+			$lang = 'javascript';
+		}
+
+		$labels = array('python' => 'Python', 'javascript' => 'JavaScript', 'js' => 'JavaScript', 'html' => 'HTML');
+		$label = $labels[$lang];
+
+		$content = str_replace(array('<p>', '</p>'), '', $content);
+		$content = preg_replace('/<br\s*\/?>/', "\n", $content);
+		$content = html_entity_decode($content, ENT_QUOTES, 'UTF-8');
+		$content = trim($content);
+
+		return '<div class="runcode-block" data-lang="' . esc_attr($lang) . '">'
+			. '<div class="runcode-header">'
+			. '<span class="runcode-lang">' . $label . '</span>'
+			. '<div class="runcode-actions">'
+			. '<button class="runcode-run" type="button">&#9654; Run</button>'
+			. '<button class="runcode-clear" type="button">Clear</button>'
+			. '</div>'
+			. '</div>'
+			. '<textarea class="runcode-editor" spellcheck="false">' . esc_textarea($content) . '</textarea>'
+			. '<div class="runcode-output" style="display:none">'
+			. '<div class="runcode-output-header"><span>Output</span></div>'
+			. '<pre class="runcode-output-content"></pre>'
+			. '</div>'
+			. '</div>';
+	}
+
+	add_shortcode('runcode', 'runcode_shortcode');
+
+	function nicen_model_viewer( $atts ) {
+		$atts = shortcode_atts( [
+			'src'        => '',
+			'width'      => '100%',
+			'height'     => '400px',
+			'poster'     => '',
+			'autorotate' => 'true',
+		], $atts, '3d' );
+
+		if ( empty( $atts['src'] ) ) {
+			return '';
+		}
+
+		$src        = esc_url( $atts['src'] );
+		$width      = esc_attr( $atts['width'] );
+		$height     = esc_attr( $atts['height'] );
+		$poster     = $atts['poster'] ? 'poster="' . esc_url( $atts['poster'] ) . '"' : '';
+		$autorotate = $atts['autorotate'] === 'true' ? 'auto-rotate' : '';
+
+		return '<div class="model-viewer-container" style="width:' . $width . ';height:' . $height . ';">
+			<model-viewer src="' . $src . '" ' . $poster . ' ' . $autorotate . '
+				camera-controls touch-action="pan-y"
+				shadow-intensity="1" shadow-softness="1"
+				style="width:100%;height:100%;">
+			</model-viewer>
+		</div>';
+	}
+
+	add_shortcode( '3d', 'nicen_model_viewer' );
+
 }
 
 add_action('after_setup_theme', 'nicen_theme_init_shortcode'); //新增短标签处理

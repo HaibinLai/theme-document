@@ -20,6 +20,7 @@ const jsFiles = [
   'common/clipboard/clipboard-listener.js',
   'common/snake/snake.js',
   'common/doom/doom.js',
+  'common/runcode/runcode.js',
   'assets/theme/enquire.js',
 ];
 
@@ -33,6 +34,7 @@ const cssFiles = [
   'common/clipboard/clipboard.css',
   'common/snake/snake.css',
   'common/doom/doom.css',
+  'common/runcode/runcode.css',
 ];
 
 async function build() {

@@ -91,6 +91,19 @@ function nicen_theme_load_source() {
 		wp_enqueue_style( 'prism', $url . nicen_theme_min_path( '/common/prism/prism.css' ), array(), filemtime( $root . nicen_theme_min_path( '/common/prism/prism.css' ) ) );
 		wp_enqueue_style( 'viewercss', $url . '/common/viewer/viewer.min.css', array(), filemtime( $root . '/common/viewer/viewer.min.css' ) );
 
+		wp_enqueue_script( 'runcode', $url . nicen_theme_min_path( '/common/runcode/runcode.js' ), array( 'prism' ), filemtime( $root . nicen_theme_min_path( '/common/runcode/runcode.js' ) ), true );
+		wp_enqueue_style( 'runcode', $url . nicen_theme_min_path( '/common/runcode/runcode.css' ), array( 'prism' ), filemtime( $root . nicen_theme_min_path( '/common/runcode/runcode.css' ) ) );
+
+	}
+
+	/*
+	 * 3D 模型查看器 - 仅在文章包含 [3d] 短标签时加载
+	 * */
+	if ( is_singular() ) {
+		global $post;
+		if ( has_shortcode( $post->post_content, '3d' ) ) {
+			wp_enqueue_script( 'model-viewer', $url . '/assets/theme/model-viewer.min.js', array(), filemtime( $root . '/assets/theme/model-viewer.min.js' ), true );
+		}
 	}
 
 
@@ -269,6 +282,11 @@ function nicen_theme_add_defer_to_scripts( $tag, $handle, $src ) {
 	/* 只处理前端页面 */
 	if ( is_admin() ) {
 		return $tag;
+	}
+
+	/* model-viewer 需要 type="module" 加载 */
+	if ( $handle === 'model-viewer' ) {
+		return str_replace( ' src=', ' type="module" src=', $tag );
 	}
 
 	/* 不给 jQuery 加 defer，因为很多 inline script 依赖它立即执行 */

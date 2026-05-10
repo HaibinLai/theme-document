@@ -2525,3 +2525,24 @@ html body .main-container .main-main .main-content .main-article details a:hover
 }
 
 
+/*
+  3D 模型查看器
+*/
+.model-viewer-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--theme-border-color);
+  background: var(--theme-pre-code-bg);
+  margin: 0.5rem 0 var(--theme-margin-bottom) 0;
+}
+
+.model-viewer-container model-viewer {
+  --poster-color: transparent;
+}
+
+.model-viewer-container model-viewer::part(default-progress-bar) {
+  background: var(--theme-color);
+  height: 3px;
+}
+

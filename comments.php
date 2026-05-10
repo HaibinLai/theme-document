@@ -46,6 +46,12 @@ if ( nicen_theme_showComments() ) {
                 </ul>
             </div>
             <form class="comment-form" action="/wp-comments-post.php" method="post">
+                <!--蜜罐字段（反垃圾）-->
+                <div style="display:none;position:absolute;left:-9999px" aria-hidden="true">
+                    <input name="website_url" tabindex="-1" autocomplete="off" value="">
+                </div>
+                <input type="hidden" name="comment_timestamp" id="comment_timestamp" value="">
+                <script>document.getElementById('comment_timestamp').value=Math.floor(Date.now()/1000);</script>
                 <!--评论表单头部元素-->
                 <div class="comment-header">
                     <!--评论者信息-->

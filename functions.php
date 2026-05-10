@@ -74,4 +74,5 @@ include_once get_template_directory() . '/include/functions/smtp.php';//加载sm
 include_once get_template_directory() . '/include/class/CommentsWalker.php';//自定义评论输出
 include_once get_template_directory() . '/include/functions/initialize.php';//覆盖wordpress默认设置
 include_once get_template_directory() . '/include/functions/toys.php';//小玩具导航管理
+include_once get_template_directory() . '/include/functions/antispam.php';//评论反垃圾防护
 

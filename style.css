@@ -2410,9 +2410,8 @@ html body .main-container .main-main .main-content .main-article details summary
 }
 
 html body .main-container .main-main .main-content .main-article details > *:not(summary) {
-  padding: 1rem 1rem 1rem 1rem;
+  padding: 0 1rem;
   margin: 0;
-  background: var(--theme-front-main-color);
 }
 
 html body .main-container .main-main .main-content .main-article details > *:not(summary):first-of-type {
@@ -2484,6 +2483,45 @@ html body .main-container .main-main .main-content .main-article details blockqu
   border-left: 3px solid var(--theme-color);
   background: var(--theme-pagination-bg);
   border-radius: 4px;
+}
+
+html body .main-container .main-main .main-content .main-article details table {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+}
+
+html body .main-container .main-main .main-content .main-article details table tr td,
+html body .main-container .main-main .main-content .main-article details table tr th {
+  padding: 0.3rem 0.66rem;
+  border: 1px solid var(--theme-table-border-color);
+}
+
+html body .main-container .main-main .main-content .main-article details table tr:hover {
+  background: var(--theme-table-row-hover);
+}
+
+html body .main-container .main-main .main-content .main-article details img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+}
+
+html body .main-container .main-main .main-content .main-article details hr {
+  border: none;
+  border-top: 1px solid var(--theme-border-color);
+  margin: 1rem 0;
+}
+
+html body .main-container .main-main .main-content .main-article details a {
+  color: var(--theme-color);
+  text-decoration: none;
+}
+
+html body .main-container .main-main .main-content .main-article details a:hover {
+  text-decoration: underline;
 }
 
 

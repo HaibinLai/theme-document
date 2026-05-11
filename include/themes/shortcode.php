@@ -238,6 +238,44 @@ function nicen_theme_init_shortcode()
 
 	add_shortcode( 'plot3d', 'nicen_plot3d' );
 
+	function nicen_img_compare( $atts ) {
+		$atts = shortcode_atts( [
+			'before'       => '',
+			'after'        => '',
+			'before_label' => 'Before',
+			'after_label'  => 'After',
+			'width'        => '100%',
+		], $atts, 'compare' );
+
+		if ( empty( $atts['before'] ) || empty( $atts['after'] ) ) {
+			return '';
+		}
+
+		$before       = esc_url( $atts['before'] );
+		$after        = esc_url( $atts['after'] );
+		$before_label = esc_html( $atts['before_label'] );
+		$after_label  = esc_html( $atts['after_label'] );
+		$width        = esc_attr( $atts['width'] );
+
+		return '<div class="img-compare" style="width:' . $width . ';">'
+			. '<div class="img-compare-after">'
+			. '<img src="' . $after . '" alt="' . $after_label . '" draggable="false">'
+			. '<span class="img-compare-label img-compare-label-after">' . $after_label . '</span>'
+			. '</div>'
+			. '<div class="img-compare-before">'
+			. '<img src="' . $before . '" alt="' . $before_label . '" draggable="false">'
+			. '<span class="img-compare-label img-compare-label-before">' . $before_label . '</span>'
+			. '</div>'
+			. '<div class="img-compare-handle">'
+			. '<div class="img-compare-handle-line"></div>'
+			. '<div class="img-compare-handle-circle"><span>&#x2B0C;</span></div>'
+			. '<div class="img-compare-handle-line"></div>'
+			. '</div>'
+			. '</div>';
+	}
+
+	add_shortcode( 'compare', 'nicen_img_compare' );
+
 }
 
 add_action('after_setup_theme', 'nicen_theme_init_shortcode'); //新增短标签处理

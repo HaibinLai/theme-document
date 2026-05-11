@@ -22,6 +22,7 @@ const jsFiles = [
   'common/doom/doom.js',
   'common/runcode/runcode.js',
   'common/plotly/plotly-bindings.js',
+  'common/compare/compare.js',
   'assets/theme/enquire.js',
 ];
 

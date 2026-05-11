@@ -82,6 +82,7 @@ include_once get_template_directory() . '/include/functions/antispam.php';//è¯„è
 add_filter( 'upload_mimes', function ( $mimes ) {
 	$mimes['glb']  = 'model/gltf-binary';
 	$mimes['gltf'] = 'model/gltf+json';
+	$mimes['json'] = 'application/json';
 
 	return $mimes;
 } );

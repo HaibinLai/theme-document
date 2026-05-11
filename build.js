@@ -21,6 +21,7 @@ const jsFiles = [
   'common/snake/snake.js',
   'common/doom/doom.js',
   'common/runcode/runcode.js',
+  'common/plotly/plotly-bindings.js',
   'assets/theme/enquire.js',
 ];
 

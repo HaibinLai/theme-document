@@ -2546,3 +2546,41 @@ html body .main-container .main-main .main-content .main-article details a:hover
   height: 3px;
 }
 
+/*
+  Plotly 3D 数据图
+*/
+.plotly-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--theme-border-color);
+  margin: 0.5rem 0 var(--theme-margin-bottom) 0;
+}
+
+.plotly-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--theme-text-secondary);
+  font-size: 0.9rem;
+}
+
+.plotly-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #e74c3c;
+  font-size: 0.9rem;
+}
+
+.plotly-container .modebar {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.plotly-container:hover .modebar {
+  opacity: 1;
+}
+

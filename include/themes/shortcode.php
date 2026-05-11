@@ -210,6 +210,34 @@ function nicen_theme_init_shortcode()
 
 	add_shortcode( '3d', 'nicen_model_viewer' );
 
+	static $plot3d_count = 0;
+
+	function nicen_plot3d( $atts ) {
+		global $plot3d_count;
+		$plot3d_count++;
+
+		$atts = shortcode_atts( [
+			'src'    => '',
+			'width'  => '100%',
+			'height' => '500px',
+		], $atts, 'plot3d' );
+
+		if ( empty( $atts['src'] ) ) {
+			return '';
+		}
+
+		$src    = esc_url( $atts['src'] );
+		$width  = esc_attr( $atts['width'] );
+		$height = esc_attr( $atts['height'] );
+		$id     = 'plotly-' . $plot3d_count;
+
+		return '<div class="plotly-container" id="' . $id . '" data-src="' . $src . '" style="width:' . $width . ';height:' . $height . ';">'
+			. '<div class="plotly-loading">加载 3D 图表中...</div>'
+			. '</div>';
+	}
+
+	add_shortcode( 'plot3d', 'nicen_plot3d' );
+
 }
 
 add_action('after_setup_theme', 'nicen_theme_init_shortcode'); //新增短标签处理

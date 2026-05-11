@@ -104,6 +104,10 @@ function nicen_theme_load_source() {
 		if ( has_shortcode( $post->post_content, '3d' ) ) {
 			wp_enqueue_script( 'model-viewer', $url . '/assets/theme/model-viewer.min.js', array(), filemtime( $root . '/assets/theme/model-viewer.min.js' ), true );
 		}
+		if ( has_shortcode( $post->post_content, 'plot3d' ) ) {
+			wp_enqueue_script( 'plotly-gl3d', $url . '/assets/theme/plotly-gl3d.min.js', array(), filemtime( $root . '/assets/theme/plotly-gl3d.min.js' ), true );
+			wp_enqueue_script( 'plotly-bindings', $url . nicen_theme_min_path( '/common/plotly/plotly-bindings.js' ), array( 'plotly-gl3d' ), filemtime( $root . nicen_theme_min_path( '/common/plotly/plotly-bindings.js' ) ), true );
+		}
 	}
 
 

@@ -930,5 +930,16 @@ const PAGES = [
 				'/common/doom/doom.js'
 			]
 		]
+	],
+	'阅读统计' => [
+		'template'  => 'template/page/stats.php',
+		'dependent' => [
+			'styles'  => [
+				'/common/stats/stats.css'
+			],
+			'scripts' => [
+				'/common/stats/stats.js'
+			]
+		]
 	]
 ];

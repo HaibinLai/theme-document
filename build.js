@@ -25,6 +25,7 @@ const jsFiles = [
   'common/compare/compare.js',
   'common/sw/sw.js',
   'common/sw/register.js',
+  'common/stats/stats.js',
   'assets/theme/enquire.js',
 ];
 
@@ -39,6 +40,7 @@ const cssFiles = [
   'common/snake/snake.css',
   'common/doom/doom.css',
   'common/runcode/runcode.css',
+  'common/stats/stats.css',
 ];
 
 async function build() {

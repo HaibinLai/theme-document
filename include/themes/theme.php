@@ -22,4 +22,6 @@ include_once get_template_directory() . '/include/snake/install.php'; //贪吃�
 include_once get_template_directory() . '/include/snake/api.php'; //贪吃蛇-接口
 include_once get_template_directory() . '/include/doom/install.php'; //Doom-数据库
 include_once get_template_directory() . '/include/doom/api.php'; //Doom-接口
+include_once get_template_directory() . '/include/stats/install.php'; //阅读统计-数据库
+include_once get_template_directory() . '/include/stats/api.php'; //阅读统计-接口
 

@@ -67,6 +67,14 @@ function nicen_theme_setPostViews( $postID ) {
 		$count ++;
 		update_post_meta( $postID, $count_key, $count );
 	}
+
+	global $wpdb;
+	$log_table = $wpdb->prefix . 'document_view_logs';
+	$wpdb->query( $wpdb->prepare(
+		"INSERT INTO $log_table (post_id, view_date, view_count) VALUES (%d, %s, 1)
+		 ON DUPLICATE KEY UPDATE view_count = view_count + 1",
+		$postID, current_time( 'Y-m-d' )
+	) );
 }
 
 

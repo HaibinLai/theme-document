@@ -1,0 +1,153 @@
+.stats-container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+.stats-header { margin-bottom: 24px; }
+.stats-header h2 { font-size: 1.4rem; font-weight: 700; margin: 0 0 4px; }
+.stats-header p { font-size: 0.82rem; color: rgba(0,0,0,0.45); margin: 0; }
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+}
+.stats-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+.stats-card-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--theme-color, #3eaf7c);
+    line-height: 1.2;
+}
+.stats-card-label {
+    font-size: 0.82rem;
+    color: rgba(0,0,0,0.45);
+    margin-top: 6px;
+}
+
+.stats-section { margin-bottom: 30px; }
+.stats-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.stats-section-header h3 { font-size: 1.1rem; font-weight: 600; margin: 0; }
+
+.stats-period-selector { display: flex; gap: 6px; }
+.stats-period-btn {
+    padding: 4px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.2s;
+    color: inherit;
+}
+.stats-period-btn:hover { border-color: var(--theme-color, #3eaf7c); }
+.stats-period-btn.active {
+    background: var(--theme-color, #3eaf7c);
+    color: #fff;
+    border-color: var(--theme-color, #3eaf7c);
+}
+
+.stats-chart-wrap {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 200px;
+    position: relative;
+}
+.stats-chart-wrap svg { width: 100%; height: auto; display: block; }
+
+.stats-tooltip {
+    position: absolute;
+    display: none;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.stats-table-wrap {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.stats-table { width: 100%; border-collapse: collapse; }
+.stats-table th {
+    background: #fafafa;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 0.82rem;
+    color: rgba(0,0,0,0.45);
+    border-bottom: 1px solid #e8e8e8;
+    font-weight: 500;
+}
+.stats-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.88rem;
+}
+.stats-table tr:last-child td { border-bottom: none; }
+.stats-table a { color: var(--theme-color, #3eaf7c); text-decoration: none; }
+.stats-table a:hover { text-decoration: underline; }
+
+.stats-rank {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.stats-rank-1 { background: #ffd700; color: #fff; }
+.stats-rank-2 { background: #c0c0c0; color: #fff; }
+.stats-rank-3 { background: #cd7f32; color: #fff; }
+
+.stats-loading {
+    text-align: center;
+    padding: 40px;
+    color: rgba(0,0,0,0.35);
+    font-size: 0.88rem;
+}
+.stats-empty {
+    text-align: center;
+    padding: 40px;
+    color: rgba(0,0,0,0.35);
+    font-size: 0.88rem;
+}
+
+@media (max-width: 768px) {
+    .stats-overview { grid-template-columns: repeat(2, 1fr); }
+    .stats-table th:nth-child(4),
+    .stats-table td:nth-child(4) { display: none; }
+}
+@media (max-width: 480px) {
+    .stats-overview { grid-template-columns: 1fr; }
+    .stats-container { padding: 20px 12px; }
+}
+
+.dark .stats-header p { color: rgba(255,255,255,0.45); }
+.dark .stats-card { background: #1e1e1e; border-color: #333; }
+.dark .stats-card-label { color: rgba(255,255,255,0.45); }
+.dark .stats-chart-wrap { background: #1e1e1e; border-color: #333; }
+.dark .stats-table-wrap { background: #1e1e1e; border-color: #333; }
+.dark .stats-table th { background: #252525; border-color: #333; color: rgba(255,255,255,0.45); }
+.dark .stats-table td { border-color: #2a2a2a; }
+.dark .stats-period-btn { border-color: #444; }
+.dark .stats-loading,
+.dark .stats-empty { color: rgba(255,255,255,0.35); }

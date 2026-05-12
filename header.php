@@ -7,6 +7,7 @@
 ?>
 <!DOCTYPE html>
 <html lang="zh-cn" xmlns="http://www.w3.org/1999/html" class="personal">
+<meta name="theme-color" content="#ffffff"/>
 <script>
 (function(){
   try {
@@ -22,8 +23,8 @@
   } catch(e) {}
 })();
 </script>
+<style>.dark,.dark body{background-color:#333;color:rgba(255,255,255,0.87)}.dark .main-header{background:#141414}</style>
 <head>
-    <meta name="theme-color" content="#ffffff"/>
     <meta charset="<?php bloginfo( 'charset' ); ?>"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	<?php

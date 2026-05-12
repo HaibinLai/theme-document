@@ -43,6 +43,8 @@ function nicen_theme_load_source() {
 
 	wp_enqueue_script( 'main', $url . nicen_theme_min_path( '/common/main.js' ), array(), filemtime( $root . nicen_theme_min_path( '/common/main.js' ) ), true );
 
+	wp_enqueue_script( 'sw-register', $url . nicen_theme_min_path( '/common/sw/register.js' ), array(), filemtime( $root . nicen_theme_min_path( '/common/sw/register.js' ) ), true );
+
 
 	/*主题的style.css - 加载压缩版*/
 	$style_path = nicen_theme_min_path( '/style.css' );

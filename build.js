@@ -23,6 +23,8 @@ const jsFiles = [
   'common/runcode/runcode.js',
   'common/plotly/plotly-bindings.js',
   'common/compare/compare.js',
+  'common/sw/sw.js',
+  'common/sw/register.js',
   'assets/theme/enquire.js',
 ];
 

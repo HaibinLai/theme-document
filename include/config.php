@@ -523,6 +523,14 @@ const ADMIN = [
 						'callback' => 'nicen_theme_form_switch',
 					],
 					[
+						'id'       => 'document_single_show_sparkline',
+						'title'    => '显示文章阅读趋势',
+						'callback' => 'nicen_theme_form_switch',
+						'args'     => [
+							'tip' => '在文章底部显示近30天阅读走势迷你图'
+						]
+					],
+					[
 						'id'       => 'document_copyright',
 						'title'    => '文章底部版权说明',
 						'callback' => 'nicen_theme_form_textarea',
@@ -815,6 +823,7 @@ define( "CONFIG", [
 	'document_single_show_bread'     => 1,
 	'document_single_show_structrue' => 1,
 	'document_single_show_catalog'   => 0,
+	'document_single_show_sparkline' => 0,
 	'document_assiciate_type'        => 1,
 	/*
 	 * 页面设置
@@ -939,6 +948,17 @@ const PAGES = [
 			],
 			'scripts' => [
 				'/common/stats/stats.js'
+			]
+		]
+	],
+	'阅读趋势' => [
+		'template'  => 'template/page/trend.php',
+		'dependent' => [
+			'styles'  => [
+				'/common/trend/trend.css'
+			],
+			'scripts' => [
+				'/common/trend/trend.js'
 			]
 		]
 	]

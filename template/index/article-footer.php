@@ -57,6 +57,9 @@ $previous = get_previous_post();//上一篇
 				?>
             </ul>
         </div>
+        <?php if ( nicen_theme_config( "document_single_show_sparkline", false ) ) { ?>
+            <?php document_stats_render_sparkline( get_the_ID() ); ?>
+        <?php } ?>
     </div>
 
 	<?php

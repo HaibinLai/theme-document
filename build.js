@@ -26,6 +26,7 @@ const jsFiles = [
   'common/sw/sw.js',
   'common/sw/register.js',
   'common/stats/stats.js',
+  'common/trend/trend.js',
   'assets/theme/enquire.js',
 ];
 
@@ -41,6 +42,7 @@ const cssFiles = [
   'common/doom/doom.css',
   'common/runcode/runcode.css',
   'common/stats/stats.css',
+  'common/trend/trend.css',
 ];
 
 async function build() {

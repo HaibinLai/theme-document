@@ -1,139 +1,541 @@
-# Document - WordPress Blog Theme
 
-A documentation-style WordPress blog theme for recording and searching study notes.
+# v1.6.0 后续更新
 
-**Version:** 1.6.0 | **License:** GPL v2+ | **Original Author:** [友人a丶](https://nicen.cn/) | **Current Maintainer:** Haibin
+Haibin
 
-## Installation
+1. 新增 **3D 模型查看器**：`[3d]` 短代码，基于 model-viewer web component，支持 GLB/GLTF 格式
+2. 新增 **3D 交互图表**：`[plot3d]` 短代码，基于 Plotly.js，支持可交互的三维数据可视化
+3. 新增 **图片对比滑块**：`[compare]` 短代码，支持 before/after 图片对比
+4. 修复暗色模式页面导航时背景闪白问题（添加关键 CSS + 修复 meta theme-color 位置）
+5. 新增 **GitHub Actions CI**：push/PR 时自动运行构建检查（npm run build）和 PHP 语法检查（php -l）
 
-1. Download this repository
-2. Upload to `/wp-content/themes/` on your WordPress server
-3. Activate in WordPress admin panel
-4. Configure via admin menu **Theme Options**
+# v1.6.0 (2026-05-01)
 
-```bash
-# First-time setup (for development)
-npm install
+Haibin
 
-# Build minified JS/CSS (~1 second)
-node build.js
-```
+1. 暗色模式全面优化
+   - 修复 FOUC 白闪问题，新增系统暗色偏好自动跟随
+   - 替换 21+ 处硬编码颜色为 CSS 变量
+   - 移动端固定侧边栏新增暗色切换按钮
+2. 代码块：优化复制按钮可见性和暗色模式支持
+3. 新增评论反垃圾保护：蜜罐字段、时间检测、频率限制、内容过滤
+4. 折叠专栏（details/summary）：修复内容内边距、暗色模式，新增表格/图片/链接样式支持
+5. 移除文章踩按钮，仅保留点赞
+6. 新增 Obsidian 风格图片尺寸语法支持
+7. Doom FPS：新增第二关、新武器（狙击枪、M4A1、手榴弹）、金币计数器、双语切换
 
-## Features
-
-- Article directory navigation with scroll sync
-- Dark / light mode with system preference auto-follow
-- Theme color picker
-- Code highlighting (Prism.js) with copy button
-- Image lightbox (Viewer.js)
-- Responsive layout (mobile / tablet / desktop)
-- Comment system with anti-spam protection
-- SMTP email notifications
-- SEO: TDK, Open Graph, structured data
-- `<details>` / `<summary>` collapsible sections
-- Obsidian-style image sizing
-
-### Shortcodes
-
-| Shortcode | Description |
-|-----------|-------------|
-| `[runcode lang="python"]` | Executable code blocks (Python via Pyodide, JS, HTML) |
-| `[3d]` | 3D model viewer (model-viewer web component) |
-| `[plot3d]` | Interactive 3D plots (Plotly.js) |
-| `[compare before="a.jpg" after="b.jpg"]` | Before/after image comparison slider |
-
-### Page Templates
-
-| Template | Description |
-|----------|-------------|
-| Todo | Personal task manager with drag-and-drop |
-| Clipboard | Copy history manager with file upload |
-| Snake Game | Classic snake game with leaderboard |
-| Doom FPS | First-person shooter with raycasting engine |
-| My Corner | Customizable navigation card grid |
-
-## CI
-
-GitHub Actions runs on every push/PR to `master`:
-- **Build check** — `npm run build` (esbuild minification)
-- **PHP lint** — `php -l` syntax check on all PHP files
-
----
-
-## Changelog
-
-### v1.6.0 (2026-05-01)
-
-- Dark mode: fix FOUC flash, add system preference auto-follow, replace 21+ hardcoded colors with CSS variables, add mobile toggle button
-- Comment anti-spam: honeypot, time check, rate limit, content filter
-- `<details>` / `<summary>`: fix content padding, dark mode, add table/img/hr/link styles
-- Code blocks: improve copy button visibility and dark mode support
-- Remove dislike button from posts
-- Obsidian-style image sizing support
-- Doom FPS: Level 2, new weapons (sniper, M4A1, grenades), coin counter, bilingual toggle
-- Performance: all frontend JS moved to footer with `defer`
-
-### Post v1.6.0 (latest)
-
-- Add `[3d]` shortcode — 3D model viewer with model-viewer web component
-- Add `[plot3d]` shortcode — interactive 3D plot viewer with Plotly.js
-- Add `[compare]` shortcode — before/after image comparison slider
-- Fix dark mode flash on page navigation (critical CSS + meta theme-color fix)
-- Add GitHub Actions CI (build check + PHP lint)
-
-### v1.5.1 (2026-04-18)
-
-Introduced esbuild build pipeline, reducing page load size by ~206 KB (~40-50%). Added `nicen_theme_min_path()` for automatic minified file detection with fallback.
-
-### v1.4.x and earlier
+## 历史介绍（原作者）
 
 <details>
-<summary>Click to expand earlier changelog</summary>
+<summary>点击展开查看原作者对本仓库介绍</summary>
 
-#### 2026-04-17
+😁作为一个程序员，在日常的工作、生活、学习的过程中基本都有很多需要做笔记的地方；做笔记的主要目的之一是为了“温故而知新”，另一个则是为了在下一次遇到的时候，不需要再次耗费精力去找解决方法；
 
-- Todo page template: CRUD, priority, due dates, drag-and-drop, localStorage + MySQL sync
-- My Corner navigation page: card grid, admin-only cards, emoji/image icons
-- Clipboard tool: auto-capture Ctrl+C, file upload, search/filter
-- Snake Game: gradient visuals, particle effects, leaderboard
-- Security: XSS protection, anti-cheat tokens, rate limiting
+回顾自己之前写的那个主题，不管是写还是查都不怎么方便，最终下定决心重写一个主题；以 “方便记、方便查、简约”作为设计核心；
 
-#### 2026-02-27
+本文则记录主题从诞生至今所有的开发记录；
 
-- Image lazy loading optimization
-- Firefox sidebar fix
-- Security and anti-crawler improvements
+进入友人a的笔记预览主题：[nicen.cn](https://nicen.cn/)
 
-#### 2026-02-08
+# 开源地址
 
-- Word count display at article top
-- `<details>` / `<summary>` collapsible section support
+Github：[https://github.com/friend-nicen/theme-document](https://github.com/friend-nicen/theme-document)
 
-#### 2026-02-01
+Gitee：[https://gitee.com/friend-nicen/theme-document](https://gitee.com/friend-nicen/theme-document)
 
-- Fix main.js 404 error, force remove old jQuery, add diagnose-jquery.php
+使用帮助看这里：[https://nicen.cn/1552.html](https://nicen.cn/1552.html)
 
-#### 2026-01-14
 
-- Fix sidebar dynamic update with remote images
-- Full English localization of theme
-- Fix navbar and content sync issues
+
+# 插件推荐
+
+## Wordpress免费远程图片本地化插件
+
+wordpress插件后台搜索nicen-localize-image
+
+Github：[https://github.com/friend-nicen/nicen-localize-image](https://github.com/friend-nicen/nicen-localize-image)
+
+Gitee：[https://gitee.com/friend-nicen/nicen-localize-image](https://gitee.com/friend-nicen/nicen-localize-image)
+
+## Wordpress用户行为回放插件
+
+Github：<https://github.com/friend-nicen/nicen-replay>
+
+Gitee：<https://gitee.com/friend-nicen/nicen-replay>
 
 </details>
 
-## Development
+# v1.5.1 (2026-04-18) - 前端资源压缩优化
 
-See [CLAUDE.md](CLAUDE.md) for detailed project structure, build workflow, and development guidelines.
+Haibin
 
-## Original Author
+**这是一次重大架构变更，引入了前端构建流程。**
+
+### 变更概述
+
+引入 esbuild 构建工具，对主题所有前端 JS/CSS 文件进行压缩（minify），减少页面加载体积约 206 KB（约 40-50%）。
+
+### 具体变更
+
+1. **新增构建系统**
+   - 新增 `build.js` 构建脚本，基于 [esbuild](https://esbuild.github.io/)，一键压缩所有前端 JS 和 CSS
+   - 新增 `package.json`，声明 esbuild 开发依赖
+   - 运行 `node build.js` 即可生成所有 `.min.js` / `.min.css` 压缩文件
+
+2. **修改资源加载逻辑 (`include/themes/load.php`)**
+   - 新增 `nicen_theme_min_path()` 辅助函数：自动检测压缩版文件是否存在，存在则加载 `.min.js`/`.min.css`，否则回退到原版文件
+   - 所有前端 `wp_enqueue_script` / `wp_enqueue_style` 调用均改为通过该函数加载
+   - **向下兼容**：如果 `.min` 文件不存在（比如未执行构建），主题仍然正常加载原版文件，不会报错
+
+3. **压缩效果**
+
+   | 文件 | 压缩前 | 压缩后 | 缩减 |
+   |------|--------|--------|------|
+   | `common/main.js` | 24.5 KB | 5.0 KB | **-80%** |
+   | `common/inline/*.js` (6个) | 31 KB | 10 KB | **-68%** |
+   | `common/prism/prism.js` | 119 KB | 86 KB | -28% |
+   | `style.css` | 109 KB | 75 KB | -31% |
+   | 小游戏/工具 JS | 139 KB | 68 KB | -51% |
+   | 各页面 CSS | 41 KB | 29 KB | -29% |
+   | **总计节省** | | | **206 KB** |
+
+4. **新增 `CLAUDE.md`**
+   - 为 Claude Code AI 助手提供项目上下文和开发工作流说明
+   - 包含构建、测试、提交的标准流程
+
+### 开发工作流变更
+
+从此版本开始，修改 JS 或 CSS 后需要重新构建压缩文件：
+
+```bash
+node build.js    # 重新压缩所有文件（约1秒）
+```
+
+详见 `CLAUDE.md`。
+
+### 注意事项
+
+- `node_modules/` 目录已在 `.gitignore` 中忽略，首次 clone 后需运行 `npm install`
+- 原版未压缩的源文件全部保留，`.min` 文件是额外生成的
+- 后台管理页面的资源（vue.min.js、antd.min.js 等）未做改动，仅优化前端访客页面
+
+# 2026-04-18
+
+Haibin
+
+1. 新增 **Doom FPS** 第一人称射击小游戏
+   - Raycasting 引擎，Wolfenstein 3D / Doom 风格，纯 Canvas 2D 无外部依赖
+   - 24×24 迷宫地图，4 种颜色墙面 + 距离着色 + 侧面明暗
+   - 3 把武器：手枪（无限弹药）、霰弹枪（散射）、机关枪（连射），地图内拾取
+   - 2 类敌人：Guard（巡逻）和 Soldier（追击），AI 状态机（IDLE → ALERT → CHASE → ATTACK）
+   - HUD：血量条、弹药、击杀数、准星、小地图（M 键切换）
+   - 操作：WASD 移动 + 鼠标瞄准射击 + 滚轮/数字键切武器
+   - 通关条件：找到出口金色门，评分 = 击杀×100 + 剩余血量×10 + 时间奖励
+   - 永久排行榜：All Time（前 20）和 This Week（前 10），3 周自动清理
+   - Anti-cheat token + IP 速率限制
+   - 使用方式：后台新建页面 → 选择"Doom FPS"模板 → 发布
+
+# 2026-04-17
+
+Haibin
+
+1. 新增待办事项功能，仅管理员可见，支持增删改查、完成状态切换、高/中/低优先级、截止日期（过期标红）、拖拽排序、筛选
+2. 采用 LocalStorage 缓存 + MySQL 异步同步架构，页面瞬间渲染，多端数据自动同步
+3. 使用方式：后台新建页面 → 选择"待办事项"模板 → 发布即可访问
+4. 新增 **My Corner（小角落）** 导航页面，卡片网格布局，管理员可添加/编辑/删除/拖拽排序卡片
+   - 每个卡片可单独设置"仅管理员可见"或"所有人可见"
+   - 支持 Emoji、图片 URL、WordPress 媒体库上传作为图标
+   - 链接支持站内相对路径和完整外部 URL（外部链接自动新标签页打开）
+   - 右键卡片可编辑，使用方式：后台新建页面 → 选择"My Corner"模板 → 发布
+5. 新增 **Clipboard（复制助手）** 工具
+   - 全站自动监听：已登录用户在任意页面按 Ctrl+C 复制文字时，自动静默保存并弹出轻量 toast 提示
+   - 管理页面：手动粘贴文本、拖拽上传文件（<10MB）、搜索筛选、一键复制回剪贴板、下载文件
+   - 所有登录用户可用，各自独立数据互不可见
+   - LocalStorage + MySQL 双存储，每用户自动保留最近 200 条
+   - 使用方式：后台新建页面 → 选择"Clipboard"模板 → 发布
+6. 新增 **Snake Game（贪吃蛇）** 小游戏
+   - 现代风格：渐变蛇身、发光食物、粒子爆炸特效、深蓝背景
+   - 支持键盘（方向键/WASD）和手机滑动操作，穿墙不死
+   - 永久排行榜：All Time（全部历史）和 This Week（本周）两个榜单，前三名金银铜奖牌
+   - 任何访客无需登录即可游戏，输入名字即可永久记录战绩
+   - 使用方式：后台新建页面 → 选择"Snake Game"模板 → 发布
+7. 安全加固：XSS 防护、javascript: 协议拦截、anti-cheat token、速率限制
+
+# 2026-02-27
+
+Haibin
+
+1. 优化了图片懒加载，博客访问更快捷且减少带宽损耗
+2. 修复firefox浏览器无法查看侧边栏的问题
+3. 优化各种安全及防爬虫问题
+
+
+# 2026-02-08
+
+Haibin
+
+1. 在文章开头添加了字数统计功能，统一显示总词数（中文字符数 + 英文单词数）。
+2. 新增支持 HTML `<details>` 和 `<summary>` 可折叠专栏功能，支持在 Markdown 中使用，包含完整的样式支持：
+   - 美观的容器样式（背景色、边框、圆角、阴影）
+   - 自定义的折叠/展开箭头图标
+   - 完整的标题样式继承（h1-h6 均支持，h2 包含左侧彩色条和底部边框）
+   - 内容区域的内边距和背景色
+   - 悬停和展开状态的交互效果
+   - 支持内部的所有 Markdown 元素（段落、列表、代码块、引用等）
+
+
+# 2026-02-01
+
+Haibin
+
+修复了 main.js 404 错误。添加了强制移除旧版 jQuery 的代码。
+创建了诊断工具 diagnose-jquery.php，创建了诊断工具
+
+
+# 2026-01-14
+
+Haibin
+
+1. 修复远程图片时两侧边栏没有动态更新的bug，修复导航栏消失bug
+2. 全面英文化主题。
+3. 修复导航栏与正文内容不同步的bug
+
+## 历史更新（原作者）
 
 <details>
-<summary>Click to expand original author's description</summary>
+<summary>点击展开查看原作者的全部更新记录</summary>
 
-Original theme by [友人a丶](https://nicen.cn/)
+  
+# 2025-04-25
 
-- GitHub: [friend-nicen/theme-document](https://github.com/friend-nicen/theme-document)
-- Gitee: [friend-nicen/theme-document](https://gitee.com/friend-nicen/theme-document)
-- Documentation: [nicen.cn/1552.html](https://nicen.cn/1552.html)
+1. 修复前台存在多个jq时会导致部分功能不可用的问题
+2. 修复文章目录存在异常报错的情况
+3. 新增存在静态缓存的情况下文章异步同步阅读数
+4. 优化夜间模式下的文字块样式
+
+# 2025-03-09
+
+1. 新增友情链接页面
+
+# 2025-03-08
+
+1. 新增主题后台可以自定义背景色
+2. 新增主题后台可设置是否禁用古腾堡编辑器
+
+# 2024-11-20
+
+1. 新增编辑文章、页面时可以定义关键词和描述
+
+# 2024-11-19
+
+1. 新增文章阅读目录可以展开/折叠
+2. 新增文章目录顶部图标批量展开/折叠阅读目录
+3. 新增图片懒加载
+
+# 2024-11-16
+
+1. 修复文章目录在html模式下跳转异常的问题
+
+# 2024-08-31更新
+
+1. 修复白天/黑夜模式切换，后台设置显示、隐藏无效的问题
+2. 更换灯箱插件（https://fengyuanchen.github.io/viewerjs/）
+3. 部分页面样式微调，修复部分BUG
+
+# 2024-04-22更新
+
+1. 修复动态分页时偶发重复加载的问题
+
+# 2024-04-08更新
+
+1. 修复文章目录在html模式下跳转异常的问题
+
+# 2024-03-23更新
+
+1. 修复主题接口和wordpress数据导出操作冲突的问题
+2. 修复文章目录html解析模式无法正常点击跳转的问题
+3. 修改文章推荐小工具内的匿名函数使用方法
+4. 修复文章数量过多时，百度推送报错的问题，将百度站长工具链接推送调整为分批推送
+
+# 2024-02-06更新
+
+1. 新增可选文章目录解析模式（元标签 & HTML）
+2. 优化文章字数统计
+3. 优化部分样式
+
+# 2023-11-07更新
+
+1. 新增管理员访问带密码的文章时忽略密码直接访问
+2. 针对历史遗留问题（踩了Wp时间函数的坑）优化时区校准开关
+3. 新增几处功能说明的Tips
+
+# 2023-10-23更新
+
+1. 调整几处css
+2. 新增时区校正
+
+# 2023-01-07更新
+
+1. 新增文章推荐小工具
+2. 新增动态分页时，滚动到底部时自动加载（可设置是否开启）
+3. 新增开启/关闭显示Logo或标题的选项
+4. 新增支持修改站点部分功能默认的URL规则的功能。
+5. 新增文章底部版权信息、打赏按钮是否显示的选项。
+6. 新增自定义文章底部版权信息的功能，提供获取文章标题、固定链接、作者信息等标签
+7. 新增设置文章上/下一篇的相关文章的来源选项（所有文章和同栏目文章）
+
+# 2023-01-02更新
+
+1. 后台主题设置新增调用媒体库设置banner和logo
+2. 新增文章特色图片位置切换（左或者右侧显示）
+3. 新增站内跳转时，记住正在浏览的动态栏目
+4. 文章列表小工具新增【热门文章】，按照阅读量进行排序展示
+5. 修复调色板无法关闭的问题
+6. 更新首页banner小工具的样式，新增移动端是否显示banner的选项
+7. 首页和文章页从统一侧边栏，拆分成两个侧边栏，可在小工具页面进行设置
+8. 新增最新评论小工具
+9. 文章内容标题样式优化
+10. 新增Cravatar镜像服务器（wordpress头像）
+11. 更换评论区域的默认头像
+12. 修改一堆小BUG（不记得了）
+
+# 2022-10-25更新
+
+1. 评论可以添加表情
+2. 编辑器可以插入表格
+3. 编辑器新增快捷下划线
+
+预览 - [https://nicen.cn/1552.html](https://nicen.cn/1552.html)
+
+# 2022-10-11更新
+
+更新到2.0版本，风格不变，代码差不多都重构优化了一下，新增了很多实用的功能，后台截图如下（点击图片放大查看），时间有限其它的就不叙述了：
+![基本设置](https://nicen.cn/wp-content/uploads/2022/06/1665419985715.png)
+![首页设置](https://nicen.cn/wp-content/uploads/2022/06/1665419976060.png)
+![页脚设置](https://nicen.cn/wp-content/uploads/2022/06/1665419953959.png)
+![导航栏设置](https://nicen.cn/wp-content/uploads/2022/06/1665419985715.png)
+  
+</details>
+
+# 安装之前
+
+通过重新安装空白的wordpress使用本主题进行测试，按照如下步骤安装后，未发现问题。
+显示的页面与 [nicen.cn](https://nicen.cn) 别无二致，如您发现任何问题，欢迎反馈。
+
+# 安装主题
+
+直接将整个Github仓库下载，然后上传到wordpress的/wp-content/themes目录，然后在后台启用主题即可。启用后通过后台左侧菜单【主题选项】进行相关配置
+。
+
+安装完了肯定跟 [nicen.cn](https://nicen.cn/) 是不一样的，你需要进行如下的一些配置。
+
+## 关于主题
+
+大部分代码都有注释，作为学习wordpress主题开发学习的主题模板应该是很OK的
+
+## 使用须知
+
+主题默认启用经典文章编辑器、经典小部件编辑器，同时对经典文章编辑器进行了增强。
+
+主题对JS、CSS全局进行了压缩，同时在主题内提供了未压缩的源文件。
+
+# 安装之后
+
+## 1.关于文章目录
+
+文章目录由后端生成，默认读取【h1】、【h2】、【h3】元标签（编辑器内的小插件可直接插入）。主题已对经典编辑器进行插件增强，请自行体验哈。
+
+## 2.主题后台修改基本信息
+
+主题后台提供了超强的自定义功能，你可以通过自定义做出自己真正喜欢的主题。
+
+## 3.新增页面模板
+
+主题具有 文章聚合、留言两个文章模板，在后台添加页面时选择对应模板发布后，可将导航栏内的文章聚合、留言页面链接修改为你创建的链接。
+
+1. 新建页面
+2. 选择留言板或者文字聚合模板
+3. 发布
+4. 复制链接，
+5. 修改主题选项为这俩页面
+
+## 4.顶部菜单
+
+1. 新建菜单
+2. 添加菜单项
+3. 发布到顶部菜单
+
+主题采集支持无限级的菜单，下级菜单会自动作为下拉菜单出现；
+
+## 5.小部件、侧边栏
+
+主题具有文章信息、作者信息、最新文章、最近更新 四个小部件（小部件自带配置，可在添加的时候填写），添加后默认在文章页面的右侧边栏显示。
+
+1. 关闭之前主题自带的小工具
+2. 拖入document主题的小部件
+3. 保存修改
+4. 不保存的话，会显示之前主题的小部件导致样式错乱
+
+## 6.邮箱SMTP配置
+
+wordpress自带的邮件发送服务不太友好，你可以在主题选项开启主题自带的邮件服务，使用自己的邮箱服务
+
+1. 开启后，新评论通知站长
+2. 评论回复通知被回复评论的用户
+3. 评论审核通知通知发布评论的用户
+
+
+## 历史开发（原作者）
+
+<details>
+<summary>点击展开查看原作者的开发记录</summary>
+
+# 2022-10-14
+
+1. 新增首页文章导航
+2. 修改目录跳转偶发错误的BUG
+
+# 2022-10-11
+
+1. 根据配置动态生成主题设置的表单页面
+2. 根据配置动态生成主题所有的选项
+3. 将页面内容jusitify-center改为flex-start，指定margin-left偏移进行居中，防止flex加载过程中导致闪烁;同时考虑没有侧边栏时该怎么处理;
+4. 修改动态加载文章列表只在首页显示
+5. 新增页面模板配置，根据配置自动增加页面模板
+6. 添加主题超强自定义功能
+7. 新增顶部导航栏自定义
+8. 修复白天、暗黑、自定义主题的样式优先级问题
+9. logo与主题内容大小对齐
+10. 新增首页、栏目页不同分页类型设置
+11. 新增og协议元数据显示
+12. 底部内容页结构化数据
+13. 修复 #loadnext 导致动态翻页失效的问题
+14. 去除底部主题声明
+15. 自动增加阅读量
+16. 将阅读模式切换的图标改成字体
+17. css模块化
+18. 新增文章阅读目录
+19. 新增主题色修改器
+20. 新增外部图片替换成本地图的功能
+21. 修改全局变量、函数前缀为nicen_theme
+22. 修改logo最小宽度为30px，防止页面抖动
+22. 支持自定义主题的模块是否显示
+23. 新增文章动态加载
+24. ...还有更多
+
+# 2022-06-03
+
+端午节，在style.css里敲下了第一段代码，描述主题。🤣然后初步确定主要需要具备的一些功能：
+
+```
+/*
+Theme Name: Document
+Theme URI: https://nicen.cn
+Author: 友人a丶
+Author URI: https://nicen.cn
+Description: 一个基于文档类型的博客主题，更加方便的记录、查询学习笔记
+Version: 1.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: Document
+Tags: 文档,自适应,主题切换,阅读进度跟随
+*/
+```
+
+## 1.文章目录导航
+
+能够根据文章内容自动生成文章目录，虽然这个前端实现比较方便，但是考虑到需要seo所以直接在后端生成；
+
+文章目录导航需要自动跟随阅读进度，点击文章目录导致自动跳转到对应的内容；
+
+文章目录最小高度为屏幕的一半，悬浮在文章左侧；
+
+## 2. 黑夜、白天阅读模式切换、主题色切换
+
+支持黑夜、白天阅读模式，主题色切换，悬浮在屏幕右下角，附带一个屏幕滚动进度；
+
+## 3. 主题前端元素
+
+1. 代码高亮
+2. 代码块一键复制
+3. 成功文字块、失败文字块、警告文字块
+4. 文字标记
+5. 图片灯箱
+6. 一级、二级、三级标题
+7. 作者信息卡片
+8. 文章信息卡片
+9. 评论区
+   10 最新文章
+11. 文章导航
+12. 文章底部赞赏
+13. 站点底部信息
+14. 导航栏菜单
+15. 导航栏搜索
+16. 上一篇、下一篇文章
+17. 一键回到顶部
+18. 主题色、阅读模式切换
+19. 文章点赞、踩
+20. 文章浏览、评论、发布时间、作者信息显示
+
+## 主题前端优化
+
+1. 文章页右边栏正常高度时，跟随文章滚动，滚动高度超出侧边栏高度时自动悬浮，保持右边侧边栏始终存在元素，不会空白；
+2. 访问首页时显示自定义的站点描述，文章页时自动截取文章内容作为网页描述；
+3. 优化Gavatar头像，改为国内镜像服务器；
+
+## 主题后端优化
+
+1. 自动切换到经典编辑器。
+2. 去除后台加载的无用代码。
+3. 增加后台设置，可设置主题的基本信息：关键词、主题描述、作者信息等；
+4. 增加编辑器插件：代码高亮、一级、二级、三级标题、成功文字块、错误文字块、失败文字块、图片灯箱、文字标记
+5. 新增元标签：一级、二级、三级标题、成功文字块、错误文字块、失败文字块、图片灯箱、文字标记
+6. 自定义顶部菜单
+7. 404页面
+8. 搜索空结果页面
+9. 文章密码权限控制
+
+## 20220617更新
+
+1. 修复窗口大小改变时，固定状态下的左右侧边栏位置没有同步变动，导致样式错乱的问题；
+
+## 20220628更新
+
+1. 新增文章归档页面模板，新建页面时可选。
+2. 新增百度站长一键提交URL功能（后台设置好Token）。
+3. 新增移动端、平板设备页面自适应。
+
+## 20220701更新
+
+1. 压缩css、js，源文件分别保存在同级目录，css源文件为scss文件。
+2. 修复已知的一些UI样式问题。
+
+## 20220709更新
+
+1. 重构侧边栏，拆分成四个可自定义的小部件。
+2. 增加文章顶部的面包屑导航。
+3. 修复因为QQ、微信浏览器不支持16进制透明颜色导致阴影失效的BUG。
+
+## 20220710更新
+
+1. 修改了Github仓库地址
+2. 新增自定义Smtp邮件发送功能，开启后用户评论、回复时自动会发送邮件通知。
+
+## 20220712更新
+
+1. 修复css压缩后丢失主题元信息的问题。
+
+## 2022-07-24更新
+
+1.首页变成两栏显示
+2.优化了大屏和小屏显示的字体大小
+3.调整了移动端的UI样式
+4.下滑阅读时自动隐藏导航栏，上滑时自动显示。
+5.修复主题logo无法修改的问题（由于未register注册该选项导致）
+
+## 2022-07-25
+
+1. 新增主题选项：设置首页显示单、双栏
+
 
 </details>

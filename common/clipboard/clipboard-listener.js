@@ -41,6 +41,7 @@
     function saveToServer(text) {
         var fd = new FormData();
         fd.append('action', 'clipboard_save');
+        fd.append('nonce', window.DOCUMENT_NONCE || '');
         fd.append('content', text);
         fetch(AJAX_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
             .catch(function () {});

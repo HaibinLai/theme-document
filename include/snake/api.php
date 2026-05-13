@@ -16,6 +16,7 @@ function document_snake_salt() {
  * Submit score
  */
 function document_snake_submit() {
+	check_ajax_referer( 'document_nonce', 'nonce' );
 	global $wpdb;
 	$table = $wpdb->prefix . 'document_snake_scores';
 
@@ -80,6 +81,7 @@ add_action( 'wp_ajax_nopriv_snake_submit', 'document_snake_submit' );
  * Get leaderboard
  */
 function document_snake_leaderboard() {
+	check_ajax_referer( 'document_nonce', 'nonce' );
 	global $wpdb;
 	$table = $wpdb->prefix . 'document_snake_scores';
 

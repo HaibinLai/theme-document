@@ -12,6 +12,7 @@ function document_todo_check_permission() {
 	if ( ! current_user_can( 'administrator' ) ) {
 		wp_send_json_error( '无权限', 403 );
 	}
+	check_ajax_referer( 'document_nonce', 'nonce' );
 }
 
 /**

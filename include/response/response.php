@@ -32,7 +32,7 @@ function nicen_theme_auth() {
  * 点赞
  * */
 if ( isset( $_GET['document_nice'] ) ) {
-	if ( is_numeric( $_GET['document_nice'] ) ) {
+	if ( is_numeric( $_GET['document_nice'] ) && wp_verify_nonce( $_GET['nonce'] ?? '', 'document_nonce' ) ) {
 		nicen_theme_setPostNice( $_GET['document_nice'] );
 
 		exit( json_encode( [
@@ -47,7 +47,7 @@ if ( isset( $_GET['document_nice'] ) ) {
  * 点赞
  * */
 if ( isset( $_GET['document_view'] ) ) {
-	if ( is_numeric( $_GET['document_view'] ) ) {
+	if ( is_numeric( $_GET['document_view'] ) && wp_verify_nonce( $_GET['nonce'] ?? '', 'document_nonce' ) ) {
 		nicen_theme_setPostViews( $_GET['document_view'] );
 
 		exit( json_encode( [

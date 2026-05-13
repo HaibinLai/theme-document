@@ -32,6 +32,7 @@
         return new Promise(function (resolve, reject) {
             var fd = new FormData();
             fd.append('action', action);
+            fd.append('nonce', window.DOCUMENT_NONCE || '');
             if (data) Object.keys(data).forEach(function (k) { fd.append(k, data[k]); });
             fetch(AJAX_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
                 .then(function (r) { return r.json(); })

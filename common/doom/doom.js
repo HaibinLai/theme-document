@@ -2002,6 +2002,7 @@
         var url = window.DOOM_AJAX || (window.HOME ? window.HOME + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php');
         var fd = new FormData();
         fd.append('action', action);
+        fd.append('nonce', window.DOCUMENT_NONCE || '');
         for (var k in data) fd.append(k, data[k]);
         fetch(url, { method: 'POST', body: fd, credentials: 'same-origin' })
             .then(function (r) { return r.json(); })

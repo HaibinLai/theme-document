@@ -15,6 +15,7 @@
     function ajax(action, data, isFile) {
         var fd = new FormData();
         fd.append('action', action);
+        fd.append('nonce', window.DOCUMENT_NONCE || '');
         if (data) {
             if (isFile) {
                 Object.keys(data).forEach(function (k) { fd.append(k, data[k]); });

@@ -12,6 +12,7 @@ function document_clipboard_check_permission() {
 	if ( ! is_user_logged_in() ) {
 		wp_send_json_error( 'Not logged in', 403 );
 	}
+	check_ajax_referer( 'document_nonce', 'nonce' );
 }
 
 /**

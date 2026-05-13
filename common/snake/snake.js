@@ -393,6 +393,7 @@
     function ajax(action, data) {
         var fd = new FormData();
         fd.append('action', action);
+        fd.append('nonce', window.DOCUMENT_NONCE || '');
         if (data) Object.keys(data).forEach(function (k) { fd.append(k, data[k]); });
         return fetch(AJAX_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
             .then(function (r) {

@@ -13,6 +13,7 @@ function document_doom_salt() {
  * Submit score
  */
 function document_doom_submit() {
+	check_ajax_referer( 'document_nonce', 'nonce' );
 	global $wpdb;
 	$table = $wpdb->prefix . 'document_doom_scores';
 
@@ -74,6 +75,7 @@ add_action( 'wp_ajax_nopriv_doom_submit', 'document_doom_submit' );
  * Get leaderboard
  */
 function document_doom_leaderboard() {
+	check_ajax_referer( 'document_nonce', 'nonce' );
 	global $wpdb;
 	$table = $wpdb->prefix . 'document_doom_scores';
 

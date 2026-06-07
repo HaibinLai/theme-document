@@ -14,6 +14,18 @@ function nicen_theme_min_path( $file_path ) {
 	return $file_path;
 }
 
+function nicen_theme_has_mermaid_content( $content ) {
+	if ( empty( $content ) ) {
+		return false;
+	}
+
+	if ( has_shortcode( $content, 'mermaid' ) ) {
+		return true;
+	}
+
+	return preg_match( '/```mermaid|~~~mermaid|language-mermaid|lang-mermaid|class=["\'][^"\']*\bmermaid\b/i', $content ) === 1;
+}
+
 /*
  * 外部文件加载
  * */
@@ -112,6 +124,13 @@ function nicen_theme_load_source() {
 		}
 		if ( has_shortcode( $post->post_content, 'compare' ) ) {
 			wp_enqueue_script( 'img-compare', $url . nicen_theme_min_path( '/common/compare/compare.js' ), array(), filemtime( $root . nicen_theme_min_path( '/common/compare/compare.js' ) ), true );
+		}
+		if ( nicen_theme_has_mermaid_content( $post->post_content ) ) {
+			$mermaid_script = nicen_theme_min_path( '/common/mermaid/mermaid.js' );
+			$mermaid_style  = nicen_theme_min_path( '/common/mermaid/mermaid.css' );
+			wp_enqueue_script( 'mermaid', 'https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js', array(), '10.9.3', true );
+			wp_enqueue_script( 'document-mermaid', $url . $mermaid_script, array( 'mermaid' ), filemtime( $root . $mermaid_script ), true );
+			wp_enqueue_style( 'document-mermaid', $url . $mermaid_style, array(), filemtime( $root . $mermaid_style ) );
 		}
 	}
 

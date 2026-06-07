@@ -7,6 +7,30 @@
 /*
  * 短标签处理
  * */
+function nicen_theme_prepare_mermaid_source( $content ) {
+	$content = str_replace( [ '<p>', '</p>' ], '', $content ?? '' );
+	$content = preg_replace( '/<br\s*\/?>/i', "\n", $content );
+	$content = html_entity_decode( $content, ENT_QUOTES, 'UTF-8' );
+
+	return trim( $content );
+}
+
+function nicen_theme_mermaid_block( $content ) {
+	return '<div class="mermaid">' . esc_html( nicen_theme_prepare_mermaid_source( $content ) ) . '</div>';
+}
+
+function nicen_theme_render_mermaid_fences( $content ) {
+	if ( stripos( $content, '```mermaid' ) === false && stripos( $content, '~~~mermaid' ) === false ) {
+		return $content;
+	}
+
+	return preg_replace_callback( '/(^|\R)(```|~~~)mermaid[ \t]*\R([\s\S]*?)\R\2(?=\R|$)/i', function ( $matches ) {
+		return $matches[1] . nicen_theme_mermaid_block( $matches[3] );
+	}, $content );
+}
+
+add_filter( 'the_content', 'nicen_theme_render_mermaid_fences', 8 );
+
 function nicen_theme_init_shortcode()
 {
 
@@ -275,6 +299,12 @@ function nicen_theme_init_shortcode()
 	}
 
 	add_shortcode( 'compare', 'nicen_img_compare' );
+
+	function nicen_mermaid( $atts, $content = null, $code = "" ) {
+		return nicen_theme_mermaid_block( $content );
+	}
+
+	add_shortcode( 'mermaid', 'nicen_mermaid' );
 
 }
 

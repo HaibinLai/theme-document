@@ -10,6 +10,7 @@
 
 - 文章目录自动生成，跟随阅读进度滚动高亮
 - 代码高亮（Prism.js）+ 一键复制
+- Mermaid 流程图、时序图等图表渲染
 - 图片灯箱（Viewer.js），点击图片放大浏览
 - 白天 / 暗色模式切换，支持系统暗色偏好自动跟随
 - 主题色自定义切换
@@ -28,6 +29,7 @@
 | `[3d src="model.glb"]` | 3D 模型查看器，基于 model-viewer，支持 GLB/GLTF |
 | `[plot3d]` | 交互式 3D 图表，基于 Plotly.js |
 | `[compare before="a.jpg" after="b.jpg"]` | 图片对比滑块，拖拽查看前后差异 |
+| `[mermaid]` | Mermaid 图表，支持流程图、时序图、甘特图等 |
 
 ### 页面模板
 

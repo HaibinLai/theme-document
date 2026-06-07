@@ -23,6 +23,7 @@ const jsFiles = [
   'common/runcode/runcode.js',
   'common/plotly/plotly-bindings.js',
   'common/compare/compare.js',
+  'common/mermaid/mermaid.js',
   'common/sw/sw.js',
   'common/sw/register.js',
   'common/stats/stats.js',
@@ -41,6 +42,7 @@ const cssFiles = [
   'common/snake/snake.css',
   'common/doom/doom.css',
   'common/runcode/runcode.css',
+  'common/mermaid/mermaid.css',
   'common/stats/stats.css',
   'common/trend/trend.css',
 ];

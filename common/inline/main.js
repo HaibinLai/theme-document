@@ -31,7 +31,7 @@ function toggleTheme(flag = true, persist = true) {
 * */
 let l = () => {
     let r = document.documentElement, o = r.offsetWidth / 100;
-    o < 17 && (o = 17), r.style.fontSize = o + "px", window.rem = o
+    o < 17 && (o = 17), o > 18 && (o = 18), r.style.fontSize = o + "px", window.rem = o
 };
 window.onresize = l;
 l();

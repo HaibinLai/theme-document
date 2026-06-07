@@ -18,17 +18,17 @@ Tags: 文档,自适应,主题切换,阅读进度跟随
 */
 :root {
   /*基础样式变量*/
-  --theme-text-super-mini: 0.4rem;
-  --theme-text-mini: 0.76rem;
-  --theme-text-more-mini: 0.69rem;
-  --theme-text-more-mini-2: 0.62rem;
-  --theme-text: 1rem;
-  --theme-header-size: 1.1rem;
-  --theme-secondary: 0.78rem;
-  --theme-first-level-title: 1.35rem;
-  --theme-secondary-level-title: 1.15rem;
-  --theme-third-level-title: 0.96rem;
-  --theme-fourth-level-title: 0.84rem;
+  --theme-text-super-mini: 0.38rem;
+  --theme-text-mini: 0.7rem;
+  --theme-text-more-mini: 0.65rem;
+  --theme-text-more-mini-2: 0.58rem;
+  --theme-text: 0.88rem;
+  --theme-header-size: 0.95rem;
+  --theme-secondary: 0.72rem;
+  --theme-first-level-title: 1.22rem;
+  --theme-secondary-level-title: 1.06rem;
+  --theme-third-level-title: 0.92rem;
+  --theme-fourth-level-title: 0.82rem;
   /*主题文件样式变量*/
   --theme-black-text: #333;
   --theme-white: #f5f7fd;
@@ -302,7 +302,7 @@ Tags: 文档,自适应,主题切换,阅读进度跟随
   font-size: var(--theme-text);
   color: var(--theme-text-color);
   box-sizing: border-box;
-  line-height: 1.75;
+  line-height: 1.7;
   word-wrap: break-word;
   word-break: break-all;
   word-spacing: normal;
@@ -1216,9 +1216,15 @@ html {
                 html body .main-container .main-main .main-content .article-info ul li:hover .iconfont {
                   color: var(--theme-text-color); }
           html body .main-container .main-main .main-content .main-article {
+            font-size: var(--theme-text);
+            line-height: 1.7;
+            word-break: normal;
+            overflow-wrap: break-word;
             /*
               限制文章的大小
             */ }
+            html body .main-container .main-main .main-content .main-article p, html body .main-container .main-main .main-content .main-article li {
+              line-height: 1.7; }
             html body .main-container .main-main .main-content .main-article h2 {
               display: flex;
               justify-content: flex-start;
@@ -1226,7 +1232,8 @@ html {
               padding: 0 0 0.25rem 0;
               border-bottom: 1px solid var(--theme-border-color);
               font-weight: normal;
-              vertical-align: middle; }
+              vertical-align: middle;
+              line-height: 1.45; }
               html body .main-container .main-main .main-content .main-article h2:before {
                 display: block;
                 content: " ";
@@ -1239,7 +1246,8 @@ html {
                 background-color: var(--theme-color); }
             html body .main-container .main-main .main-content .main-article h2，h3, html body .main-container .main-main .main-content .main-article h4 {
               position: relative;
-              cursor: pointer; }
+              cursor: pointer;
+              line-height: 1.45; }
             html body .main-container .main-main .main-content .main-article > div {
               margin-bottom: var(--theme-margin-bottom); }
             html body .main-container .main-main .main-content .main-article ul, html body .main-container .main-main .main-content .main-article ol, html body .main-container .main-main .main-content .main-article dl {

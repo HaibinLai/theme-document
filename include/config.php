@@ -874,6 +874,17 @@ const PAGES = [
 			]
 		]
 	],
+	'生活碎片' => [
+		'template'  => 'template/page/fragments.php',
+		'dependent' => [
+			'styles' => [
+				'/common/fragments/fragments.css'
+			],
+			'scripts' => [
+				'/common/fragments/fragments.js'
+			]
+		]
+	],
 	'友情链接' => [
 		'template'  => 'template/page/friend.php', //模板文件
 		'dependent' => [

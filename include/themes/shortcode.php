@@ -31,6 +31,227 @@ function nicen_theme_render_mermaid_fences( $content ) {
 
 add_filter( 'the_content', 'nicen_theme_render_mermaid_fences', 8 );
 
+function nicen_theme_split_slugs( $value ) {
+	if ( empty( $value ) ) {
+		return [];
+	}
+
+	$slugs = array_map( 'trim', explode( ',', $value ) );
+	$slugs = array_filter( $slugs );
+
+	return array_map( 'sanitize_title', $slugs );
+}
+
+function nicen_theme_extract_fragment_images( $content ) {
+	$images = [];
+
+	$content = preg_replace_callback( '/<figure\b[^>]*>[\s\S]*?<img\b[^>]*>[\s\S]*?<\/figure>/i', function ( $matches ) use ( &$images ) {
+		preg_match_all( '/<img\b[^>]*>/i', $matches[0], $img_matches );
+
+		foreach ( $img_matches[0] as $img ) {
+			$images[] = nicen_theme_parse_fragment_image( $img );
+		}
+
+		return '';
+	}, $content );
+
+	$content = preg_replace_callback( '/<img\b[^>]*>/i', function ( $matches ) use ( &$images ) {
+		$images[] = nicen_theme_parse_fragment_image( $matches[0] );
+
+		return '';
+	}, $content );
+
+	$images = array_values( array_filter( $images, function ( $image ) {
+		return ! empty( $image['full'] );
+	} ) );
+
+	return [
+		'content' => $content,
+		'images'  => $images,
+	];
+}
+
+function nicen_theme_parse_fragment_image( $img ) {
+	$image = [
+		'thumb' => '',
+		'full'  => '',
+		'alt'   => '',
+	];
+
+	if ( preg_match( '/\ssrc=["\']([^"\']+)["\']/i', $img, $src ) ) {
+		$image['full'] = html_entity_decode( $src[1], ENT_QUOTES, 'UTF-8' );
+		$image['thumb'] = $image['full'];
+	}
+
+	if ( preg_match( '/\salt=["\']([^"\']*)["\']/i', $img, $alt ) ) {
+		$image['alt'] = html_entity_decode( $alt[1], ENT_QUOTES, 'UTF-8' );
+	}
+
+	if ( preg_match( '/wp-image-(\d+)/i', $img, $attachment ) ) {
+		$attachment_id = absint( $attachment[1] );
+		$thumb         = wp_get_attachment_image_src( $attachment_id, 'medium_large' );
+		$full          = wp_get_attachment_image_src( $attachment_id, 'large' );
+
+		if ( $thumb ) {
+			$image['thumb'] = $thumb[0];
+		}
+
+		if ( $full ) {
+			$image['full'] = $full[0];
+		}
+	}
+
+	return $image;
+}
+
+function nicen_theme_fragment_featured_image( $post_id ) {
+	if ( ! has_post_thumbnail( $post_id ) ) {
+		return null;
+	}
+
+	return [
+		'thumb' => get_the_post_thumbnail_url( $post_id, 'medium_large' ),
+		'full'  => get_the_post_thumbnail_url( $post_id, 'large' ),
+		'alt'   => get_the_title( $post_id ),
+	];
+}
+
+function nicen_theme_render_fragments( $atts = [] ) {
+	static $rendering_fragments = false;
+
+	if ( $rendering_fragments ) {
+		return '';
+	}
+
+	$rendering_fragments = true;
+	$atts = shortcode_atts( [
+		'category'       => 'fragments,life-fragments',
+		'tag'            => '',
+		'posts_per_page' => 20,
+	], $atts, 'fragments' );
+
+	$category_slugs = nicen_theme_split_slugs( $atts['category'] );
+	$tag_slugs      = nicen_theme_split_slugs( $atts['tag'] );
+	$per_page       = max( 1, min( 50, absint( $atts['posts_per_page'] ) ) );
+
+	$tax_query = [];
+
+	if ( ! empty( $category_slugs ) ) {
+		$tax_query[] = [
+			'taxonomy' => 'category',
+			'field'    => 'slug',
+			'terms'    => $category_slugs,
+		];
+	}
+
+	if ( ! empty( $tag_slugs ) ) {
+		$tax_query[] = [
+			'taxonomy' => 'post_tag',
+			'field'    => 'slug',
+			'terms'    => $tag_slugs,
+		];
+	}
+
+	if ( count( $tax_query ) > 1 ) {
+		$tax_query['relation'] = 'AND';
+	}
+
+	$query_args = [
+		'post_type'           => 'post',
+		'post_status'         => 'publish',
+		'posts_per_page'      => $per_page,
+		'ignore_sticky_posts' => true,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+	];
+
+	if ( ! empty( $tax_query ) ) {
+		$query_args['tax_query'] = $tax_query;
+	}
+
+	$fragments = new WP_Query( $query_args );
+
+	ob_start();
+	?>
+	<div class="fragments-list">
+		<?php if ( $fragments->have_posts() ) : ?>
+			<?php $current_month = ''; ?>
+			<?php while ( $fragments->have_posts() ) : $fragments->the_post(); ?>
+				<?php
+				$post_id     = get_the_ID();
+				$author_id   = get_post_field( 'post_author', $post_id );
+				$post_month  = get_the_date( 'Y.m' );
+				$raw_content = get_the_content( null, false, $post_id );
+				$parts       = nicen_theme_extract_fragment_images( $raw_content );
+				$images      = $parts['images'];
+				$featured    = nicen_theme_fragment_featured_image( $post_id );
+
+				if ( $featured ) {
+					array_unshift( $images, $featured );
+				}
+
+				$images = array_slice( $images, 0, 9 );
+				$text   = apply_filters( 'the_content', $parts['content'] );
+				?>
+				<?php if ( $post_month !== $current_month ) : ?>
+					<div class="fragment-month"><?php echo esc_html( $post_month ); ?></div>
+					<?php $current_month = $post_month; ?>
+				<?php endif; ?>
+				<article class="fragment-item">
+					<div class="fragment-avatar">
+						<?php echo get_avatar( $author_id, 48 ); ?>
+					</div>
+					<div class="fragment-body">
+						<div class="fragment-author">
+							<a href="<?php echo esc_url( get_author_posts_url( $author_id ) ); ?>">
+								<?php echo esc_html( get_the_author_meta( 'display_name', $author_id ) ); ?>
+							</a>
+						</div>
+						<?php if ( trim( wp_strip_all_tags( $text ) ) || get_the_title() ) : ?>
+							<div class="fragment-content-wrap">
+								<?php if ( get_the_title() ) : ?>
+									<h2 class="fragment-title">
+										<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+									</h2>
+								<?php endif; ?>
+								<div class="fragment-content">
+									<?php echo $text; ?>
+								</div>
+								<button type="button" class="fragment-expand" aria-expanded="false">展开</button>
+							</div>
+						<?php endif; ?>
+						<?php if ( ! empty( $images ) ) : ?>
+							<div class="fragment-media fragment-media-count-<?php echo esc_attr( min( count( $images ), 9 ) ); ?>" data-count="<?php echo esc_attr( count( $images ) ); ?>">
+								<?php foreach ( $images as $image ) : ?>
+									<button type="button" class="fragment-thumb" data-full="<?php echo esc_url( $image['full'] ); ?>" aria-label="Open image">
+										<img loading="lazy" src="<?php echo esc_url( $image['thumb'] ); ?>" alt="<?php echo esc_attr( $image['alt'] ); ?>">
+									</button>
+								<?php endforeach; ?>
+							</div>
+						<?php endif; ?>
+						<div class="fragment-meta">
+							<a href="<?php the_permalink(); ?>">
+								<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
+									<?php echo esc_html( nicen_theme_timeToString( get_the_time( 'Y-m-d H:i:s' ) ) ); ?>
+								</time>
+							</a>
+							<a href="<?php the_permalink(); ?>#comments"><?php echo esc_html( get_comments_number() ); ?> Comments</a>
+						</div>
+					</div>
+				</article>
+			<?php endwhile; ?>
+			<?php wp_reset_postdata(); ?>
+		<?php else : ?>
+			<div class="fragments-empty">No fragments yet.</div>
+		<?php endif; ?>
+	</div>
+	<?php
+
+	$rendering_fragments = false;
+
+	return ob_get_clean();
+}
+
 function nicen_theme_init_shortcode()
 {
 
@@ -305,6 +526,8 @@ function nicen_theme_init_shortcode()
 	}
 
 	add_shortcode( 'mermaid', 'nicen_mermaid' );
+
+	add_shortcode( 'fragments', 'nicen_theme_render_fragments' );
 
 }
 

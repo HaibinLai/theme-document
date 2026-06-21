@@ -158,6 +158,47 @@ function nicen_theme_fragment_query( $atts, $page ) {
 	return new WP_Query( $query_args );
 }
 
+function nicen_theme_render_fragment_comments( $post_id ) {
+	$comments = get_comments( [
+		'post_id' => $post_id,
+		'status'  => 'approve',
+		'type'    => 'comment',
+		'number'  => 8,
+		'orderby' => 'comment_date_gmt',
+		'order'   => 'DESC',
+	] );
+
+	if ( empty( $comments ) ) {
+		return '';
+	}
+
+	$comments = array_reverse( $comments );
+
+	ob_start();
+	?>
+	<div class="fragment-comments">
+		<?php foreach ( $comments as $comment ) : ?>
+			<?php
+			$parent       = $comment->comment_parent ? get_comment( $comment->comment_parent ) : null;
+			$comment_text = apply_filters( 'comment_text', $comment->comment_content, $comment );
+			?>
+			<div class="fragment-comment">
+				<span class="fragment-comment-author"><?php echo esc_html( $comment->comment_author ); ?></span>
+				<?php if ( $parent ) : ?>
+					<span class="fragment-comment-reply">Reply to <?php echo esc_html( $parent->comment_author ); ?></span>
+				<?php endif; ?>
+				<div class="fragment-comment-content"><?php echo $comment_text; ?></div>
+			</div>
+		<?php endforeach; ?>
+		<?php if ( get_comments_number( $post_id ) > count( $comments ) ) : ?>
+			<a class="fragment-comments-more" href="<?php echo esc_url( get_permalink( $post_id ) ); ?>#comments">View all comments</a>
+		<?php endif; ?>
+	</div>
+	<?php
+
+	return ob_get_clean();
+}
+
 function nicen_theme_render_fragment_item() {
 	$post_id     = get_the_ID();
 	$author_id   = get_post_field( 'post_author', $post_id );
@@ -166,6 +207,7 @@ function nicen_theme_render_fragment_item() {
 	$images      = $parts['images'];
 	$featured    = nicen_theme_fragment_featured_image( $post_id );
 	$text_source = preg_replace( '/\[fragments(?:\s[^\]]*)?\]/i', '', $parts['content'] );
+	$comments    = nicen_theme_render_fragment_comments( $post_id );
 
 	if ( $featured ) {
 		array_unshift( $images, $featured );
@@ -216,6 +258,7 @@ function nicen_theme_render_fragment_item() {
 				</a>
 				<a href="<?php the_permalink(); ?>#comments"><?php echo esc_html( get_comments_number() ); ?> Comments</a>
 			</div>
+			<?php echo $comments; ?>
 		</div>
 	</article>
 	<?php

@@ -203,6 +203,58 @@
   color: #50618a;
 }
 
+.fragment-comments {
+  margin-top: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--theme-border-color) 24%, transparent);
+  color: var(--theme-text-color);
+  font-size: 0.88rem;
+  line-height: 1.62;
+}
+
+.fragment-comment + .fragment-comment {
+  margin-top: 0.25rem;
+}
+
+.fragment-comment-author,
+.fragment-comment-reply,
+.fragment-comments-more {
+  color: #50618a;
+}
+
+.fragment-comment-author {
+  font-weight: 650;
+}
+
+.fragment-comment-author::after {
+  margin-right: 0.25rem;
+  content: ":";
+}
+
+.fragment-comment-reply {
+  margin-left: 0.3rem;
+}
+
+.fragment-comment-reply::after {
+  margin-right: 0.25rem;
+  content: ":";
+}
+
+.fragment-comment-content {
+  display: inline;
+}
+
+.fragment-comment-content p {
+  display: inline;
+  margin: 0;
+}
+
+.fragment-comments-more {
+  display: inline-block;
+  margin-top: 0.35rem;
+  text-decoration: none;
+}
+
 .fragments-empty {
   color: var(--theme-text-secondary);
   padding: 2rem 0;

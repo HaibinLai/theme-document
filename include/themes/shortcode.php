@@ -116,25 +116,10 @@ function nicen_theme_fragment_featured_image( $post_id ) {
 	];
 }
 
-function nicen_theme_render_fragments( $atts = [] ) {
-	static $rendering_fragments = false;
-
-	if ( $rendering_fragments ) {
-		return '';
-	}
-
-	$rendering_fragments = true;
-	$atts = shortcode_atts( [
-		'category'       => 'fragments,life-fragments',
-		'tag'            => '',
-		'posts_per_page' => 20,
-	], $atts, 'fragments' );
-
+function nicen_theme_fragment_query( $atts, $page ) {
 	$category_slugs = nicen_theme_split_slugs( $atts['category'] );
 	$tag_slugs      = nicen_theme_split_slugs( $atts['tag'] );
-	$per_page       = max( 1, min( 50, absint( $atts['posts_per_page'] ) ) );
-
-	$tax_query = [];
+	$tax_query      = [];
 
 	if ( ! empty( $category_slugs ) ) {
 		$tax_query[] = [
@@ -159,7 +144,8 @@ function nicen_theme_render_fragments( $atts = [] ) {
 	$query_args = [
 		'post_type'           => 'post',
 		'post_status'         => 'publish',
-		'posts_per_page'      => $per_page,
+		'posts_per_page'      => $atts['posts_per_page'],
+		'paged'               => $page,
 		'ignore_sticky_posts' => true,
 		'orderby'             => 'date',
 		'order'               => 'DESC',
@@ -169,88 +155,153 @@ function nicen_theme_render_fragments( $atts = [] ) {
 		$query_args['tax_query'] = $tax_query;
 	}
 
-	$fragments = new WP_Query( $query_args );
+	return new WP_Query( $query_args );
+}
+
+function nicen_theme_render_fragment_item() {
+	$post_id     = get_the_ID();
+	$author_id   = get_post_field( 'post_author', $post_id );
+	$raw_content = get_the_content( null, false, $post_id );
+	$parts       = nicen_theme_extract_fragment_images( $raw_content );
+	$images      = $parts['images'];
+	$featured    = nicen_theme_fragment_featured_image( $post_id );
+	$text_source = preg_replace( '/\[fragments(?:\s[^\]]*)?\]/i', '', $parts['content'] );
+
+	if ( $featured ) {
+		array_unshift( $images, $featured );
+	}
+
+	$images = array_slice( $images, 0, 9 );
+	$text   = apply_filters( 'the_content', $text_source );
 
 	ob_start();
 	?>
-	<div class="fragments-list">
-		<?php if ( $fragments->have_posts() ) : ?>
-			<?php $current_month = ''; ?>
-			<?php while ( $fragments->have_posts() ) : $fragments->the_post(); ?>
-				<?php
-				$post_id     = get_the_ID();
-				$author_id   = get_post_field( 'post_author', $post_id );
-				$post_month  = get_the_date( 'Y.m' );
-				$raw_content = get_the_content( null, false, $post_id );
-				$parts       = nicen_theme_extract_fragment_images( $raw_content );
-				$images      = $parts['images'];
-				$featured    = nicen_theme_fragment_featured_image( $post_id );
-
-				if ( $featured ) {
-					array_unshift( $images, $featured );
-				}
-
-				$images = array_slice( $images, 0, 9 );
-				$text   = apply_filters( 'the_content', $parts['content'] );
-				?>
-				<?php if ( $post_month !== $current_month ) : ?>
-					<div class="fragment-month"><?php echo esc_html( $post_month ); ?></div>
-					<?php $current_month = $post_month; ?>
-				<?php endif; ?>
-				<article class="fragment-item">
-					<div class="fragment-avatar">
-						<?php echo get_avatar( $author_id, 48 ); ?>
+	<article class="fragment-item">
+		<div class="fragment-avatar">
+			<?php echo get_avatar( $author_id, 48 ); ?>
+		</div>
+		<div class="fragment-body">
+			<div class="fragment-author">
+				<a href="<?php echo esc_url( get_author_posts_url( $author_id ) ); ?>">
+					<?php echo esc_html( get_the_author_meta( 'display_name', $author_id ) ); ?>
+				</a>
+			</div>
+			<?php if ( trim( wp_strip_all_tags( $text ) ) || get_the_title() ) : ?>
+				<div class="fragment-content-wrap">
+					<?php if ( get_the_title() ) : ?>
+						<h2 class="fragment-title">
+							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+						</h2>
+					<?php endif; ?>
+					<div class="fragment-content">
+						<?php echo $text; ?>
 					</div>
-					<div class="fragment-body">
-						<div class="fragment-author">
-							<a href="<?php echo esc_url( get_author_posts_url( $author_id ) ); ?>">
-								<?php echo esc_html( get_the_author_meta( 'display_name', $author_id ) ); ?>
-							</a>
-						</div>
-						<?php if ( trim( wp_strip_all_tags( $text ) ) || get_the_title() ) : ?>
-							<div class="fragment-content-wrap">
-								<?php if ( get_the_title() ) : ?>
-									<h2 class="fragment-title">
-										<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-									</h2>
-								<?php endif; ?>
-								<div class="fragment-content">
-									<?php echo $text; ?>
-								</div>
-								<button type="button" class="fragment-expand" aria-expanded="false">展开</button>
-							</div>
-						<?php endif; ?>
-						<?php if ( ! empty( $images ) ) : ?>
-							<div class="fragment-media fragment-media-count-<?php echo esc_attr( min( count( $images ), 9 ) ); ?>" data-count="<?php echo esc_attr( count( $images ) ); ?>">
-								<?php foreach ( $images as $image ) : ?>
-									<button type="button" class="fragment-thumb" data-full="<?php echo esc_url( $image['full'] ); ?>" aria-label="Open image">
-										<img loading="lazy" src="<?php echo esc_url( $image['thumb'] ); ?>" alt="<?php echo esc_attr( $image['alt'] ); ?>">
-									</button>
-								<?php endforeach; ?>
-							</div>
-						<?php endif; ?>
-						<div class="fragment-meta">
-							<a href="<?php the_permalink(); ?>">
-								<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
-									<?php echo esc_html( nicen_theme_timeToString( get_the_time( 'Y-m-d H:i:s' ) ) ); ?>
-								</time>
-							</a>
-							<a href="<?php the_permalink(); ?>#comments"><?php echo esc_html( get_comments_number() ); ?> Comments</a>
-						</div>
-					</div>
-				</article>
-			<?php endwhile; ?>
-			<?php wp_reset_postdata(); ?>
-		<?php else : ?>
-			<div class="fragments-empty">No fragments yet.</div>
-		<?php endif; ?>
-	</div>
+					<button type="button" class="fragment-expand" aria-expanded="false">展开</button>
+				</div>
+			<?php endif; ?>
+			<?php if ( ! empty( $images ) ) : ?>
+				<div class="fragment-media fragment-media-count-<?php echo esc_attr( min( count( $images ), 9 ) ); ?>" data-count="<?php echo esc_attr( count( $images ) ); ?>">
+					<?php foreach ( $images as $image ) : ?>
+						<button type="button" class="fragment-thumb" data-full="<?php echo esc_url( $image['full'] ); ?>" aria-label="Open image">
+							<img loading="lazy" src="<?php echo esc_url( $image['thumb'] ); ?>" alt="<?php echo esc_attr( $image['alt'] ); ?>">
+						</button>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+			<div class="fragment-meta">
+				<a href="<?php the_permalink(); ?>">
+					<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
+						<?php echo esc_html( nicen_theme_timeToString( get_the_time( 'Y-m-d H:i:s' ) ) ); ?>
+					</time>
+				</a>
+				<a href="<?php the_permalink(); ?>#comments"><?php echo esc_html( get_comments_number() ); ?> Comments</a>
+			</div>
+		</div>
+	</article>
 	<?php
-
-	$rendering_fragments = false;
 
 	return ob_get_clean();
 }
+
+function nicen_theme_render_fragment_batch( $atts, $page, $previous_month = '' ) {
+	$fragments     = nicen_theme_fragment_query( $atts, $page );
+	$current_month = $previous_month;
+
+	ob_start();
+	while ( $fragments->have_posts() ) {
+		$fragments->the_post();
+		$post_month = get_the_date( 'Y.m' );
+
+		if ( $post_month !== $current_month ) {
+			echo '<div class="fragment-month">' . esc_html( $post_month ) . '</div>';
+			$current_month = $post_month;
+		}
+
+		echo nicen_theme_render_fragment_item();
+	}
+	wp_reset_postdata();
+
+	return [
+		'html'       => ob_get_clean(),
+		'has_more'   => $page < $fragments->max_num_pages,
+		'next_page'  => $page + 1,
+		'last_month' => $current_month,
+		'has_posts'  => ! empty( $fragments->posts ),
+	];
+}
+
+function nicen_theme_render_fragments( $atts = [] ) {
+	$atts = shortcode_atts( [
+		'category'       => 'fragments,life-fragments',
+		'tag'            => '',
+		'posts_per_page' => 5,
+		'window_size'    => 20,
+	], $atts, 'fragments' );
+
+	$atts['posts_per_page'] = max( 1, min( 20, absint( $atts['posts_per_page'] ) ) );
+	$atts['window_size']    = max( $atts['posts_per_page'], min( 100, absint( $atts['window_size'] ) ) );
+	$batch                  = nicen_theme_render_fragment_batch( $atts, 1 );
+
+	ob_start();
+	?>
+	<div class="fragments-list"
+		 data-endpoint="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
+		 data-nonce="<?php echo esc_attr( wp_create_nonce( 'document_nonce' ) ); ?>"
+		 data-category="<?php echo esc_attr( $atts['category'] ); ?>"
+		 data-tag="<?php echo esc_attr( $atts['tag'] ); ?>"
+		 data-per-page="<?php echo esc_attr( $atts['posts_per_page'] ); ?>"
+		 data-next-page="<?php echo esc_attr( $batch['next_page'] ); ?>"
+		 data-has-more="<?php echo $batch['has_more'] ? '1' : '0'; ?>"
+		 data-last-month="<?php echo esc_attr( $batch['last_month'] ); ?>"
+		 data-window-size="<?php echo esc_attr( $atts['window_size'] ); ?>">
+		<?php if ( $batch['has_posts'] ) : ?>
+			<?php echo $batch['html']; ?>
+		<?php else : ?>
+			<div class="fragments-empty">No fragments yet.</div>
+		<?php endif; ?>
+		<div class="fragment-loader" aria-live="polite"></div>
+	</div>
+	<?php
+
+	return ob_get_clean();
+}
+
+function nicen_theme_load_fragments() {
+	check_ajax_referer( 'document_nonce', 'nonce' );
+
+	$atts = [
+		'category'       => sanitize_text_field( wp_unslash( $_POST['category'] ?? 'fragments,life-fragments' ) ),
+		'tag'            => sanitize_text_field( wp_unslash( $_POST['tag'] ?? '' ) ),
+		'posts_per_page' => max( 1, min( 20, absint( $_POST['posts_per_page'] ?? 5 ) ) ),
+	];
+	$page           = max( 1, absint( $_POST['page'] ?? 1 ) );
+	$previous_month = sanitize_text_field( wp_unslash( $_POST['previous_month'] ?? '' ) );
+
+	wp_send_json_success( nicen_theme_render_fragment_batch( $atts, $page, $previous_month ) );
+}
+
+add_action( 'wp_ajax_nicen_theme_load_fragments', 'nicen_theme_load_fragments' );
+add_action( 'wp_ajax_nopriv_nicen_theme_load_fragments', 'nicen_theme_load_fragments' );
 
 function nicen_theme_init_shortcode()
 {

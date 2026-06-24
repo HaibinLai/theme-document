@@ -7,6 +7,37 @@
 
 add_filter( 'preprocess_comment', 'nicen_antispam_check' );
 
+function nicen_antispam_is_blocked( $commentdata, $ip ) {
+	$blocklist = [
+		'emails' => [
+			'36836008@outlook.com',
+		],
+		'ips' => [
+			'113.16.16.177',
+		],
+		'content_markers' => [
+			'binance.bh',
+		],
+	];
+
+	$blocklist = apply_filters( 'nicen_theme_comment_blocklist', $blocklist );
+	$email     = strtolower( trim( $commentdata['comment_author_email'] ?? '' ) );
+	$content   = strtolower( (string) ( $commentdata['comment_content'] ?? '' ) );
+	$author_url = strtolower( (string) ( $commentdata['comment_author_url'] ?? '' ) );
+
+	if ( in_array( $email, $blocklist['emails'], true ) || in_array( $ip, $blocklist['ips'], true ) ) {
+		return true;
+	}
+
+	foreach ( $blocklist['content_markers'] as $marker ) {
+		if ( $marker !== '' && ( strpos( $content, $marker ) !== false || strpos( $author_url, $marker ) !== false ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function nicen_antispam_check( $commentdata ) {
 
 	if ( current_user_can( 'manage_options' ) ) {
@@ -14,6 +45,11 @@ function nicen_antispam_check( $commentdata ) {
 	}
 
 	$content = $commentdata['comment_content'];
+	$ip      = $_SERVER['REMOTE_ADDR'] ?? '';
+
+	if ( nicen_antispam_is_blocked( $commentdata, $ip ) ) {
+		wp_die( '评论提交失败。', '评论被拦截', array( 'back_link' => true, 'response' => 403 ) );
+	}
 
 	// 蜜罐字段检测
 	if ( ! empty( $_POST['website_url'] ) ) {
@@ -29,7 +65,6 @@ function nicen_antispam_check( $commentdata ) {
 	}
 
 	// 频率限制（同一 IP 60秒内只能评论一次）
-	$ip            = $_SERVER['REMOTE_ADDR'];
 	$transient_key = 'comment_cooldown_' . md5( $ip );
 	if ( get_transient( $transient_key ) ) {
 		wp_die( '评论提交失败：您的评论过于频繁，请 60 秒后再试。', '评论被拦截', array( 'back_link' => true, 'response' => 429 ) );

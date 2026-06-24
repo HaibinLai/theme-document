@@ -21,6 +21,182 @@ $(function ($) {
 
         let is_loading = false; //是否正在加载
         const html = $("html"); //dom
+        const homeFeedHistory = createHomeFeedHistory();
+
+        function createHomeFeedHistory() {
+            const enabled = IN_HOME;
+            const storageKey = 'document_home_feed_' + location.pathname + location.search;
+            const navigation = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+            const navigationType = navigation ? navigation.type : '';
+            const restoringNavigation = navigationType === 'back_forward' || navigationType === 'reload';
+            let state = null;
+
+            if (!enabled) {
+                return {
+                    restore() {
+                    },
+                    recordPage() {
+                    }
+                };
+            }
+
+            try {
+                state = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
+            } catch (error) {
+                state = null;
+            }
+
+            if (!restoringNavigation) {
+                state = null;
+                sessionStorage.removeItem(storageKey);
+            }
+
+            function getLoadButton() {
+                const selector = DYNAMIC ? '#default' : '.main-content .article-list:first';
+                return $(selector).find('.loadnext').first();
+            }
+
+            function isDefaultFeedActive() {
+                return !DYNAMIC || $('.dynamic .tab.active-tab').data('key') === 'default';
+            }
+
+            function save() {
+                const load = getLoadButton();
+
+                if (!load.length || !isDefaultFeedActive()) {
+                    return;
+                }
+
+                state = state || {
+                    pageUrls: []
+                };
+                state.scrollY = window.scrollY;
+                state.articleCount = $(DYNAMIC ? '#default .i-article' : '.main-content .article-list:first .i-article').length;
+                state.nextUrl = load.data('next') || '';
+
+                try {
+                    sessionStorage.setItem(storageKey, JSON.stringify(state));
+                } catch (error) {
+                    // The page can still work when private-mode storage is unavailable.
+                }
+            }
+
+            function restoreScroll() {
+                const scrollY = state && Number(state.scrollY);
+
+                if (!scrollY) {
+                    return;
+                }
+
+                window.requestAnimationFrame(function () {
+                    window.scrollTo(0, scrollY);
+                    window.setTimeout(function () {
+                        window.scrollTo(0, scrollY);
+                    }, 100);
+                });
+            }
+
+            function restore() {
+                if (!state) {
+                    return;
+                }
+
+                const load = getLoadButton();
+                const pageUrls = state.pageUrls || [];
+                const currentCount = $(DYNAMIC ? '#default .i-article' : '.main-content .article-list:first .i-article').length;
+
+                if (!load.length || !isDefaultFeedActive() || !pageUrls.length || currentCount >= state.articleCount) {
+                    restoreScroll();
+                    return;
+                }
+
+                let index = 0;
+                is_loading = true;
+                change(load);
+
+                function restoreNextPage() {
+                    if (index >= pageUrls.length) {
+                        is_loading = false;
+                        change(load, false);
+                        restoreScroll();
+                        return;
+                    }
+
+                    $.post(pageUrls[index], 'pagination=yes', function (res) {
+                        appendArticlePage(load, res);
+                        index++;
+                        restoreNextPage();
+                    }).fail(function () {
+                        is_loading = false;
+                        change(load, false);
+                        restoreScroll();
+                    });
+                }
+
+                restoreNextPage();
+            }
+
+            function recordPage(url) {
+                if (!isDefaultFeedActive()) {
+                    return;
+                }
+
+                state = state || {
+                    pageUrls: []
+                };
+
+                if (state.pageUrls[state.pageUrls.length - 1] !== url) {
+                    state.pageUrls.push(url);
+                }
+
+                save();
+            }
+
+            window.addEventListener('pagehide', save);
+            window.addEventListener('pageshow', function (event) {
+                if (event.persisted) {
+                    restoreScroll();
+                }
+            });
+
+            return {
+                restore,
+                recordPage
+            };
+        }
+
+        function appendArticlePage(load, res) {
+            const list = $(res).find('.i-article');
+            load.parent().before(list);
+            load.data("next", $(res).find('.loadnext').data('next'));
+
+            computed(); //重新定位位置
+            toFixed(); //重定位
+
+            if (!$("#space").is(":visible")) {
+                return list;
+            }
+
+            const catelog = $("#navigator .scroll ul");
+            const number = catelog.find('li').length;
+
+            list.each(function (index, item) {
+                const linkId = $(item).find("h2").attr("id");
+                const title = $(item).find("h2 a").text();
+
+                catelog.append(`<li>
+                                   <div class="first-index">
+                                       <div>
+                                           <a href="#${linkId}" title="${title}">
+                                           ${(index + number + 1)}. ${title}
+                                           </a>
+                                        </div>
+                                   </div>
+                              </li>`);
+            });
+
+            return list;
+        }
 
 
         /*
@@ -67,55 +243,27 @@ $(function ($) {
             * 没有下一页了
             * */
             if (load.data('next') === "") {
+                is_loading = false;
                 return;
             }
 
             change(load); //显示加载效果
+            const requestedUrl = load.data('next');
 
             /* 请求下一页的文章 */
-            $.post(load.data('next'), 'pagination=yes', function (res) {
+            $.post(requestedUrl, 'pagination=yes', function (res) {
 
-                let list = $(res).find('.i-article');
-                load.parent().before(list); //插入加载的文章
-
-
-                /*
-                * 修改下一页的链接
-                * */
-                load.data("next", $(res).find('.loadnext').data('next'));
-
-                computed(); //重新定位位置
-                toFixed(); //重定位
+                const list = appendArticlePage(load, res);
+                homeFeedHistory.recordPage(requestedUrl);
                 change(load, false); //显示加载效果
-
-                if (!$("#space").is(":visible")) return;
-
-                const catelog = $("#navigator .scroll ul");
-                let number = catelog.find('li').length;
-
-                /* 遍历刷新目录 */
-                list.each(function (index, item) {
-
-                    let linkId = $(item).find("h2").attr("id");
-                    let title = $(item).find("h2 a").text();
-
-                    catelog.append(`<li>
-                                       <div class="first-index">
-                                           <div>
-                                               <a href="#${linkId}" title="${title}">
-                                               ${(index + number + 1)}. ${title}
-                                               </a>
-                                            </div>
-                                       </div>
-                                  </li>`);
-                });
-
 
             }).always(function () {
                 is_loading = false;//标记加载结束
             });
 
         })
+
+        homeFeedHistory.restore();
 
 
         /* 判断是否在主页 */
@@ -244,6 +392,7 @@ $(function ($) {
                 * 已经显示就不加载
                 * */
                 if (that.hasClass('active-tab')) {
+                    localStorage.setItem("ActiveTab", that.data('key'));
                     activeTab = index;//同步key
                     return;
                 }

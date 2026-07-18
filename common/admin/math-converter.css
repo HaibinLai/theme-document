@@ -1,0 +1,60 @@
+.document-math-converter {
+    max-width: 1440px;
+}
+
+.document-math-converter > .description {
+    max-width: 900px;
+    margin: 8px 0 18px;
+}
+
+.document-math-converter__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+#document-math-status {
+    margin-left: 4px;
+    color: #50575e;
+}
+
+.document-math-converter__workspace {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.document-math-converter__workspace label {
+    display: grid;
+    grid-template-rows: auto minmax(520px, 70vh);
+    gap: 8px;
+    min-width: 0;
+    font-weight: 600;
+}
+
+.document-math-converter__workspace textarea {
+    width: 100%;
+    min-height: 520px;
+    padding: 14px;
+    resize: vertical;
+    border-radius: 4px;
+    font: 14px/1.65 SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    letter-spacing: 0;
+    tab-size: 4;
+}
+
+.document-math-converter__workspace textarea[readonly] {
+    background: #f6f7f7;
+}
+
+@media (max-width: 900px) {
+    .document-math-converter__workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .document-math-converter__workspace label {
+        grid-template-rows: auto minmax(360px, 55vh);
+    }
+}

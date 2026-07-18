@@ -11,3 +11,4 @@ include_once get_template_directory() . '/include/admin/editor_plugin.php'; //�
 include_once get_template_directory() . '/include/admin/metabox.php'; //清理后台
 include_once get_template_directory() . '/include/admin/extra.php'; //后台相关初始化
 include_once get_template_directory() . '/include/admin/clear.php'; //清理后台
+include_once get_template_directory() . '/include/admin/math-converter.php'; //Markdown 公式转换工具

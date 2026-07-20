@@ -30,6 +30,101 @@
         return ['```katex'].concat(trimFormulaLines(lines), ['```']);
     }
 
+    function normalizeChatFormula(lines) {
+        return trimFormulaLines(lines).map(function (line) {
+            var normalized = line.replace(/\\\\(?=[A-Za-z]+)/g, '\\');
+
+            normalized = normalized.replace(/\*(\\(?:sum|prod|bigcup|bigcap|lim|max|min))\*\s*\{/g, '$1_{');
+            normalized = normalized.replace(/\*(\\[A-Za-z]+)\*/g, '$1');
+            normalized = normalized.replace(/([A-Za-z])\*([^*\n]*?)([|}\]]+)\*/g, '$1_$2$3');
+            normalized = normalized.replace(/([A-Za-z])\*([A-Za-z0-9]+)\*/g, '$1_$2');
+
+            return normalized;
+        });
+    }
+
+    function bracketMarker(line) {
+        var marker = line.trim();
+        var emphasized = marker.match(/^(?:\*\*|__)(.*)(?:\*\*|__)$/);
+
+        if (emphasized) {
+            marker = emphasized[1].trim();
+        }
+
+        if (marker === '[' || marker === '\\[') {
+            return 'open';
+        }
+        if (marker === ']' || marker === '\\]') {
+            return 'close';
+        }
+
+        return '';
+    }
+
+    function convertInlineMath(line) {
+        var protectedCode = [];
+        var count = 0;
+        var content = line.replace(/`+[^`]*`+/g, function (code) {
+            var placeholder = '\u0000CODE' + protectedCode.length + '\u0000';
+            protectedCode.push(code);
+            return placeholder;
+        });
+
+        content = content.replace(/\\\((.*?)\\\)/g, function (match, formula) {
+            var placeholder = '\u0000CODE' + protectedCode.length + '\u0000';
+            count += 1;
+            protectedCode.push('`$$ ' + formula.trim() + ' $$`');
+            return placeholder;
+        });
+
+        var output = '';
+        var cursor = 0;
+
+        while (cursor < content.length) {
+            var start = content.indexOf('(', cursor);
+            if (start === -1 || (start > 0 && content[start - 1] === '\\')) {
+                output += content.slice(cursor);
+                break;
+            }
+
+            output += content.slice(cursor, start);
+            var depth = 0;
+            var end = start;
+
+            for (; end < content.length; end += 1) {
+                if (content[end] === '(' && (end === 0 || content[end - 1] !== '\\')) {
+                    depth += 1;
+                } else if (content[end] === ')' && (end === 0 || content[end - 1] !== '\\')) {
+                    depth -= 1;
+                    if (depth === 0) {
+                        break;
+                    }
+                }
+            }
+
+            if (depth !== 0) {
+                output += content.slice(start);
+                cursor = content.length;
+                break;
+            }
+
+            var inner = content.slice(start + 1, end);
+            if (/\\[A-Za-z]+/.test(inner)) {
+                output += '`$$ ' + inner.trim() + ' $$`';
+                count += 1;
+            } else {
+                output += content.slice(start, end + 1);
+            }
+            cursor = end + 1;
+        }
+
+        output = output.replace(/\u0000CODE(\d+)\u0000/g, function (match, codeIndex) {
+            return protectedCode[Number(codeIndex)];
+        });
+
+        return { content: output, count: count };
+    }
+
     function isFence(line) {
         var match = line.match(/^\s*(`{3,}|~{3,})/);
         return match ? match[1].charAt(0) : '';
@@ -39,7 +134,7 @@
         var newline = source.indexOf('\r\n') !== -1 ? '\r\n' : '\n';
         var lines = source.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         var output = [];
-        var stats = { dollarBlocks: 0, bracketBlocks: 0, singleLineBlocks: 0 };
+        var stats = { dollarBlocks: 0, bracketBlocks: 0, singleLineBlocks: 0, inlineExpressions: 0 };
         var fence = '';
         var index = 0;
 
@@ -86,22 +181,24 @@
                 continue;
             }
 
-            if (/^\s*(?:\\?\[)\s*$/.test(line)) {
+            if (bracketMarker(line) === 'open') {
                 var bracketEnd = index + 1;
-                while (bracketEnd < lines.length && !/^\s*(?:\\?\])\s*$/.test(lines[bracketEnd])) {
+                while (bracketEnd < lines.length && bracketMarker(lines[bracketEnd]) !== 'close') {
                     bracketEnd += 1;
                 }
 
                 var bracketLines = lines.slice(index + 1, bracketEnd);
                 if (bracketEnd < lines.length && looksLikeFormula(bracketLines)) {
-                    output = output.concat(katexBlock(bracketLines));
+                    output = output.concat(katexBlock(normalizeChatFormula(bracketLines)));
                     stats.bracketBlocks += 1;
                     index = bracketEnd + 1;
                     continue;
                 }
             }
 
-            output.push(line);
+            var inline = convertInlineMath(line);
+            output.push(inline.content);
+            stats.inlineExpressions += inline.count;
             index += 1;
         }
 
@@ -133,7 +230,7 @@
 
         convert.addEventListener('click', function () {
             var converted = convertMarkdown(source.value);
-            var total = converted.stats.dollarBlocks + converted.stats.bracketBlocks + converted.stats.singleLineBlocks;
+            var total = converted.stats.dollarBlocks + converted.stats.bracketBlocks + converted.stats.singleLineBlocks + converted.stats.inlineExpressions;
 
             result.value = converted.content;
             copy.disabled = !result.value;

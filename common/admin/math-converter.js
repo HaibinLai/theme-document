@@ -63,6 +63,23 @@
         return '';
     }
 
+    function isWholeTableCell(content, start, end) {
+        var before = content.slice(0, start).replace(/\s+$/, '');
+        var after = content.slice(end + 1).replace(/^\s+/, '');
+
+        return before.charAt(before.length - 1) === '|' && (after === '' || after.charAt(0) === '|');
+    }
+
+    function looksLikeInlineFormula(inner, content, start, end) {
+        var value = inner.trim();
+
+        if (/\\[A-Za-z]+|[_^{}]/.test(value)) {
+            return true;
+        }
+
+        return isWholeTableCell(content, start, end) && /^\d+(?:\s*,\s*\d+)*$/.test(value);
+    }
+
     function convertInlineMath(line) {
         var protectedCode = [];
         var count = 0;
@@ -111,7 +128,7 @@
             }
 
             var inner = content.slice(start + 1, end);
-            if (/\\[A-Za-z]+/.test(inner)) {
+            if (looksLikeInlineFormula(inner, content, start, end)) {
                 output += '`$$ ' + inner.trim() + ' $$`';
                 count += 1;
             } else {

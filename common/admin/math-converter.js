@@ -23,7 +23,12 @@
             return false;
         }
 
-        return /\\[A-Za-z]+|[_^{}=]|\d\s*(?:[+*/-]|\\times|\\cdot)\s*\d/.test(value);
+        if (/\\[A-Za-z]+|[_^{}=]|\d\s*(?:[+*/-]|\\times|\\cdot)\s*\d/.test(value)) {
+            return true;
+        }
+
+        var permutation = value.replace(/\s*\n\s*/g, ' ');
+        return /^(?:\(\s*\d+(?:(?:\\\s+|\s+|,\s*)\d+)*\s*\)\s*)+$/.test(permutation);
     }
 
     function katexBlock(lines) {

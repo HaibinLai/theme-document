@@ -45,6 +45,8 @@
 
     function bracketMarker(line) {
         var marker = line.trim();
+
+        marker = marker.replace(/^#{1,6}[ \t]+/, '').trim();
         var emphasized = marker.match(/^(?:\*\*|__)(.*)(?:\*\*|__)$/);
 
         if (emphasized) {

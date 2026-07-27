@@ -5,7 +5,7 @@ Theme URI: https://nicen.cn
 Author: 友人a丶 Haibin
 Author URI: https://nicen.cn
 Description: 一个基于文档类型的博客主题，更加方便的记录、查询学习笔记
-Version: 1.7.0
+Version: 1.7.1
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: Document
@@ -336,6 +336,12 @@ Tags: 文档,自适应,主题切换,阅读进度跟随
 
 pre * {
   color: var(--theme-pre-text); }
+
+/* KaTeX blocks may be rendered inside <pre>; keep formulas in the article text color. */
+.main-article .katex {
+  color: var(--theme-text-color); }
+  .main-article .katex * {
+    color: inherit; }
 
 p {
   margin: 0 0 var(--theme-margin-bottom) 0;
@@ -2701,4 +2707,3 @@ html body .main-container .main-main .main-content .main-article details a:hover
 .img-compare-active .img-compare-handle-circle span {
   color: white;
 }
-

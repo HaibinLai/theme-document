@@ -50,6 +50,15 @@ pre * {
   color: var(--theme-pre-text);
 }
 
+/* KaTeX blocks may be rendered inside <pre>; keep formulas in the article text color. */
+.main-article .katex {
+  color: var(--theme-text-color);
+
+  * {
+    color: inherit;
+  }
+}
+
 p {
   margin: 0 0 var(--theme-margin-bottom) 0;
   font-weight: normal;

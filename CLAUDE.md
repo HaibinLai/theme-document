@@ -5,8 +5,8 @@
 这是一个 WordPress 博客主题（Document），基于文档类型设计，方便记录和查询学习笔记。
 
 - **类型**: WordPress 主题
-- **版本**: 1.5.1
-- **版本号位置**: `style.css` (第8行) 和 `include/config.php` (`DOCUMENT_VERSION` 常量)，两处必须同步修改
+- **版本**: 1.7.1
+- **版本号位置**: `style.css`、`style.scss` 和 `include/config.php` (`DOCUMENT_VERSION` 常量)，三处必须同步修改
 
 ## 项目结构
 
@@ -81,8 +81,9 @@ node build.js
 
 ### 版本号更新
 
-需要同时修改两处：
+需要同时修改三处：
 - `style.css` 头部注释中的 `Version:` 字段
+- `style.scss` 头部注释中的 `Version:` 字段
 - `include/config.php` 中的 `DOCUMENT_VERSION` 常量
 
 ### 新增页面模板

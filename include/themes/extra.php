@@ -45,3 +45,29 @@ function nicen_theme_article_excerpt_lengths($length)
 add_filter('excerpt_length', 'nicen_theme_article_excerpt_lengths', 999);
 
 
+/*
+ * 首页使用主题自己的分页数量，并在查询阶段排除不显示的栏目。
+ * 这样被隐藏的文章不会占用每页名额。
+ * */
+function nicen_theme_customize_home_query( $query ) {
+	if ( is_admin() || ! $query->is_main_query() || ! $query->is_home() ) {
+		return;
+	}
+
+	$posts_per_page = absint( nicen_theme_config( 'document_home_posts_per_page', false ) );
+	$query->set( 'posts_per_page', max( 1, min( 50, $posts_per_page ?: 20 ) ) );
+
+	$hidden_terms = array_values( array_filter( array_map(
+		'absint',
+		explode( ',', (string) nicen_theme_config( 'document_no_display', false ) )
+	) ) );
+
+	if ( ! empty( $hidden_terms ) ) {
+		$query->set( 'category__not_in', $hidden_terms );
+		$query->set( 'tag__not_in', $hidden_terms );
+	}
+}
+
+add_action( 'pre_get_posts', 'nicen_theme_customize_home_query' );
+
+

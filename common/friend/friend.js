@@ -20,6 +20,8 @@ $(function () {
     const currentSite = {
         name: currentSiteEl.dataset.name || '当前站点',
         image: currentSiteEl.dataset.image || '',
+        fallbackImage: currentSiteEl.dataset.fallbackImage || '',
+        defaultImage: currentSiteEl.dataset.defaultImage || '',
         description: currentSiteEl.dataset.description || ''
     };
 
@@ -27,6 +29,8 @@ $(function () {
     const links = Array.from(friendLinkEls).map(el => ({
         name: el.dataset.name || '',
         image: el.dataset.image || '',
+        fallbackImage: el.dataset.fallbackImage || '',
+        defaultImage: el.dataset.defaultImage || '',
         description: el.dataset.description || ''
     }));
 
@@ -69,6 +73,8 @@ $(function () {
         id: 0,
         label: currentSite.name,
         image: currentSite.image,
+        fallbackImage: currentSite.fallbackImage,
+        defaultImage: currentSite.defaultImage,
         description: currentSite.description,
         x: container.clientWidth / 2 - (gap / 2 * rem),
         y: (container.clientHeight - 120) / 2
@@ -81,6 +87,8 @@ $(function () {
             id: index + 1,
             label: link.name,
             image: link.image || '',
+            fallbackImage: link.fallbackImage || '',
+            defaultImage: link.defaultImage || '',
             description: link.description || '',
             x: position.x,
             y: position.y
@@ -96,6 +104,14 @@ $(function () {
     /* 绘制节点 */
     function drawNodes() {
 
+        const escapeHtml = value => String(value).replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        })[character]);
+
         nodes.forEach(node => {
 
             const nodeEl = document.createElement('div');
@@ -106,13 +122,32 @@ $(function () {
             /* 节点内容 */
             nodeEl.innerHTML = `
                 <div class="node-icon">
-                    <img src="${node.image}" alt="${node.label}">
+                    <img alt="${escapeHtml(node.label)}">
                 </div>
                 <div class="node-info">
-                    <h3>${node.label}</h3>
-                    <p>${node.description}</p>
+                    <h3>${escapeHtml(node.label)}</h3>
+                    <p>${escapeHtml(node.description)}</p>
                 </div>
             `;
+
+            const imageEl = nodeEl.querySelector('.node-icon img');
+            const imageSources = [
+                node.image,
+                node.fallbackImage,
+                node.defaultImage
+            ].filter((source, index, sources) => source && sources.indexOf(source) === index);
+            let imageSourceIndex = 0;
+
+            const loadNextImage = () => {
+                if (imageSourceIndex >= imageSources.length) {
+                    imageEl.removeAttribute('src');
+                    return;
+                }
+                imageEl.src = imageSources[imageSourceIndex++];
+            };
+
+            imageEl.addEventListener('error', loadNextImage);
+            loadNextImage();
 
 
             /* 添加拖拽和点击功能 */

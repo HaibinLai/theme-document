@@ -389,6 +389,14 @@ const ADMIN = [
 						]
 					],
 					[
+						'id'       => 'document_home_posts_per_page',
+						'title'    => '首页每页文章数量',
+						'callback' => 'nicen_theme_form_number',
+						'args'     => [
+							'tip' => '建议设置为 15 或 20，允许范围为 1–50'
+						]
+					],
+					[
 						'id'       => 'document_paginate_auto_load_index',
 						'title'    => '动态分页时自动加载',
 						'callback' => 'nicen_theme_form_switch',
@@ -758,6 +766,7 @@ define( "CONFIG", [
 	"document_no_display"              => '',
 	"document_paginate_auto_load_else" => 1,
 	"document_pagination"              => 1,
+	"document_home_posts_per_page"     => 20,
 	//显示分页的类型，默认动态分页
 	'document_index_excerpt_number'    => 200,
 	//文章摘要字数

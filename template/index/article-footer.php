@@ -21,6 +21,14 @@ $previous = get_previous_post();//上一篇
 				<?php echo get_copyright(); ?>
             </div>
 		<?php } ?>
+        <!--赞赏-->
+		<?php if ( nicen_theme_config( "document_show_donate", false ) ) { ?>
+            <div class="donate">
+                <a href="<?php nicen_theme_config( 'document_donate_url' ); ?>">
+                    <button>See my github</button>
+                </a>
+            </div>
+		<?php } ?>
         <!--文章引用-->
 		<?php if ( nicen_theme_should_show_post_citation() ) {
 			$citation = nicen_theme_get_post_citation();
@@ -50,14 +58,6 @@ $previous = get_previous_post();//上一篇
                 </section>
 			<?php }
 		} ?>
-        <!--赞赏-->
-		<?php if ( nicen_theme_config( "document_show_donate", false ) ) { ?>
-            <div class="donate">
-                <a href="<?php nicen_theme_config( 'document_donate_url' ); ?>">
-                    <button>See my github</button>
-                </a>
-            </div>
-		<?php } ?>
         <!--标签-->
         <div class="label">
             <i class="iconfont icon-biaoqian"></i>

@@ -1240,6 +1240,11 @@ html {
             text-decoration: none; }
           html body .main-container .main-main .main-content .article-info {
             padding-bottom: 0.3rem; }
+          html body .main-container .main-main .main-content .reader-mode-notice {
+            margin: -0.2rem 0 var(--theme-margin-bottom) 0;
+            color: var(--theme-text-secondary);
+            font-size: var(--theme-text-mini);
+            line-height: 1.5; }
           html body .main-container .main-main .main-content .article-info ul {
             list-style: none;
             display: flex;

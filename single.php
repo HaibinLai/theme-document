@@ -28,6 +28,7 @@ if ( post_password_required() ) {
 				<?php get_template_part( './template/index/breadcrumb' ); ?>
                 <!-- 文章顶部 -->
 				<?php get_template_part( './template/index/article-header' ); ?>
+                <p class="reader-mode-notice">Reader mode is not fully supported on this site; please use it with caution.</p>
                 <!--  文章内容  -->
                 <div class="main-article">
 					<?php the_content(); ?>

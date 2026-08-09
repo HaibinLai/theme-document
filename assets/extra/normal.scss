@@ -1215,6 +1215,13 @@ html {
             padding-bottom: 0.3rem;
           }
 
+          .reader-mode-notice {
+            margin: -0.2rem 0 var(--theme-margin-bottom) 0;
+            color: var(--theme-text-secondary);
+            font-size: var(--theme-text-mini);
+            line-height: 1.5;
+          }
+
 
           .article-info ul {
             list-style: none;

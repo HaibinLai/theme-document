@@ -59,6 +59,7 @@ function removeAdjacentDuplicateKatex(selector, skip) {
 }
 
 function cleanupDuplicateKatex() {
+    $('.main-article .katex-mathml').remove();
     removeAdjacentDuplicateKatex('.main-article .katex-display');
     removeAdjacentDuplicateKatex('.main-article .katex', function (node) {
         return $(node).closest('.katex-display').length > 0;

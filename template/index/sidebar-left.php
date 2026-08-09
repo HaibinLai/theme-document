@@ -16,7 +16,7 @@ if ( nicen_theme_showCatelog() ) {
 
 		?>
         <div id="space">
-            <aside class="main-left" id="navigator">
+            <aside class="main-left" id="navigator" aria-label="Table of contents" data-reader-ignore="true">
                 <div class="main-top">
                     <ul>
                         <li class="active">🗂️ Table of Contents</li>
@@ -32,10 +32,10 @@ if ( nicen_theme_showCatelog() ) {
                     </ul>
                 </div>
 
-                <div class="icp-beian">
-                    <div>
+                <div class="icp-beian" aria-hidden="true" data-nosnippet>
+                    <div role="button" tabindex="-1">
                         <span class="number"><?php echo nicen_theme_getPostNice( get_the_ID() ); ?></span>
-                        <img src="<?php echo get_template_directory_uri(); ?>/assets/images/zan.svg" title="点赞"/>
+                        <span class="like-icon" aria-hidden="true"></span>
                     </div>
                 </div>
             </aside>

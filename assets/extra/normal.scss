@@ -881,8 +881,11 @@ html {
                 white-space: nowrap;
               }
 
-              img {
+              .like-icon {
+                display: block;
                 width: 100%;
+                aspect-ratio: 1;
+                background: url("./assets/images/zan.svg") center / contain no-repeat;
               }
             }
           }

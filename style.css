@@ -1024,8 +1024,11 @@ html {
                 font-size: var(--theme-text-more-mini);
                 background-color: var(--theme-code-bg);
                 white-space: nowrap; }
-              html body .main-container #space #navigator .icp-beian div img {
-                width: 100%; }
+              html body .main-container #space #navigator .icp-beian div .like-icon {
+                display: block;
+                width: 100%;
+                aspect-ratio: 1;
+                background: url("./assets/images/zan.svg") center/contain no-repeat; }
       html body .main-container .div-info {
         padding: 0.1rem 1rem 1rem 1.1rem;
         margin-bottom: 1rem;

@@ -85,20 +85,101 @@
         return isWholeTableCell(content, start, end) && /^\d+(?:\s*,\s*\d+)*$/.test(value);
     }
 
+    function inlineMathCode(formula) {
+        return '`$' + formula.trim() + '$`';
+    }
+
+    function placeholderFor(value, protectedCode) {
+        var placeholder = '\u0000CODE' + protectedCode.length + '\u0000';
+        protectedCode.push(value);
+        return placeholder;
+    }
+
+    function findMarkdownClosing(text, start, open, close) {
+        var depth = 1;
+        var index = start + 1;
+
+        while (index < text.length) {
+            if (text[index] === '\\') {
+                index += 2;
+                continue;
+            }
+            if (text[index] === open) {
+                depth += 1;
+            } else if (text[index] === close) {
+                depth -= 1;
+                if (depth === 0) {
+                    return index;
+                }
+            }
+            index += 1;
+        }
+
+        return -1;
+    }
+
+    function protectMarkdownLinks(content, protectedCode) {
+        var output = '';
+        var cursor = 0;
+
+        while (cursor < content.length) {
+            var start = content.indexOf('[', cursor);
+            var imageStart = false;
+
+            if (start > 0 && content[start - 1] === '!') {
+                imageStart = true;
+                start -= 1;
+            }
+
+            if (start === -1) {
+                output += content.slice(cursor);
+                break;
+            }
+
+            var bracketStart = imageStart ? start + 1 : start;
+            var bracketEnd = findMarkdownClosing(content, bracketStart, '[', ']');
+
+            if (bracketEnd === -1 || content[bracketEnd + 1] !== '(') {
+                output += content.slice(cursor, bracketStart + 1);
+                cursor = bracketStart + 1;
+                continue;
+            }
+
+            var parenEnd = findMarkdownClosing(content, bracketEnd + 1, '(', ')');
+
+            if (parenEnd === -1) {
+                output += content.slice(cursor, bracketStart + 1);
+                cursor = bracketStart + 1;
+                continue;
+            }
+
+            output += content.slice(cursor, start);
+            output += placeholderFor(content.slice(start, parenEnd + 1), protectedCode);
+            cursor = parenEnd + 1;
+        }
+
+        return output;
+    }
+
+    function protectBareUrls(content, protectedCode) {
+        return content.replace(/https?:\/\/[^\s<>()]+(?:\([^\s<>()]*\)[^\s<>()]*)*/g, function (url) {
+            return placeholderFor(url, protectedCode);
+        });
+    }
+
     function convertInlineMath(line) {
         var protectedCode = [];
         var count = 0;
         var content = line.replace(/`+[^`]*`+/g, function (code) {
-            var placeholder = '\u0000CODE' + protectedCode.length + '\u0000';
-            protectedCode.push(code);
-            return placeholder;
+            return placeholderFor(code, protectedCode);
         });
 
+        content = protectMarkdownLinks(content, protectedCode);
+        content = protectBareUrls(content, protectedCode);
+
         content = content.replace(/\\\((.*?)\\\)/g, function (match, formula) {
-            var placeholder = '\u0000CODE' + protectedCode.length + '\u0000';
             count += 1;
-            protectedCode.push('`$$ ' + formula.trim() + ' $$`');
-            return placeholder;
+            return placeholderFor(inlineMathCode(formula), protectedCode);
         });
 
         var output = '';
@@ -134,7 +215,7 @@
 
             var inner = content.slice(start + 1, end);
             if (looksLikeInlineFormula(inner, content, start, end)) {
-                output += '`$$ ' + inner.trim() + ' $$`';
+                output += inlineMathCode(inner);
                 count += 1;
             } else {
                 output += content.slice(start, end + 1);

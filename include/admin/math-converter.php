@@ -53,7 +53,7 @@ function document_render_math_converter_page() {
 	?>
 	<div class="wrap document-math-converter">
 		<h1>Markdown 公式转换</h1>
-		<p class="description">将文章 Markdown 粘贴到左侧，转换后会生成 WP Githuber MD 可识别的 <code>katex</code> 代码块和行内公式。已有代码块会保持原样。</p>
+		<p class="description">将文章 Markdown 粘贴到左侧，转换后会生成 WP Githuber MD 可识别的 <code>katex</code> 代码块和 <code>`$...$`</code> 行内公式。已有代码块、图片和链接会保持原样。</p>
 
 		<div class="document-math-converter__toolbar">
 			<button type="button" class="button button-primary" id="document-math-convert">转换</button>

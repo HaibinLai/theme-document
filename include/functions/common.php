@@ -1085,7 +1085,8 @@ function nicen_theme_get_post_citation( $post_id = 0 ) {
 	}
 
 	$title     = html_entity_decode( wp_strip_all_tags( get_the_title( $post ) ), ENT_QUOTES, get_bloginfo( 'charset' ) );
-	$author    = get_the_author_meta( 'display_name', $post->post_author );
+	$author    = trim( (string) nicen_theme_config( 'document_citation_author', false ) );
+	$author    = $author ?: get_the_author_meta( 'display_name', $post->post_author );
 	$author_id = get_the_author_meta( 'user_nicename', $post->post_author );
 	$url       = get_permalink( $post );
 	$date      = get_post_time( 'M. j, Y', false, $post );

@@ -535,7 +535,15 @@ const ADMIN = [
 						'title'    => '显示文章引用信息',
 						'callback' => 'nicen_theme_form_switch',
 						'args'     => [
-							'tip' => '自动生成普通引用和 BibTeX，作者名使用文章作者的显示名称'
+							'tip' => '自动生成普通引用和 BibTeX'
+						]
+					],
+					[
+						'id'       => 'document_citation_author',
+						'title'    => '引用作者名称',
+						'callback' => 'nicen_theme_form_input',
+						'args'     => [
+							'tip' => '普通引用和 BibTeX 共用此署名；留空时使用文章作者的显示名称'
 						]
 					],
 					[
@@ -801,6 +809,7 @@ define( "CONFIG", [
 	"document_donate_url"         => site_url(),
 	"document_copyright"          => "赠人玫瑰，手有余香",
 	"document_show_citation"      => 1,
+	"document_citation_author"    => "Haibin Lai",
 
 	"document_smtp_open"     => 0,
 	//是否开启smtp

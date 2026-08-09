@@ -7,6 +7,7 @@ const jsFiles = [
   'common/main.js',
   'common/inline/main.js',
   'common/inline/emoji.js',
+  'common/inline/citation.js',
   'common/inline/index.js',
   'common/inline/monitor.js',
   'common/inline/swiper.js',

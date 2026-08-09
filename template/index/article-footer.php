@@ -21,6 +21,35 @@ $previous = get_previous_post();//上一篇
 				<?php echo get_copyright(); ?>
             </div>
 		<?php } ?>
+        <!--文章引用-->
+		<?php if ( nicen_theme_should_show_post_citation() ) {
+			$citation = nicen_theme_get_post_citation();
+			if ( ! empty( $citation ) ) { ?>
+                <section class="article-citation" aria-labelledby="article-citation-title">
+                    <h2 id="article-citation-title">如果您需要引用本文，请参考：</h2>
+                    <div class="citation-entry citation-plain">
+                        <p><?php echo esc_html( $citation['author'] ); ?>. (<?php echo esc_html( $citation['date'] ); ?>).
+                            《<?php echo esc_html( $citation['title'] ); ?>》[Blog post]. Retrieved from
+                            <a href="<?php echo esc_url( $citation['url'] ); ?>"><?php echo esc_html( $citation['url'] ); ?></a>
+                        </p>
+                        <button class="citation-copy" type="button"
+                                data-citation-copy="<?php echo esc_attr( $citation['plain'] ); ?>"
+                                title="复制普通引用" aria-label="复制普通引用">
+                            <i class="iconfont icon-fuzhi" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div class="citation-entry citation-bibtex">
+                        <pre><code><?php echo esc_html( $citation['bibtex'] ); ?></code></pre>
+                        <button class="citation-copy" type="button"
+                                data-citation-copy="<?php echo esc_attr( $citation['bibtex'] ); ?>"
+                                title="复制 BibTeX" aria-label="复制 BibTeX">
+                            <i class="iconfont icon-fuzhi" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <span class="citation-copy-status" role="status" aria-live="polite"></span>
+                </section>
+			<?php }
+		} ?>
         <!--赞赏-->
 		<?php if ( nicen_theme_config( "document_show_donate", false ) ) { ?>
             <div class="donate">

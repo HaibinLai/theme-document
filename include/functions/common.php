@@ -1058,6 +1058,91 @@ function get_copyright() {
 }
 
 
+/*
+ * 生成文章的普通引用和 BibTeX 引用。
+ * */
+function nicen_theme_escape_bibtex_value( $value ) {
+	return strtr( (string) $value, [
+		'\\' => '\\textbackslash{}',
+		'{'  => '\\{',
+		'}'  => '\\}',
+		'&'  => '\\&',
+		'%'  => '\\%',
+		'$'  => '\\$',
+		'#'  => '\\#',
+		'_'  => '\\_',
+		'^'  => '\\textasciicircum{}',
+		'~'  => '\\textasciitilde{}',
+	] );
+}
+
+
+function nicen_theme_get_post_citation( $post_id = 0 ) {
+	$post = get_post( $post_id ?: get_the_ID() );
+
+	if ( ! $post ) {
+		return [];
+	}
+
+	$title     = html_entity_decode( wp_strip_all_tags( get_the_title( $post ) ), ENT_QUOTES, get_bloginfo( 'charset' ) );
+	$author    = get_the_author_meta( 'display_name', $post->post_author );
+	$author_id = get_the_author_meta( 'user_nicename', $post->post_author );
+	$url       = get_permalink( $post );
+	$date      = get_post_time( 'M. j, Y', false, $post );
+	$year      = get_post_time( 'Y', false, $post );
+	$month     = get_post_time( 'M', false, $post );
+	$key       = sanitize_title( $author_id ) ?: 'blog';
+	$key      .= '-' . $post->ID;
+	$bib_title  = nicen_theme_escape_bibtex_value( $title );
+	$bib_author = nicen_theme_escape_bibtex_value( $author );
+
+	$plain = sprintf(
+		'%s. (%s). 《%s》[Blog post]. Retrieved from %s',
+		$author,
+		$date,
+		$title,
+		$url
+	);
+
+	$bibtex = sprintf(
+		"@online{%s,\n        title={%s},\n        author={%s},\n        year={%s},\n        month={%s},\n        url={\\url{%s}},\n}",
+		$key,
+		$bib_title,
+		$bib_author,
+		$year,
+		$month,
+		$url
+	);
+
+	return [
+		'plain'  => $plain,
+		'bibtex' => $bibtex,
+		'author' => $author,
+		'date'   => $date,
+		'title'  => $title,
+		'url'    => $url,
+	];
+}
+
+
+/*
+ * 历史文章没有存储过该字段，默认显示；生活碎片始终不显示。
+ * */
+function nicen_theme_should_show_post_citation( $post_id = 0 ) {
+	$post = get_post( $post_id ?: get_the_ID() );
+
+	if ( ! $post || 'post' !== $post->post_type || ! nicen_theme_config( 'document_show_citation', false ) ) {
+		return false;
+	}
+
+	if ( has_category( [ 'fragments', 'life-fragments' ], $post ) ) {
+		return false;
+	}
+
+	return '0' !== get_post_meta( $post->ID, 'nicen_show_citation', true );
+}
+
+
 /**
  * 获取修改时间
  */

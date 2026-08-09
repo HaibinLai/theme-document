@@ -104,6 +104,9 @@ function nicen_theme_load_source() {
 		wp_enqueue_script( 'prism', $url . nicen_theme_min_path( '/common/prism/prism.js' ), array(), filemtime( $root . nicen_theme_min_path( '/common/prism/prism.js' ) ), true );
 		wp_enqueue_style( 'prism', $url . nicen_theme_min_path( '/common/prism/prism.css' ), array(), filemtime( $root . nicen_theme_min_path( '/common/prism/prism.css' ) ) );
 		wp_enqueue_style( 'viewercss', $url . '/common/viewer/viewer.min.css', array(), filemtime( $root . '/common/viewer/viewer.min.css' ) );
+		if ( nicen_theme_should_show_post_citation() ) {
+			wp_enqueue_script( 'document-citation', $url . nicen_theme_min_path( '/common/inline/citation.js' ), array(), filemtime( $root . nicen_theme_min_path( '/common/inline/citation.js' ) ), true );
+		}
 
 		wp_enqueue_script( 'runcode', $url . nicen_theme_min_path( '/common/runcode/runcode.js' ), array( 'prism' ), filemtime( $root . nicen_theme_min_path( '/common/runcode/runcode.js' ) ), true );
 		wp_enqueue_style( 'runcode', $url . nicen_theme_min_path( '/common/runcode/runcode.css' ), array( 'prism' ), filemtime( $root . nicen_theme_min_path( '/common/runcode/runcode.css' ) ) );

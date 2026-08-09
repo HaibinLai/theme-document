@@ -1356,6 +1356,79 @@ html {
                 font-size: var(--theme-text-more-mini); }
                 html body .main-container .main-main .main-content footer .article-footer .copyright a {
                   font-size: var(--theme-text-more-mini); }
+              html body .main-container .main-main .main-content footer .article-footer .article-citation {
+                width: 100%;
+                margin-top: 1.5rem;
+                padding-top: 1.2rem;
+                border-top: 1px solid var(--theme-border-color);
+                text-align: left; }
+                html body .main-container .main-main .main-content footer .article-footer .article-citation h2 {
+                  margin: 0 0 0.8rem 0;
+                  color: var(--theme-text-color);
+                  font-size: var(--theme-text);
+                  font-weight: 600;
+                  letter-spacing: 0; }
+                html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry {
+                  position: relative;
+                  width: 100%; }
+                  html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-plain {
+                    padding-right: 2.6rem; }
+                    html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-plain p, html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-plain a {
+                      color: var(--theme-text-secondary);
+                      font-size: var(--theme-secondary);
+                      line-height: 1.8; }
+                    html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-plain p {
+                      margin: 0;
+                      overflow-wrap: anywhere; }
+                    html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-plain a {
+                      color: var(--theme-color); }
+                  html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-bibtex {
+                    margin-top: 0.9rem; }
+                    html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-bibtex pre {
+                      margin: 0;
+                      padding: 0.85rem 2.8rem 0.85rem 0.9rem;
+                      overflow-x: auto;
+                      border: 1px solid var(--theme-border-color);
+                      border-radius: 4px;
+                      background: var(--theme-pre-code-bg); }
+                      html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-entry.citation-bibtex pre code {
+                        padding: 0;
+                        color: var(--theme-text-secondary);
+                        background: transparent;
+                        font-size: var(--theme-text-mini);
+                        line-height: 1.65;
+                        white-space: pre; }
+                html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-copy {
+                  position: absolute;
+                  top: 0.35rem;
+                  right: 0.35rem;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  width: 2rem;
+                  height: 2rem;
+                  padding: 0;
+                  border: 1px solid transparent;
+                  border-radius: 4px;
+                  background: transparent;
+                  color: var(--theme-text-secondary);
+                  cursor: pointer; }
+                  html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-copy:hover, html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-copy:focus-visible, html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-copy.copied {
+                    border-color: var(--theme-border-color);
+                    color: var(--theme-color); }
+                  html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-copy .iconfont {
+                    color: inherit;
+                    font-size: var(--theme-text); }
+                html body .main-container .main-main .main-content footer .article-footer .article-citation .citation-copy-status {
+                  position: absolute;
+                  width: 1px;
+                  height: 1px;
+                  padding: 0;
+                  margin: -1px;
+                  overflow: hidden;
+                  clip: rect(0, 0, 0, 0);
+                  white-space: nowrap;
+                  border: 0; }
               html body .main-container .main-main .main-content footer .article-footer .donate button {
                 background-color: var(--theme-color);
                 margin-top: 1.2rem;

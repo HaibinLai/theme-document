@@ -371,20 +371,6 @@ $(function ($) {
 
 
     /*
-    * 文章点赞
-    * */
-    (function () {
-
-        $('.icp-beian div').click(function () {
-            let that = $(this);
-            $.post("/?document_nice=" + Current + "&nonce=" + (window.DOCUMENT_NONCE || ""), function () {
-                that.find('span').text(parseInt(that.find('span').text()) + 1);
-            });
-        });
-    })();
-
-
-    /*
     * 文章踩、文章点赞
     * */
     (function () {

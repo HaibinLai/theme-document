@@ -23,7 +23,7 @@
   } catch(e) {}
 })();
 </script>
-<style>.dark,.dark body{background-color:#333;color:rgba(255,255,255,0.87)}.dark .main-header{background:#141414}</style>
+<style>.dark,.dark body{background-color:#333;color:rgba(255,255,255,0.87)}.dark .main-header{background:#141414}.dark .main-header,.dark .main-header a,.dark .main-header .menu-item,.dark .main-header .iconfont,.dark .main-header input{color:rgba(255,255,255,0.87)}</style>
 <head>
     <meta charset="<?php bloginfo( 'charset' ); ?>"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">

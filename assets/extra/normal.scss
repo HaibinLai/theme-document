@@ -188,6 +188,10 @@ html {
 
             white-space: nowrap;
 
+            & > a {
+              color: inherit;
+            }
+
 
             &:hover {
               & > .sub-menu {

@@ -136,15 +136,24 @@
 
 
             .read-mode {
-              position: absolute !important;
-              display: none;
-              top: 1rem;
-              z-index: 50;
-              right: 12px;
+              position: static !important;
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              gap: 0.5rem;
+              top: auto;
+              z-index: auto;
+              right: auto;
               margin-top: 0;
-              height: fit-content;
-              width: fit-content;
-              color: var(--theme-front-color);
+              height: auto;
+              width: 100%;
+              color: var(--theme-sub-menu-font-color);
+
+              &::after {
+                content: "阅读模式";
+                color: inherit;
+                font-size: 1rem;
+              }
 
               img {
                 width: 1.2rem;

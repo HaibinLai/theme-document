@@ -75,6 +75,22 @@ pre * {
   text-align: center;
 }
 
+/* Hide third-party like widgets injected before the article body. */
+.main-article > .wpulike:first-child,
+.main-article > .wp-ulike:first-child,
+.main-article > .wp_ulike_general_class:first-child,
+.main-article > .likebtn_container:first-child,
+.main-article > .likebtn-wrapper:first-child,
+.main-article > .super-like:first-child,
+.main-article > .superlike:first-child,
+.main-article > .post-like:first-child,
+.main-article > .post-like-wrap:first-child,
+.main-article > .zilla-likes:first-child,
+.main-article > .wp-like-button:first-child,
+.main-article > .simplefavorite-button:first-child {
+  display: none !important;
+}
+
 p {
   margin: 0 0 var(--theme-margin-bottom) 0;
   font-weight: normal;

@@ -5,7 +5,7 @@ Theme URI: https://nicen.cn
 Author: 友人a丶 Haibin
 Author URI: https://nicen.cn
 Description: 一个基于文档类型的博客主题，更加方便的记录、查询学习笔记
-Version: 1.7.1
+Version: 1.8
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: Document
@@ -47,6 +47,12 @@ Tags: 文档,自适应,主题切换,阅读进度跟随
   --theme-front-color: #fafbfc;
   --theme-header-color: var(--theme-color);
   --theme-header-border: #e1e1e1;
+  --theme-header-bg-color: var(--theme-front-main-color);
+  --theme-header-font-color: var(--theme-text-color);
+  --theme-sub-menu-bg-color: var(--theme-front-main-color);
+  --theme-sub-menu-font-color: var(--theme-text-color);
+  --theme-header-border-color: var(--theme-header-border);
+  --theme-header-shadow-color: transparent;
   --theme-hover-bg: #444;
   --theme-hover-color: white;
   --theme-hover-shadow: rgba(0, 0, 0, 0.1);
@@ -358,6 +364,21 @@ pre * {
   overflow-y: hidden;
   text-align: center; }
 
+/* Hide third-party like widgets injected before the article body. */
+.main-article > .wpulike:first-child,
+.main-article > .wp-ulike:first-child,
+.main-article > .wp_ulike_general_class:first-child,
+.main-article > .likebtn_container:first-child,
+.main-article > .likebtn-wrapper:first-child,
+.main-article > .super-like:first-child,
+.main-article > .superlike:first-child,
+.main-article > .post-like:first-child,
+.main-article > .post-like-wrap:first-child,
+.main-article > .zilla-likes:first-child,
+.main-article > .wp-like-button:first-child,
+.main-article > .simplefavorite-button:first-child {
+  display: none !important; }
+
 p {
   margin: 0 0 var(--theme-margin-bottom) 0;
   font-weight: normal; }
@@ -545,6 +566,8 @@ html {
             font-size: var(--theme-text);
             color: var(--theme-header-font-color);
             white-space: nowrap; }
+            html body .main-header .right .menu .menu-item > a {
+              color: inherit; }
             html body .main-header .right .menu .menu-item:hover > .sub-menu {
               visibility: visible;
               opacity: 1; }
@@ -2259,15 +2282,22 @@ html {
           html body .main-header .right .menu .menu-item-has-children .sub-menu {
             display: none; }
           html body .main-header .right .menu .read-mode {
-            position: absolute !important;
-            display: none;
-            top: 1rem;
-            z-index: 50;
-            right: 12px;
+            position: static !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            top: auto;
+            z-index: auto;
+            right: auto;
             margin-top: 0;
-            height: fit-content;
-            width: fit-content;
-            color: var(--theme-front-color); }
+            height: auto;
+            width: 100%;
+            color: var(--theme-sub-menu-font-color); }
+            html body .main-header .right .menu .read-mode::after {
+              content: "阅读模式";
+              color: inherit;
+              font-size: 1rem; }
             html body .main-header .right .menu .read-mode img {
               width: 1.2rem;
               padding: 0; }

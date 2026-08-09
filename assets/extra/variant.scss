@@ -40,6 +40,12 @@
 
   --theme-header-color: var(--theme-color);
   --theme-header-border: #e1e1e1;
+  --theme-header-bg-color: var(--theme-front-main-color);
+  --theme-header-font-color: var(--theme-text-color);
+  --theme-sub-menu-bg-color: var(--theme-front-main-color);
+  --theme-sub-menu-font-color: var(--theme-text-color);
+  --theme-header-border-color: var(--theme-header-border);
+  --theme-header-shadow-color: transparent;
 
   --theme-hover-bg: #444;
   --theme-hover-color: white;

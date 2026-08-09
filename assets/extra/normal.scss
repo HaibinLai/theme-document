@@ -886,6 +886,10 @@ html {
                 width: 100%;
                 aspect-ratio: 1;
                 background: url("./assets/images/zan.svg") center / contain no-repeat;
+                color: transparent;
+                font-size: 0;
+                line-height: 0;
+                overflow: hidden;
               }
             }
           }

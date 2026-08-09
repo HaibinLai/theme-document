@@ -378,7 +378,8 @@ $(function ($) {
         $('.icp-beian div').click(function () {
             let that = $(this);
             $.post("/?document_nice=" + Current + "&nonce=" + (window.DOCUMENT_NONCE || ""), function () {
-                that.find('span').text(parseInt(that.find('span').text()) + 1);
+                let number = that.find('.number');
+                number.text(parseInt(number.text()) + 1);
             });
         });
     })();

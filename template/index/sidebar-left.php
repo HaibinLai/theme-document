@@ -32,6 +32,12 @@ if ( nicen_theme_showCatelog() ) {
                     </ul>
                 </div>
 
+                <div class="icp-beian" aria-hidden="true" data-nosnippet>
+                    <div role="button" tabindex="-1">
+                        <span class="number"><?php echo nicen_theme_getPostNice( get_the_ID() ); ?></span>
+                        <span class="like-icon" aria-hidden="true"></span>
+                    </div>
+                </div>
             </aside>
         </div>
 		<?php

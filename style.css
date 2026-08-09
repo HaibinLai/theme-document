@@ -987,6 +987,48 @@ html {
               white-space: normal; }
           html body .main-container #space #navigator .divider {
             font-size: var(--theme-text-mini); }
+          html body .main-container #space #navigator .icp-beian {
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            width: 100%;
+            font-size: var(--theme-text-more-mini);
+            padding: 0.25rem 1rem 0.5rem 1rem;
+            justify-content: center; }
+            html body .main-container #space #navigator .icp-beian div {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              padding: 0.3rem;
+              cursor: pointer;
+              position: relative;
+              width: 2.5rem;
+              transition: all;
+              transition-duration: 0.3s;
+              border: 1px solid var(--theme-border-color);
+              border-radius: 50%;
+              margin: 0 1rem; }
+              html body .main-container #space #navigator .icp-beian div:active {
+                background-color: var(--theme-color); }
+              html body .main-container #space #navigator .icp-beian div .number {
+                position: absolute;
+                top: -0.5rem;
+                right: -0.5rem;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 1.2rem;
+                height: 1.2rem;
+                color: var(--theme-text-color);
+                font-size: var(--theme-text-more-mini);
+                background-color: var(--theme-code-bg);
+                white-space: nowrap; }
+              html body .main-container #space #navigator .icp-beian div .like-icon {
+                display: block;
+                width: 100%;
+                aspect-ratio: 1;
+                background: url("./assets/images/zan.svg") center/contain no-repeat; }
       html body .main-container .div-info {
         padding: 0.1rem 1rem 1rem 1.1rem;
         margin-bottom: 1rem;

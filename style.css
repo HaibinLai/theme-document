@@ -693,6 +693,12 @@ html {
       /*
         左边文章导航
       */ }
+      html body .main-container > #space {
+        order: 1; }
+      html body .main-container > .main-main {
+        order: 2; }
+      html body .main-container > #fixed {
+        order: 3; }
       html body .main-container #fixed {
         min-width: 16.6rem;
         padding: 0;

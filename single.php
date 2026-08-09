@@ -18,18 +18,16 @@ if ( post_password_required() ) {
 	get_template_part( './template/index/password' );
 } else {
 	?>
-    <main class="main-container">
-        <!--  侧边目录  -->
-		<?php get_template_part( './template/index/sidebar-left' ); ?>
+    <main class="main-container" id="main-content">
         <!--  文章  -->
         <div class="main-main">
-            <article class="main-content">
+            <article class="main-content" itemscope itemtype="https://schema.org/BlogPosting">
                 <!-- 面包屑导航 -->
 				<?php get_template_part( './template/index/breadcrumb' ); ?>
                 <!-- 文章顶部 -->
 				<?php get_template_part( './template/index/article-header' ); ?>
                 <!--  文章内容  -->
-                <div class="main-article">
+                <div class="main-article" itemprop="articleBody">
 					<?php the_content(); ?>
                 </div>
                 <!-- 文章底部 -->
@@ -46,6 +44,8 @@ if ( post_password_required() ) {
             <!-- 文章评论 -->
 			<?php comments_template(); ?>
         </div>
+        <!--  侧边目录  -->
+		<?php get_template_part( './template/index/sidebar-left' ); ?>
 		<?php get_template_part( './template/index/sidebar-right' ); ?>
     </main>
     <!--角标-->

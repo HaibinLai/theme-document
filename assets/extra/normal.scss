@@ -386,6 +386,18 @@ html {
       position: relative;
       overflow: hidden;
 
+      > #space {
+        order: 1;
+      }
+
+      > .main-main {
+        order: 2;
+      }
+
+      > #fixed {
+        order: 3;
+      }
+
       /*
         右边侧边栏
       */

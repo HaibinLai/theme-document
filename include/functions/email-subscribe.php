@@ -68,8 +68,8 @@ function document_email_subscribe_handle_request() {
 		document_email_subscribe_redirect( $redirect, 'invalid' );
 	}
 
-	if ( trim( (string) wp_unslash( $_POST['website'] ?? '' ) ) !== '' ) {
-		document_email_subscribe_redirect( $redirect, 'pending' );
+	if ( trim( (string) wp_unslash( $_POST['document_email_subscribe_hp'] ?? '' ) ) !== '' ) {
+		document_email_subscribe_redirect( $redirect, 'invalid' );
 	}
 
 	$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
@@ -78,6 +78,8 @@ function document_email_subscribe_handle_request() {
 	if ( ! is_email( $email ) ) {
 		document_email_subscribe_redirect( $redirect, 'invalid' );
 	}
+
+	document_email_subscribe_maybe_create_table();
 
 	global $wpdb;
 	$table = document_email_subscribe_table();
@@ -157,7 +159,7 @@ function document_email_subscribe_render_form() {
                 <input type="hidden" name="action" value="document_email_subscribe">
                 <input type="hidden" name="redirect_to" value="<?php echo esc_url( get_permalink() ); ?>">
 				<?php wp_nonce_field( 'document_email_subscribe', 'document_email_subscribe_nonce' ); ?>
-                <input class="email-subscribe-hp" type="text" name="website" value="" tabindex="-1" autocomplete="off">
+                <input class="email-subscribe-hp" type="text" name="document_email_subscribe_hp" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
                 <input type="text" name="name" placeholder="Name (optional)" autocomplete="name">
                 <input type="email" name="email" placeholder="Email address" autocomplete="email" required>
                 <button type="submit">Subscribe</button>

@@ -2879,14 +2879,15 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe-pa
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe {
   margin: 0;
-  padding: 1.25rem;
+  padding: 1.35rem;
   border: 1px solid var(--theme-border-color);
-  border-radius: 6px;
-  background: var(--theme-pagination-bg);
+  border-radius: 8px;
+  background: var(--theme-front-main-color);
+  box-shadow: 0 12px 32px var(--theme-hover-shadow);
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe h2 {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.35rem;
   color: var(--theme-text-color);
   font-size: var(--theme-secondary-level-title);
   font-weight: 600;
@@ -2894,7 +2895,7 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe h2
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe p {
-  margin: 0 0 1rem;
+  margin: 0 0 1.15rem;
   color: var(--theme-text-secondary);
   font-size: var(--theme-text-mini);
   line-height: 1.75;
@@ -2908,11 +2909,32 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe .e
   color: var(--theme-color);
 }
 
-html body .main-container.email-subscribe-page .main-content .email-subscribe form {
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
-  align-items: center;
+  gap: 0.85rem;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-field span {
+  color: var(--theme-text-secondary);
+  font-size: var(--theme-text-more-mini);
+  font-weight: 600;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-field-full {
+  grid-column: 1 / -1;
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe input,
@@ -2920,11 +2942,12 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe te
   min-width: 0;
   width: 100%;
   border: 1px solid var(--theme-input-border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--theme-front-main-color);
   color: var(--theme-text-color);
-  padding: 0.58rem 0.7rem;
+  padding: 0.68rem 0.78rem;
   font-size: var(--theme-secondary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe input::placeholder,
@@ -2934,8 +2957,7 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe te
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe textarea {
-  grid-column: 1 / -1;
-  min-height: 7rem;
+  min-height: 8.6rem;
   resize: vertical;
   line-height: 1.7;
 }
@@ -2946,24 +2968,39 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe te
 html body .main-container.email-subscribe-page .main-content .email-subscribe textarea:focus {
   outline: none;
   border-color: var(--theme-color);
+  background: var(--theme-front-main-color);
   box-shadow: 0 0 5px 2px var(--theme-color-20);
 }
 
-html body .main-container.email-subscribe-page .main-content .email-subscribe button {
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions span {
+  color: var(--theme-text-secondary);
+  font-size: var(--theme-text-more-mini);
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions button {
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--theme-color);
   color: #fff;
   cursor: pointer;
-  justify-self: start;
-  padding: 0.58rem 1.15rem;
+  padding: 0.66rem 1.35rem;
   font-size: var(--theme-text-mini);
+  font-weight: 600;
   white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-html body .main-container.email-subscribe-page .main-content .email-subscribe button:hover,
-html body .main-container.email-subscribe-page .main-content .email-subscribe button:focus-visible {
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions button:hover,
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions button:focus-visible {
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-hp {
@@ -3001,11 +3038,16 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe-gu
     padding: 1.4rem 1rem;
   }
 
-  html body .main-container.email-subscribe-page .main-content .email-subscribe form {
+  html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-fields {
     grid-template-columns: 1fr;
   }
 
-  html body .main-container.email-subscribe-page .main-content .email-subscribe button {
+  html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions,
+  html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions button {
     width: 100%;
+  }
+
+  html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-actions {
+    align-items: stretch;
   }
 }

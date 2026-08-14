@@ -264,17 +264,31 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
             <?php if ( $message ) { ?>
                 <p class="email-subscribe-message"><?php echo esc_html( $message ); ?></p>
             <?php } ?>
-            <form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+            <form class="email-subscribe-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
                 <input type="hidden" name="action" value="document_email_subscribe">
                 <input type="hidden" name="redirect_to" value="<?php echo esc_url( $redirect_to ); ?>">
                 <input type="hidden" name="document_email_subscribe_started" value="<?php echo esc_attr( $started ); ?>">
                 <input type="hidden" name="document_email_subscribe_signature" value="<?php echo esc_attr( $signature ); ?>">
 				<?php wp_nonce_field( 'document_email_subscribe', 'document_email_subscribe_nonce' ); ?>
                 <input class="email-subscribe-hp" type="text" name="document_email_subscribe_hp" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
-                <input type="text" name="name" placeholder="Who are you? (optional)" autocomplete="name">
-                <input type="email" name="email" placeholder="Email address" autocomplete="email" required>
-                <textarea name="reason" placeholder="A short intro or why you want to subscribe (optional)" rows="5"></textarea>
-                <button type="submit">Subscribe</button>
+                <div class="email-subscribe-fields">
+                    <label class="email-subscribe-field">
+                        <span>Who are you?</span>
+                        <input type="text" name="name" placeholder="Name, lab, or handle" autocomplete="name">
+                    </label>
+                    <label class="email-subscribe-field">
+                        <span>Email address</span>
+                        <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+                    </label>
+                    <label class="email-subscribe-field email-subscribe-field-full">
+                        <span>Why subscribe?</span>
+                        <textarea name="reason" placeholder="A short intro, shared interest, or anything you want me to know." rows="5"></textarea>
+                    </label>
+                </div>
+                <div class="email-subscribe-actions">
+                    <button type="submit">Subscribe</button>
+                    <span>Manual approval keeps the list small and clean.</span>
+                </div>
             </form>
         </div>
     </section>

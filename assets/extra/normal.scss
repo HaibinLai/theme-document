@@ -2717,13 +2717,14 @@ html body .main-container.email-subscribe-page {
 
     .email-subscribe {
       margin: 0;
-      padding: 1.25rem;
+      padding: 1.35rem;
       border: 1px solid var(--theme-border-color);
-      border-radius: 6px;
-      background: var(--theme-pagination-bg);
+      border-radius: 8px;
+      background: var(--theme-front-main-color);
+      box-shadow: 0 12px 32px var(--theme-hover-shadow);
 
       h2 {
-        margin: 0 0 0.45rem;
+        margin: 0 0 0.35rem;
         color: var(--theme-text-color);
         font-size: var(--theme-secondary-level-title);
         font-weight: 600;
@@ -2731,7 +2732,7 @@ html body .main-container.email-subscribe-page {
       }
 
       p {
-        margin: 0 0 1rem;
+        margin: 0 0 1.15rem;
         color: var(--theme-text-secondary);
         font-size: var(--theme-text-mini);
         line-height: 1.75;
@@ -2745,11 +2746,32 @@ html body .main-container.email-subscribe-page {
         color: var(--theme-color);
       }
 
-      form {
+      .email-subscribe-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.95rem;
+      }
+
+      .email-subscribe-fields {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.65rem;
-        align-items: center;
+        gap: 0.85rem;
+      }
+
+      .email-subscribe-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.38rem;
+
+        span {
+          color: var(--theme-text-secondary);
+          font-size: var(--theme-text-more-mini);
+          font-weight: 600;
+        }
+      }
+
+      .email-subscribe-field-full {
+        grid-column: 1 / -1;
       }
 
       input,
@@ -2757,11 +2779,12 @@ html body .main-container.email-subscribe-page {
         min-width: 0;
         width: 100%;
         border: 1px solid var(--theme-input-border-color);
-        border-radius: 4px;
+        border-radius: 6px;
         background: var(--theme-front-main-color);
         color: var(--theme-text-color);
-        padding: 0.58rem 0.7rem;
+        padding: 0.68rem 0.78rem;
         font-size: var(--theme-secondary);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 
         &::placeholder {
           color: var(--theme-placeholder);
@@ -2770,8 +2793,7 @@ html body .main-container.email-subscribe-page {
       }
 
       textarea {
-        grid-column: 1 / -1;
-        min-height: 7rem;
+        min-height: 8.6rem;
         resize: vertical;
         line-height: 1.7;
       }
@@ -2782,24 +2804,39 @@ html body .main-container.email-subscribe-page {
       textarea:focus {
         outline: none;
         border-color: var(--theme-color);
+        background: var(--theme-front-main-color);
         box-shadow: 0 0 5px 2px var(--theme-color-20);
       }
 
-      button {
+      .email-subscribe-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+
+        span {
+          color: var(--theme-text-secondary);
+          font-size: var(--theme-text-more-mini);
+        }
+      }
+
+      .email-subscribe-actions button {
         border: none;
-        border-radius: 4px;
+        border-radius: 6px;
         background: var(--theme-color);
         color: #fff;
         cursor: pointer;
-        justify-self: start;
-        padding: 0.58rem 1.15rem;
+        padding: 0.66rem 1.35rem;
         font-size: var(--theme-text-mini);
+        font-weight: 600;
         white-space: nowrap;
+        transition: opacity 0.2s ease, transform 0.2s ease;
       }
 
-      button:hover,
-      button:focus-visible {
+      .email-subscribe-actions button:hover,
+      .email-subscribe-actions button:focus-visible {
         opacity: 0.9;
+        transform: translateY(-1px);
       }
 
       .email-subscribe-hp {
@@ -2841,12 +2878,17 @@ html body .main-container.email-subscribe-page {
       padding: 1.4rem 1rem;
 
       .email-subscribe {
-        form {
+        .email-subscribe-fields {
           grid-template-columns: 1fr;
         }
 
-        button {
+        .email-subscribe-actions,
+        .email-subscribe-actions button {
           width: 100%;
+        }
+
+        .email-subscribe-actions {
+          align-items: stretch;
         }
       }
     }

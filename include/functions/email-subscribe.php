@@ -259,7 +259,7 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
 	?>
     <section class="email-subscribe">
         <div class="email-subscribe-main">
-            <h2>邮件订阅 / Email Subscription</h2>
+            <h2>订阅申请 / Subscription request</h2>
             <p>新文章发布时收到一封简短提醒。Get a short email when a new post is published.</p>
             <?php if ( $message ) { ?>
                 <p class="email-subscribe-message"><?php echo esc_html( $message ); ?></p>
@@ -297,6 +297,262 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
     </section>
 	<?php
 }
+
+function document_email_subscribe_render_inline_styles() {
+	if ( ! get_query_var( 'document_email_subscribe_page' ) ) {
+		return;
+	}
+	?>
+    <style id="document-email-subscribe-critical-css">
+        html body .main-container.email-subscribe-page {
+            max-width: 860px !important;
+            margin: 0 auto !important;
+            padding: 32px 16px !important;
+        }
+
+        html body .main-container.email-subscribe-page .main-main {
+            width: 100% !important;
+        }
+
+        html body .main-container.email-subscribe-page .main-content {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            padding: 34px 42px 40px !important;
+            border-radius: 8px !important;
+        }
+
+        html body .email-subscribe-page-header {
+            margin: 0 0 24px !important;
+        }
+
+        html body .email-subscribe-page-header .email-subscribe-eyebrow {
+            margin: 0 0 8px !important;
+            color: var(--theme-color) !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            line-height: 1.4 !important;
+        }
+
+        html body .email-subscribe-page-header h1 {
+            margin: 0 0 12px !important;
+            color: var(--theme-text-color) !important;
+            font-size: 30px !important;
+            line-height: 1.25 !important;
+            letter-spacing: 0 !important;
+        }
+
+        html body .email-subscribe-page-header p {
+            max-width: 680px !important;
+            margin: 0 !important;
+            color: var(--theme-text-secondary) !important;
+            font-size: 15px !important;
+            line-height: 1.85 !important;
+        }
+
+        html body .email-subscribe {
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            padding: 22px !important;
+            border: 1px solid var(--theme-border-color) !important;
+            border-radius: 8px !important;
+            background: var(--theme-front-main-color) !important;
+            box-shadow: 0 12px 32px var(--theme-hover-shadow) !important;
+        }
+
+        html body .email-subscribe h2 {
+            margin: 0 0 8px !important;
+            color: var(--theme-text-color) !important;
+            font-size: 20px !important;
+            font-weight: 700 !important;
+            line-height: 1.35 !important;
+            letter-spacing: 0 !important;
+        }
+
+        html body .email-subscribe p {
+            margin: 0 0 18px !important;
+            color: var(--theme-text-secondary) !important;
+            font-size: 13px !important;
+            line-height: 1.75 !important;
+        }
+
+        html body .email-subscribe-message {
+            display: block !important;
+            margin: 0 0 16px !important;
+            padding: 9px 12px !important;
+            border-radius: 6px !important;
+            background: var(--theme-color-10) !important;
+            color: var(--theme-color) !important;
+        }
+
+        html body .email-subscribe-form {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 18px !important;
+        }
+
+        html body .email-subscribe-fields {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            gap: 18px !important;
+            align-items: start !important;
+        }
+
+        html body .email-subscribe-field {
+            display: flex !important;
+            min-width: 0 !important;
+            flex-direction: column !important;
+            gap: 5px !important;
+        }
+
+        html body .email-subscribe-field-full {
+            grid-column: 1 / -1 !important;
+        }
+
+        html body .email-subscribe-field span {
+            display: block !important;
+            color: var(--theme-text-color) !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            line-height: 1.4 !important;
+        }
+
+        html body .email-subscribe-field small {
+            display: block !important;
+            margin: 0 0 4px !important;
+            color: var(--theme-placeholder) !important;
+            font-size: 12px !important;
+            line-height: 1.45 !important;
+        }
+
+        html body .email-subscribe input,
+        html body .email-subscribe textarea {
+            box-sizing: border-box !important;
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            border: 1px solid var(--theme-input-border-color) !important;
+            border-radius: 6px !important;
+            background: var(--theme-front-main-color) !important;
+            color: var(--theme-text-color) !important;
+            padding: 11px 12px !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+
+        html body .email-subscribe textarea {
+            min-height: 150px !important;
+            resize: vertical !important;
+        }
+
+        html body .email-subscribe input::placeholder,
+        html body .email-subscribe textarea::placeholder {
+            color: var(--theme-placeholder) !important;
+            font-size: 14px !important;
+            line-height: 1.7 !important;
+        }
+
+        html body .email-subscribe input:hover,
+        html body .email-subscribe input:focus,
+        html body .email-subscribe textarea:hover,
+        html body .email-subscribe textarea:focus {
+            outline: none !important;
+            border-color: var(--theme-color) !important;
+            box-shadow: 0 0 5px 2px var(--theme-color-20) !important;
+        }
+
+        html body .email-subscribe-hp {
+            position: absolute !important;
+            left: -9999px !important;
+            width: 1px !important;
+            height: 1px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        html body .email-subscribe-actions {
+            display: flex !important;
+            align-items: center !important;
+            gap: 14px !important;
+            flex-wrap: wrap !important;
+        }
+
+        html body .email-subscribe-actions button {
+            border: none !important;
+            border-radius: 6px !important;
+            background: var(--theme-color) !important;
+            color: #fff !important;
+            cursor: pointer !important;
+            padding: 10px 18px !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            line-height: 1.4 !important;
+            white-space: nowrap !important;
+        }
+
+        html body .email-subscribe-actions span {
+            flex: 1 1 260px !important;
+            color: var(--theme-text-secondary) !important;
+            font-size: 12px !important;
+            line-height: 1.65 !important;
+        }
+
+        html body .email-subscribe-guard {
+            margin-top: 20px !important;
+            padding: 14px 16px !important;
+            border-left: 4px solid var(--theme-color) !important;
+            border-radius: 6px !important;
+            background: var(--theme-pagination-bg) !important;
+        }
+
+        html body .email-subscribe-guard h2 {
+            margin: 0 0 8px !important;
+            color: var(--theme-text-color) !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            line-height: 1.45 !important;
+            letter-spacing: 0 !important;
+        }
+
+        html body .email-subscribe-guard p {
+            margin: 0 !important;
+            color: var(--theme-text-secondary) !important;
+            font-size: 13px !important;
+            line-height: 1.8 !important;
+        }
+
+        @media screen and (max-width: 768px) {
+            html body .main-container.email-subscribe-page {
+                padding: 16px 10px !important;
+            }
+
+            html body .main-container.email-subscribe-page .main-content {
+                padding: 24px 16px 30px !important;
+            }
+
+            html body .email-subscribe-page-header h1 {
+                font-size: 24px !important;
+            }
+
+            html body .email-subscribe {
+                padding: 18px !important;
+            }
+
+            html body .email-subscribe-fields {
+                grid-template-columns: 1fr !important;
+            }
+
+            html body .email-subscribe-actions,
+            html body .email-subscribe-actions button {
+                width: 100% !important;
+            }
+        }
+    </style>
+	<?php
+}
+
+add_action( 'wp_head', 'document_email_subscribe_render_inline_styles', 30 );
 
 function document_email_subscribe_render_page() {
 	if ( ! get_query_var( 'document_email_subscribe_page' ) ) {

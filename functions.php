@@ -77,6 +77,7 @@ include_once get_template_directory() . '/include/functions/toys.php';//小玩�
 include_once get_template_directory() . '/include/functions/antispam.php';//评论反垃圾防护
 include_once get_template_directory() . '/include/functions/post-notify.php';//文章邮件通知
 include_once get_template_directory() . '/include/functions/email-subscribe.php';//邮件订阅审核
+include_once get_template_directory() . '/include/functions/slug.php';//中文文章链接转拼音
 
 /*
  * 允许上传 3D 模型文件

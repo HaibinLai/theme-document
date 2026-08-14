@@ -62,8 +62,33 @@ function nicen_theme_post_notify_from_name() {
 	return $name ?: 'Haibin blog';
 }
 
-function nicen_theme_post_notify_should_skip( $post ) {
+function nicen_theme_post_notify_excluded_categories() {
+	return apply_filters( 'nicen_theme_post_notify_excluded_categories', [ 'fragments', 'life-fragments', 'moments', 'moment' ] );
+}
+
+function nicen_theme_post_notify_is_public_article( $post ) {
 	if ( ! $post instanceof WP_Post || $post->post_type !== 'post' || $post->post_status !== 'publish' ) {
+		return false;
+	}
+
+	$status = get_post_status_object( $post->post_status );
+	if ( ! $status || ! $status->public ) {
+		return false;
+	}
+
+	if ( $post->post_password !== '' ) {
+		return false;
+	}
+
+	if ( has_category( nicen_theme_post_notify_excluded_categories(), $post ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+function nicen_theme_post_notify_should_skip( $post ) {
+	if ( ! nicen_theme_post_notify_is_public_article( $post ) ) {
 		return true;
 	}
 

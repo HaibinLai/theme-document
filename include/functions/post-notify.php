@@ -8,6 +8,10 @@ function nicen_theme_post_notify_enabled() {
 	return (int) nicen_theme_config( 'document_post_notify_open', false ) === 1;
 }
 
+function nicen_theme_post_notify_update_enabled() {
+	return (int) nicen_theme_config( 'document_post_notify_update_open', false ) === 1;
+}
+
 function nicen_theme_post_notify_recipients() {
 	$raw = (string) nicen_theme_config( 'document_post_notify_recipients', false );
 	if ( trim( $raw ) === '' ) {
@@ -121,6 +125,10 @@ function nicen_theme_post_notify_on_status_change( $new_status, $old_status, $po
 }
 
 function nicen_theme_post_notify_on_update( $post_id, $post_after, $post_before ) {
+	if ( ! nicen_theme_post_notify_update_enabled() ) {
+		return;
+	}
+
 	if ( $post_before->post_status !== 'publish' || $post_after->post_status !== 'publish' ) {
 		return;
 	}

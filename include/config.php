@@ -326,10 +326,18 @@ const ADMIN = [
 					],
 					[
 						'id'       => 'document_post_notify_open',
-						'title'    => '发布/更新文章时发送邮件',
+						'title'    => '发布新文章时发送邮件',
 						'callback' => 'nicen_theme_form_switch',
 						'args'     => [
 							'tip' => '仅对正式发布的文章生效，自动保存和修订版不会发送。'
+						]
+					],
+					[
+						'id'       => 'document_post_notify_update_open',
+						'title'    => '更新已发布文章时也发送邮件',
+						'callback' => 'nicen_theme_form_switch',
+						'args'     => [
+							'tip' => '默认关闭，避免小修改频繁打扰收件人。'
 						]
 					],
 					[
@@ -854,7 +862,9 @@ define( "CONFIG", [
 	"document_smtp_password" => '',
 	//邮件密码
 	"document_post_notify_open"       => 0,
-	//文章发布/更新邮件通知
+	//文章发布邮件通知
+	"document_post_notify_update_open" => 0,
+	//文章更新邮件通知
 	"document_post_notify_recipients" => '',
 	//文章通知收件人
 	"document_post_notify_from_email" => '12211612@mail.sustech.edu.cn',

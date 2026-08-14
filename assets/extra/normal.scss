@@ -2752,7 +2752,8 @@ html body .main-container.email-subscribe-page {
         align-items: center;
       }
 
-      input {
+      input,
+      textarea {
         min-width: 0;
         width: 100%;
         border: 1px solid var(--theme-input-border-color);
@@ -2768,8 +2769,17 @@ html body .main-container.email-subscribe-page {
         }
       }
 
+      textarea {
+        grid-column: 1 / -1;
+        min-height: 7rem;
+        resize: vertical;
+        line-height: 1.7;
+      }
+
       input:hover,
-      input:focus {
+      input:focus,
+      textarea:hover,
+      textarea:focus {
         outline: none;
         border-color: var(--theme-color);
         box-shadow: 0 0 5px 2px var(--theme-color-20);

@@ -10,6 +10,10 @@ function document_email_subscribe_table() {
 	return $wpdb->prefix . 'document_email_subscribers';
 }
 
+function document_email_subscribe_schema_version() {
+	return '20260815_reason';
+}
+
 function document_email_subscribe_create_table() {
 	global $wpdb;
 
@@ -20,6 +24,7 @@ function document_email_subscribe_create_table() {
 		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		email varchar(190) NOT NULL,
 		name varchar(120) DEFAULT '',
+		reason text,
 		status varchar(20) NOT NULL DEFAULT 'pending',
 		ip varchar(45) DEFAULT '',
 		user_agent varchar(255) DEFAULT '',
@@ -35,13 +40,15 @@ function document_email_subscribe_create_table() {
 
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	dbDelta( $sql );
+	update_option( 'document_email_subscribe_schema_version', document_email_subscribe_schema_version() );
 }
 
 function document_email_subscribe_maybe_create_table() {
 	global $wpdb;
 
 	$table = document_email_subscribe_table();
-	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+	$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
+	if ( ! $exists || get_option( 'document_email_subscribe_schema_version' ) !== document_email_subscribe_schema_version() ) {
 		document_email_subscribe_create_table();
 	}
 }
@@ -159,8 +166,9 @@ function document_email_subscribe_handle_request() {
 		document_email_subscribe_redirect( $redirect, 'invalid' );
 	}
 
-	$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
-	$name  = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
+	$email  = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+	$name   = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
+	$reason = sanitize_textarea_field( wp_unslash( $_POST['reason'] ?? '' ) );
 
 	if ( ! is_email( $email ) ) {
 		document_email_subscribe_redirect( $redirect, 'invalid' );
@@ -188,13 +196,14 @@ function document_email_subscribe_handle_request() {
 			$table,
 			[
 				'name'       => $name,
+				'reason'     => $reason,
 				'status'     => 'pending',
 				'ip'         => $ip,
 				'user_agent' => $agent,
 				'updated_at' => $now,
 			],
 			[ 'id' => (int) $existing->id ],
-			[ '%s', '%s', '%s', '%s', '%s' ],
+			[ '%s', '%s', '%s', '%s', '%s', '%s' ],
 			[ '%d' ]
 		);
 	} else {
@@ -203,13 +212,14 @@ function document_email_subscribe_handle_request() {
 			[
 				'email'      => $email,
 				'name'       => $name,
+				'reason'     => $reason,
 				'status'     => 'pending',
 				'ip'         => $ip,
 				'user_agent' => $agent,
 				'created_at' => $now,
 				'updated_at' => $now,
 			],
-			[ '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+			[ '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
 		);
 	}
 
@@ -261,8 +271,9 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
                 <input type="hidden" name="document_email_subscribe_signature" value="<?php echo esc_attr( $signature ); ?>">
 				<?php wp_nonce_field( 'document_email_subscribe', 'document_email_subscribe_nonce' ); ?>
                 <input class="email-subscribe-hp" type="text" name="document_email_subscribe_hp" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
-                <input type="text" name="name" placeholder="Name (optional)" autocomplete="name">
+                <input type="text" name="name" placeholder="Who are you? (optional)" autocomplete="name">
                 <input type="email" name="email" placeholder="Email address" autocomplete="email" required>
+                <textarea name="reason" placeholder="A short intro or why you want to subscribe (optional)" rows="5"></textarea>
                 <button type="submit">Subscribe</button>
             </form>
         </div>
@@ -427,6 +438,7 @@ function document_email_subscribe_admin_page() {
             <tr>
                 <th>邮箱</th>
                 <th>名称</th>
+                <th>申请理由</th>
                 <th>状态</th>
                 <th>IP</th>
                 <th>申请时间</th>
@@ -435,12 +447,13 @@ function document_email_subscribe_admin_page() {
             </thead>
             <tbody>
 			<?php if ( empty( $items ) ) { ?>
-                <tr><td colspan="6">暂无订阅申请。</td></tr>
+                <tr><td colspan="7">暂无订阅申请。</td></tr>
 			<?php } ?>
 			<?php foreach ( $items as $item ) { ?>
                 <tr>
                     <td><?php echo esc_html( $item->email ); ?></td>
                     <td><?php echo esc_html( $item->name ); ?></td>
+                    <td style="max-width:280px;white-space:pre-wrap;"><?php echo esc_html( $item->reason ?? '' ); ?></td>
                     <td><?php echo esc_html( $item->status ); ?></td>
                     <td><?php echo esc_html( $item->ip ); ?></td>
                     <td><?php echo esc_html( $item->created_at ); ?></td>

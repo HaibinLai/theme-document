@@ -2915,7 +2915,8 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe fo
   align-items: center;
 }
 
-html body .main-container.email-subscribe-page .main-content .email-subscribe input {
+html body .main-container.email-subscribe-page .main-content .email-subscribe input,
+html body .main-container.email-subscribe-page .main-content .email-subscribe textarea {
   min-width: 0;
   width: 100%;
   border: 1px solid var(--theme-input-border-color);
@@ -2926,13 +2927,23 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe in
   font-size: var(--theme-secondary);
 }
 
-html body .main-container.email-subscribe-page .main-content .email-subscribe input::placeholder {
+html body .main-container.email-subscribe-page .main-content .email-subscribe input::placeholder,
+html body .main-container.email-subscribe-page .main-content .email-subscribe textarea::placeholder {
   color: var(--theme-placeholder);
   font-size: var(--theme-secondary);
 }
 
+html body .main-container.email-subscribe-page .main-content .email-subscribe textarea {
+  grid-column: 1 / -1;
+  min-height: 7rem;
+  resize: vertical;
+  line-height: 1.7;
+}
+
 html body .main-container.email-subscribe-page .main-content .email-subscribe input:hover,
-html body .main-container.email-subscribe-page .main-content .email-subscribe input:focus {
+html body .main-container.email-subscribe-page .main-content .email-subscribe input:focus,
+html body .main-container.email-subscribe-page .main-content .email-subscribe textarea:hover,
+html body .main-container.email-subscribe-page .main-content .email-subscribe textarea:focus {
   outline: none;
   border-color: var(--theme-color);
   box-shadow: 0 0 5px 2px var(--theme-color-20);

@@ -2761,12 +2761,19 @@ html body .main-container.email-subscribe-page {
       .email-subscribe-field {
         display: flex;
         flex-direction: column;
-        gap: 0.38rem;
+        gap: 0.28rem;
 
         span {
           color: var(--theme-text-secondary);
           font-size: var(--theme-text-more-mini);
           font-weight: 600;
+        }
+
+        small {
+          margin-bottom: 0.1rem;
+          color: var(--theme-placeholder);
+          font-size: var(--theme-text-more-mini);
+          line-height: 1.5;
         }
       }
 

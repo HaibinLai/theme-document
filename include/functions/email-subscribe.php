@@ -259,8 +259,8 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
 	?>
     <section class="email-subscribe">
         <div class="email-subscribe-main">
-            <h2>Subscribe by email</h2>
-            <p>Get a short email when a new post is published. Every subscription is approved manually.</p>
+            <h2>邮件订阅 / Email Subscription</h2>
+            <p>新文章发布时收到一封简短提醒。Get a short email when a new post is published.</p>
             <?php if ( $message ) { ?>
                 <p class="email-subscribe-message"><?php echo esc_html( $message ); ?></p>
             <?php } ?>
@@ -273,21 +273,24 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
                 <input class="email-subscribe-hp" type="text" name="document_email_subscribe_hp" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
                 <div class="email-subscribe-fields">
                     <label class="email-subscribe-field">
-                        <span>Who are you?</span>
-                        <input type="text" name="name" placeholder="Name, lab, or handle" autocomplete="name">
+                        <span>你是谁？</span>
+                        <small>Who are you?</small>
+                        <input type="text" name="name" placeholder="姓名、实验室、学校或昵称 / Name, lab, school, or handle" autocomplete="name">
                     </label>
                     <label class="email-subscribe-field">
-                        <span>Email address</span>
+                        <span>邮箱地址</span>
+                        <small>Email address</small>
                         <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
                     </label>
                     <label class="email-subscribe-field email-subscribe-field-full">
-                        <span>Why subscribe?</span>
-                        <textarea name="reason" placeholder="A short intro, shared interest, or anything you want me to know." rows="5"></textarea>
+                        <span>申请理由</span>
+                        <small>Why do you want to subscribe?</small>
+                        <textarea name="reason" placeholder="简单介绍一下你是谁、共同兴趣，或任何想让我知道的事 / A short intro, shared interest, or anything you want me to know." rows="5"></textarea>
                     </label>
                 </div>
                 <div class="email-subscribe-actions">
-                    <button type="submit">Subscribe</button>
-                    <span>Manual approval keeps the list small and clean.</span>
+                    <button type="submit">提交订阅 / Subscribe</button>
+                    <span>我会人工审核订阅申请，让邮件列表保持小而干净。Manual approval keeps the list small and clean.</span>
                 </div>
             </form>
         </div>
@@ -309,13 +312,13 @@ function document_email_subscribe_render_page() {
             <article class="main-content">
                 <header class="email-subscribe-page-header">
                     <p class="email-subscribe-eyebrow"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></p>
-                    <h1>Email Subscription</h1>
-                    <p>Leave your email here if you want new-post reminders. I review each request before it joins the mailing list.</p>
+                    <h1>邮件订阅 / Email Subscription</h1>
+                    <p>如果你想收到新文章提醒，可以在这里留下邮箱。我会先审核每一条申请，再加入邮件列表。Leave your email here if you want new-post reminders. I review each request before it joins the mailing list.</p>
                 </header>
 				<?php document_email_subscribe_render_form( document_email_subscribe_url() ); ?>
                 <section class="email-subscribe-guard">
-                    <h2>How this is protected</h2>
-                    <p>Requests use WordPress nonces, a hidden honeypot field, a signed time check, IP/email rate limits, and manual approval in the dashboard.</p>
+                    <h2>防护方式 / How this is protected</h2>
+                    <p>订阅申请会经过 WordPress nonce、隐藏蜜罐字段、时间签名、IP/邮箱频率限制和后台人工批准。Requests use WordPress nonces, a hidden honeypot field, a signed time check, IP/email rate limits, and manual approval in the dashboard.</p>
                 </section>
             </article>
         </div>

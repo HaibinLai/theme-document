@@ -2839,7 +2839,7 @@ html body .main-container .main-main .main-content .main-article details a:hover
 }
 
 html body .main-container.email-subscribe-page {
-  max-width: 880px;
+  max-width: 820px;
   margin: 0 auto;
 }
 
@@ -2848,15 +2848,15 @@ html body .main-container.email-subscribe-page .main-main {
 }
 
 html body .main-container.email-subscribe-page .main-content {
-  padding: 2.4rem 2rem;
+  padding: 2.3rem 2.2rem;
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe-page-header {
-  margin-bottom: 1.6rem;
+  margin-bottom: 1.7rem;
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe-page-header .email-subscribe-eyebrow {
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.45rem;
   color: var(--theme-color);
   font-size: var(--theme-text-mini);
   font-weight: 600;
@@ -2877,11 +2877,12 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe-pa
   line-height: 1.8;
 }
 
-html body .main-container.email-subscribe-page .main-content .email-subscribe,
-html body .main-container.email-subscribe-page .main-content .email-subscribe-guard {
-  border-top: 1px solid var(--theme-border-color);
-  padding-top: 1.4rem;
-  margin-top: 1.4rem;
+html body .main-container.email-subscribe-page .main-content .email-subscribe {
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--theme-border-color);
+  border-radius: 6px;
+  background: var(--theme-pagination-bg);
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe h2 {
@@ -2895,7 +2896,7 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe h2
 html body .main-container.email-subscribe-page .main-content .email-subscribe p {
   margin: 0 0 1rem;
   color: var(--theme-text-secondary);
-  font-size: var(--theme-secondary);
+  font-size: var(--theme-text-mini);
   line-height: 1.75;
 }
 
@@ -2909,7 +2910,7 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe .e
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe form {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr;
   gap: 0.65rem;
   align-items: center;
 }
@@ -2921,10 +2922,16 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe in
   border-radius: 4px;
   background: var(--theme-front-main-color);
   color: var(--theme-text-color);
-  padding: 0.52rem 0.65rem;
-  font-size: var(--theme-text-mini);
+  padding: 0.58rem 0.7rem;
+  font-size: var(--theme-secondary);
 }
 
+html body .main-container.email-subscribe-page .main-content .email-subscribe input::placeholder {
+  color: var(--theme-placeholder);
+  font-size: var(--theme-secondary);
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe input:hover,
 html body .main-container.email-subscribe-page .main-content .email-subscribe input:focus {
   outline: none;
   border-color: var(--theme-color);
@@ -2937,7 +2944,8 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe bu
   background: var(--theme-color);
   color: #fff;
   cursor: pointer;
-  padding: 0.55rem 1rem;
+  justify-self: start;
+  padding: 0.58rem 1.15rem;
   font-size: var(--theme-text-mini);
   white-space: nowrap;
 }
@@ -2952,6 +2960,14 @@ html body .main-container.email-subscribe-page .main-content .email-subscribe .e
   left: -9999px;
   width: 1px;
   height: 1px;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe-guard {
+  margin-top: 1.2rem;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid var(--theme-color);
+  border-radius: 4px;
+  background: var(--theme-pagination-bg);
 }
 
 html body .main-container.email-subscribe-page .main-content .email-subscribe-guard h2 {

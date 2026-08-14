@@ -54,6 +54,14 @@ function nicen_theme_post_notify_from_email() {
 	return get_option( 'admin_email' );
 }
 
+function nicen_theme_post_notify_from_name() {
+	$name = html_entity_decode( wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ), ENT_QUOTES, get_bloginfo( 'charset' ) );
+	$name = preg_replace( "/[’']s\\b/u", '', $name );
+	$name = trim( preg_replace( '/\s+/', ' ', $name ) );
+
+	return $name ?: 'Haibin blog';
+}
+
 function nicen_theme_post_notify_should_skip( $post ) {
 	if ( ! $post instanceof WP_Post || $post->post_type !== 'post' || $post->post_status !== 'publish' ) {
 		return true;
@@ -101,7 +109,7 @@ function nicen_theme_post_notify_send( $post_id, $type = 'updated' ) {
 		return;
 	}
 
-	$blog_name = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$blog_name = nicen_theme_post_notify_from_name();
 	$title     = wp_specialchars_decode( get_the_title( $post ), ENT_QUOTES );
 	$url       = get_permalink( $post );
 	$label     = $type === 'published' ? 'New post' : 'Post updated';

@@ -1488,48 +1488,6 @@ html {
                 padding: 2px 0.81rem;
                 border-radius: 5px;
                 font-size: var(--theme-text-mini); }
-              html body .main-container .main-main .main-content footer .article-footer .email-subscribe {
-                margin: 1.2rem 0 0;
-                padding: 1rem;
-                border: 1px solid var(--theme-border-color);
-                border-radius: 6px;
-                background: var(--theme-pagination-bg); }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe h2 {
-                  margin: 0 0 0.35rem;
-                  font-size: var(--theme-secondary-level-title);
-                  font-weight: 550; }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe p {
-                  margin: 0 0 0.7rem;
-                  color: var(--theme-text-secondary);
-                  font-size: var(--theme-text-mini); }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe .email-subscribe-message {
-                  color: var(--theme-color); }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe form {
-                  display: flex;
-                  gap: 0.5rem;
-                  flex-wrap: wrap; }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe input {
-                  min-width: 12rem;
-                  flex: 1 1 12rem;
-                  border: 1px solid var(--theme-input-border-color);
-                  border-radius: 4px;
-                  background: var(--theme-front-main-color);
-                  padding: 0.35rem 0.5rem;
-                  font-size: var(--theme-text-mini); }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe input:focus {
-                  outline: none;
-                  border-color: var(--theme-color);
-                  box-shadow: 0 0 5px 2px var(--theme-color-20); }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe button {
-                  border: none;
-                  border-radius: 4px;
-                  background: var(--theme-color);
-                  color: #fff;
-                  cursor: pointer;
-                  padding: 0.35rem 0.9rem;
-                  font-size: var(--theme-text-mini); }
-                html body .main-container .main-main .main-content footer .article-footer .email-subscribe .email-subscribe-hp {
-                  display: none; }
               html body .main-container .main-main .main-content footer .article-footer .label {
                 display: block;
                 margin: 1.2rem 0 0.3rem 0;
@@ -2878,4 +2836,149 @@ html body .main-container .main-main .main-content .main-article details a:hover
 
 .img-compare-active .img-compare-handle-circle span {
   color: white;
+}
+
+html body .main-container.email-subscribe-page {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+html body .main-container.email-subscribe-page .main-main {
+  width: 100%;
+}
+
+html body .main-container.email-subscribe-page .main-content {
+  padding: 2.4rem 2rem;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe-page-header {
+  margin-bottom: 1.6rem;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe-page-header .email-subscribe-eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--theme-color);
+  font-size: var(--theme-text-mini);
+  font-weight: 600;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe-page-header h1 {
+  margin: 0 0 0.6rem;
+  color: var(--theme-text-color);
+  font-size: var(--theme-big-title);
+  letter-spacing: 0;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe-page-header p {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--theme-text-secondary);
+  font-size: var(--theme-secondary);
+  line-height: 1.8;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe,
+html body .main-container.email-subscribe-page .main-content .email-subscribe-guard {
+  border-top: 1px solid var(--theme-border-color);
+  padding-top: 1.4rem;
+  margin-top: 1.4rem;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe h2 {
+  margin: 0 0 0.45rem;
+  color: var(--theme-text-color);
+  font-size: var(--theme-secondary-level-title);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe p {
+  margin: 0 0 1rem;
+  color: var(--theme-text-secondary);
+  font-size: var(--theme-secondary);
+  line-height: 1.75;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-message {
+  display: inline-block;
+  padding: 0.45rem 0.7rem;
+  border-radius: 4px;
+  background: var(--theme-color-10);
+  color: var(--theme-color);
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--theme-input-border-color);
+  border-radius: 4px;
+  background: var(--theme-front-main-color);
+  color: var(--theme-text-color);
+  padding: 0.52rem 0.65rem;
+  font-size: var(--theme-text-mini);
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe input:focus {
+  outline: none;
+  border-color: var(--theme-color);
+  box-shadow: 0 0 5px 2px var(--theme-color-20);
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe button {
+  border: none;
+  border-radius: 4px;
+  background: var(--theme-color);
+  color: #fff;
+  cursor: pointer;
+  padding: 0.55rem 1rem;
+  font-size: var(--theme-text-mini);
+  white-space: nowrap;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe button:hover,
+html body .main-container.email-subscribe-page .main-content .email-subscribe button:focus-visible {
+  opacity: 0.9;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe .email-subscribe-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe-guard h2 {
+  margin: 0 0 0.4rem;
+  color: var(--theme-text-color);
+  font-size: var(--theme-text);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+html body .main-container.email-subscribe-page .main-content .email-subscribe-guard p {
+  margin: 0;
+  color: var(--theme-text-secondary);
+  font-size: var(--theme-text-mini);
+  line-height: 1.8;
+}
+
+@media screen and (max-width: 768px) {
+  html body .main-container.email-subscribe-page .main-content {
+    padding: 1.4rem 1rem;
+  }
+
+  html body .main-container.email-subscribe-page .main-content .email-subscribe form {
+    grid-template-columns: 1fr;
+  }
+
+  html body .main-container.email-subscribe-page .main-content .email-subscribe button {
+    width: 100%;
+  }
 }

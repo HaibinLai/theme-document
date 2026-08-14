@@ -22,10 +22,20 @@ $previous = get_previous_post();//上一篇
             </div>
 		<?php } ?>
         <!--赞赏-->
-		<?php if ( nicen_theme_config( "document_show_donate", false ) ) { ?>
+		<?php
+		$show_subscribe_link = function_exists( 'document_email_subscribe_enabled' ) && document_email_subscribe_enabled() && function_exists( 'document_email_subscribe_url' );
+		if ( nicen_theme_config( "document_show_donate", false ) || $show_subscribe_link ) { ?>
+			<?php
+			$donate_url   = nicen_theme_config( 'document_donate_url', false );
+			$donate_label = 'See my github';
+			if ( $show_subscribe_link ) {
+				$donate_url   = document_email_subscribe_url();
+				$donate_label = 'Subscribe by email';
+			}
+			?>
             <div class="donate">
-                <a href="<?php nicen_theme_config( 'document_donate_url' ); ?>">
-                    <button>See my github</button>
+                <a href="<?php echo esc_url( $donate_url ); ?>">
+                    <button><?php echo esc_html( $donate_label ); ?></button>
                 </a>
             </div>
 		<?php } ?>
@@ -58,12 +68,6 @@ $previous = get_previous_post();//上一篇
                 </section>
 			<?php }
 		} ?>
-        <!--邮件订阅-->
-		<?php
-		if ( function_exists( 'document_email_subscribe_render_form' ) ) {
-			document_email_subscribe_render_form();
-		}
-		?>
         <!--标签-->
         <div class="label">
             <i class="iconfont icon-biaoqian"></i>

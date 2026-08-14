@@ -53,9 +53,90 @@ function document_email_subscribe_enabled() {
 	return (int) nicen_theme_config( 'document_email_subscribe_open', false ) === 1;
 }
 
+function document_email_subscribe_slug() {
+	return 'subscribe';
+}
+
+function document_email_subscribe_url() {
+	return home_url( '/' . document_email_subscribe_slug() . '/' );
+}
+
+function document_email_subscribe_add_rewrite_rule() {
+	add_rewrite_rule( '^' . document_email_subscribe_slug() . '/?$', 'index.php?document_email_subscribe_page=1', 'top' );
+}
+
+function document_email_subscribe_query_vars( $vars ) {
+	$vars[] = 'document_email_subscribe_page';
+
+	return $vars;
+}
+
+function document_email_subscribe_maybe_flush_rewrite() {
+	$version = '20260815';
+	if ( get_option( 'document_email_subscribe_rewrite_version' ) === $version ) {
+		return;
+	}
+
+	document_email_subscribe_add_rewrite_rule();
+	flush_rewrite_rules( false );
+	update_option( 'document_email_subscribe_rewrite_version', $version );
+}
+
+add_action( 'init', 'document_email_subscribe_add_rewrite_rule' );
+add_action( 'init', 'document_email_subscribe_maybe_flush_rewrite', 20 );
+add_filter( 'query_vars', 'document_email_subscribe_query_vars' );
+
 function document_email_subscribe_redirect( $url, $status ) {
-	wp_safe_redirect( add_query_arg( 'document_subscribe', $status, $url ?: home_url( '/' ) ) );
+	wp_safe_redirect( add_query_arg( 'document_subscribe', $status, $url ?: document_email_subscribe_url() ) );
 	exit;
+}
+
+function document_email_subscribe_form_signature( $timestamp ) {
+	return wp_hash( absint( $timestamp ) . '|document_email_subscribe' );
+}
+
+function document_email_subscribe_verify_form_signature( $timestamp, $signature ) {
+	$timestamp = absint( $timestamp );
+	if ( ! $timestamp || ! $signature ) {
+		return false;
+	}
+
+	$expected = document_email_subscribe_form_signature( $timestamp );
+	if ( ! hash_equals( $expected, $signature ) ) {
+		return false;
+	}
+
+	$age = time() - $timestamp;
+
+	return $age >= 2 && $age <= HOUR_IN_SECONDS;
+}
+
+function document_email_subscribe_is_rate_limited( $email, $ip ) {
+	if ( get_transient( 'document_email_subscribe_ip_' . md5( $ip ) ) ) {
+		return true;
+	}
+
+	if ( get_transient( 'document_email_subscribe_email_' . md5( strtolower( $email ) ) ) ) {
+		return true;
+	}
+
+	global $wpdb;
+	$table   = document_email_subscribe_table();
+	$day_ago = date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - DAY_IN_SECONDS );
+	$pending = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM $table WHERE ip = %s AND status = 'pending' AND created_at >= %s",
+			$ip,
+			$day_ago
+		)
+	);
+
+	return $pending >= 5;
+}
+
+function document_email_subscribe_mark_rate_limit( $email, $ip ) {
+	set_transient( 'document_email_subscribe_ip_' . md5( $ip ), 1, 10 * MINUTE_IN_SECONDS );
+	set_transient( 'document_email_subscribe_email_' . md5( strtolower( $email ) ), 1, HOUR_IN_SECONDS );
 }
 
 function document_email_subscribe_handle_request() {
@@ -69,6 +150,12 @@ function document_email_subscribe_handle_request() {
 	}
 
 	if ( trim( (string) wp_unslash( $_POST['document_email_subscribe_hp'] ?? '' ) ) !== '' ) {
+		document_email_subscribe_redirect( $redirect, 'invalid' );
+	}
+
+	$started   = absint( $_POST['document_email_subscribe_started'] ?? 0 );
+	$signature = sanitize_text_field( wp_unslash( $_POST['document_email_subscribe_signature'] ?? '' ) );
+	if ( ! document_email_subscribe_verify_form_signature( $started, $signature ) ) {
 		document_email_subscribe_redirect( $redirect, 'invalid' );
 	}
 
@@ -86,6 +173,10 @@ function document_email_subscribe_handle_request() {
 	$now   = current_time( 'mysql' );
 	$ip    = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) );
 	$agent = substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ), 0, 255 );
+
+	if ( document_email_subscribe_is_rate_limited( $email, $ip ) ) {
+		document_email_subscribe_redirect( $redirect, 'limited' );
+	}
 
 	$existing = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM $table WHERE email = %s", $email ) );
 	if ( $existing && $existing->status === 'approved' ) {
@@ -122,6 +213,10 @@ function document_email_subscribe_handle_request() {
 		);
 	}
 
+	if ( $ok !== false ) {
+		document_email_subscribe_mark_rate_limit( $email, $ip );
+	}
+
 	document_email_subscribe_redirect( $redirect, $ok === false ? 'error' : 'pending' );
 }
 
@@ -134,6 +229,7 @@ function document_email_subscribe_status_message() {
 		'pending' => '订阅申请已提交，等待站长批准。',
 		'already' => '这个邮箱已经在订阅列表中。',
 		'invalid' => '订阅失败，请检查邮箱地址后再试。',
+		'limited' => '提交太频繁，请稍后再试。',
 		'closed' => '订阅入口暂时关闭。',
 		'error' => '订阅失败，请稍后再试。',
 	];
@@ -141,23 +237,28 @@ function document_email_subscribe_status_message() {
 	return $messages[ $status ] ?? '';
 }
 
-function document_email_subscribe_render_form() {
+function document_email_subscribe_render_form( $redirect_to = '' ) {
 	if ( ! document_email_subscribe_enabled() ) {
 		return;
 	}
 
-	$message = document_email_subscribe_status_message();
+	$message     = document_email_subscribe_status_message();
+	$redirect_to = $redirect_to ?: document_email_subscribe_url();
+	$started     = time();
+	$signature   = document_email_subscribe_form_signature( $started );
 	?>
     <section class="email-subscribe">
         <div class="email-subscribe-main">
             <h2>Subscribe by email</h2>
-            <p>Get an email when a new post is published. Subscriptions are approved manually.</p>
+            <p>Get a short email when a new post is published. Every subscription is approved manually.</p>
             <?php if ( $message ) { ?>
                 <p class="email-subscribe-message"><?php echo esc_html( $message ); ?></p>
             <?php } ?>
             <form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
                 <input type="hidden" name="action" value="document_email_subscribe">
-                <input type="hidden" name="redirect_to" value="<?php echo esc_url( get_permalink() ); ?>">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_url( $redirect_to ); ?>">
+                <input type="hidden" name="document_email_subscribe_started" value="<?php echo esc_attr( $started ); ?>">
+                <input type="hidden" name="document_email_subscribe_signature" value="<?php echo esc_attr( $signature ); ?>">
 				<?php wp_nonce_field( 'document_email_subscribe', 'document_email_subscribe_nonce' ); ?>
                 <input class="email-subscribe-hp" type="text" name="document_email_subscribe_hp" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
                 <input type="text" name="name" placeholder="Name (optional)" autocomplete="name">
@@ -168,6 +269,38 @@ function document_email_subscribe_render_form() {
     </section>
 	<?php
 }
+
+function document_email_subscribe_render_page() {
+	if ( ! get_query_var( 'document_email_subscribe_page' ) ) {
+		return;
+	}
+
+	status_header( 200 );
+	nocache_headers();
+	get_header();
+	?>
+    <main class="main-container email-subscribe-page" role="main">
+        <div class="main-main">
+            <article class="main-content">
+                <header class="email-subscribe-page-header">
+                    <p class="email-subscribe-eyebrow"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></p>
+                    <h1>Email Subscription</h1>
+                    <p>Leave your email here if you want new-post reminders. I review each request before it joins the mailing list.</p>
+                </header>
+				<?php document_email_subscribe_render_form( document_email_subscribe_url() ); ?>
+                <section class="email-subscribe-guard">
+                    <h2>How this is protected</h2>
+                    <p>Requests use WordPress nonces, a hidden honeypot field, a signed time check, IP/email rate limits, and manual approval in the dashboard.</p>
+                </section>
+            </article>
+        </div>
+    </main>
+	<?php
+	get_footer();
+	exit;
+}
+
+add_action( 'template_redirect', 'document_email_subscribe_render_page' );
 
 function document_email_subscribe_approved_emails() {
 	global $wpdb;

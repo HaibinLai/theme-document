@@ -4,12 +4,21 @@
  * 文章发布/更新邮件通知
  */
 
+function nicen_theme_post_notify_mode() {
+	$mode = (string) nicen_theme_config( 'document_post_notify_mode', false );
+	if ( in_array( $mode, [ 'off', 'publish', 'publish_update' ], true ) ) {
+		return $mode;
+	}
+
+	return 'off';
+}
+
 function nicen_theme_post_notify_enabled() {
-	return (int) nicen_theme_config( 'document_post_notify_open', false ) === 1;
+	return nicen_theme_post_notify_mode() !== 'off';
 }
 
 function nicen_theme_post_notify_update_enabled() {
-	return (int) nicen_theme_config( 'document_post_notify_update_open', false ) === 1;
+	return nicen_theme_post_notify_mode() === 'publish_update';
 }
 
 function nicen_theme_post_notify_recipients() {

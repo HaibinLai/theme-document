@@ -20,7 +20,8 @@ function nicen_theme_mail_smtp( $phpmailer ) {
 		$phpmailer->Host       = $desination_configs['document_smtp_server'];
 		$phpmailer->Username   = $desination_configs['document_smtp_acccount'];
 		$phpmailer->Password   = $desination_configs['document_smtp_password'];
-		$phpmailer->setFrom( $desination_configs['document_smtp_acccount'], get_option( 'blogname' ) );
+		$from_email            = function_exists( 'nicen_theme_post_notify_from_email' ) ? nicen_theme_post_notify_from_email() : $desination_configs['document_smtp_acccount'];
+		$phpmailer->setFrom( $from_email, get_option( 'blogname' ) );
 	}
 
 }

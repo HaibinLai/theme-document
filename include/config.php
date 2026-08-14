@@ -318,6 +318,36 @@ const ADMIN = [
 						'title'    => '账号密码',
 						'callback' => 'nicen_theme_form_password',
 					],
+					[
+						'id'       => 'H1_title',
+						'title'    => '文章通知',
+						'callback' => 'nicen_theme_form_title',
+						'args'     => []
+					],
+					[
+						'id'       => 'document_post_notify_open',
+						'title'    => '发布/更新文章时发送邮件',
+						'callback' => 'nicen_theme_form_switch',
+						'args'     => [
+							'tip' => '仅对正式发布的文章生效，自动保存和修订版不会发送。'
+						]
+					],
+					[
+						'id'       => 'document_post_notify_recipients',
+						'title'    => '文章通知收件人',
+						'callback' => 'nicen_theme_form_textarea',
+						'args'     => [
+							'tip' => '多个邮箱可以用换行、逗号或分号分隔。'
+						]
+					],
+					[
+						'id'       => 'document_post_notify_from_email',
+						'title'    => '文章通知发件邮箱',
+						'callback' => 'nicen_theme_form_input',
+						'args'     => [
+							'tip' => '建议与 SMTP 邮件账号保持一致，否则部分邮箱服务可能拒收。'
+						]
+					],
 				]
 			],
 			[
@@ -823,6 +853,12 @@ define( "CONFIG", [
 	//邮件账户
 	"document_smtp_password" => '',
 	//邮件密码
+	"document_post_notify_open"       => 0,
+	//文章发布/更新邮件通知
+	"document_post_notify_recipients" => '',
+	//文章通知收件人
+	"document_post_notify_from_email" => '12211612@mail.sustech.edu.cn',
+	//文章通知发件邮箱
 
 	'document_footer_bg_color'   => 'transparent',
 	'document_footer_font_color' => '#262626',

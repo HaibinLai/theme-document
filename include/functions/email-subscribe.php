@@ -259,7 +259,7 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
 	?>
     <section class="email-subscribe">
         <div class="email-subscribe-main">
-            <h2>订阅申请 / Subscription request</h2>
+            <h2><span aria-hidden="true">//</span> 订阅申请 / Subscription request</h2>
             <p>新文章发布时收到一封简短提醒。Get a short email when a new post is published.</p>
             <?php if ( $message ) { ?>
                 <p class="email-subscribe-message"><?php echo esc_html( $message ); ?></p>
@@ -272,6 +272,11 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
 				<?php wp_nonce_field( 'document_email_subscribe', 'document_email_subscribe_nonce' ); ?>
                 <input class="email-subscribe-hp" type="text" name="document_email_subscribe_hp" value="" tabindex="-1" autocomplete="new-password" aria-hidden="true">
                 <div class="email-subscribe-fields">
+                    <label class="email-subscribe-field email-subscribe-field-full email-subscribe-reason">
+                        <span>申请理由</span>
+                        <small>Why do you want to subscribe?</small>
+                        <textarea name="reason" placeholder="简单介绍一下你是谁、共同兴趣，或任何想让我知道的事 / A short intro, shared interest, or anything you want me to know." rows="5"></textarea>
+                    </label>
                     <label class="email-subscribe-field">
                         <span>你是谁？</span>
                         <small>Who are you?</small>
@@ -282,15 +287,10 @@ function document_email_subscribe_render_form( $redirect_to = '' ) {
                         <small>Email address</small>
                         <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
                     </label>
-                    <label class="email-subscribe-field email-subscribe-field-full">
-                        <span>申请理由</span>
-                        <small>Why do you want to subscribe?</small>
-                        <textarea name="reason" placeholder="简单介绍一下你是谁、共同兴趣，或任何想让我知道的事 / A short intro, shared interest, or anything you want me to know." rows="5"></textarea>
-                    </label>
                 </div>
                 <div class="email-subscribe-actions">
-                    <button type="submit">提交订阅 / Subscribe</button>
                     <span>我会人工审核订阅申请，让邮件列表保持小而干净。Manual approval keeps the list small and clean.</span>
+                    <button type="submit">提交订阅 / Subscribe</button>
                 </div>
             </form>
         </div>
@@ -305,9 +305,9 @@ function document_email_subscribe_render_inline_styles() {
 	?>
     <style id="document-email-subscribe-critical-css">
         html body .main-container.email-subscribe-page {
-            max-width: 860px !important;
+            max-width: 1040px !important;
             margin: 0 auto !important;
-            padding: 32px 16px !important;
+            padding: 26px 16px !important;
         }
 
         html body .main-container.email-subscribe-page .main-main {
@@ -322,7 +322,7 @@ function document_email_subscribe_render_inline_styles() {
         }
 
         html body .email-subscribe-page-header {
-            margin: 0 0 24px !important;
+            margin: 0 0 34px !important;
         }
 
         html body .email-subscribe-page-header .email-subscribe-eyebrow {
@@ -336,13 +336,13 @@ function document_email_subscribe_render_inline_styles() {
         html body .email-subscribe-page-header h1 {
             margin: 0 0 12px !important;
             color: var(--theme-text-color) !important;
-            font-size: 30px !important;
+            font-size: 28px !important;
             line-height: 1.25 !important;
             letter-spacing: 0 !important;
         }
 
         html body .email-subscribe-page-header p {
-            max-width: 680px !important;
+            max-width: 840px !important;
             margin: 0 !important;
             color: var(--theme-text-secondary) !important;
             font-size: 15px !important;
@@ -352,15 +352,20 @@ function document_email_subscribe_render_inline_styles() {
         html body .email-subscribe {
             box-sizing: border-box !important;
             margin: 0 !important;
-            padding: 22px !important;
-            border: 1px solid var(--theme-border-color) !important;
-            border-radius: 8px !important;
-            background: var(--theme-front-main-color) !important;
-            box-shadow: 0 12px 32px var(--theme-hover-shadow) !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
         }
 
         html body .email-subscribe h2 {
-            margin: 0 0 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 14px !important;
+            margin: 0 0 16px !important;
+            padding-top: 8px !important;
+            border-top: 1px solid var(--theme-border-color) !important;
             color: var(--theme-text-color) !important;
             font-size: 20px !important;
             font-weight: 700 !important;
@@ -368,8 +373,16 @@ function document_email_subscribe_render_inline_styles() {
             letter-spacing: 0 !important;
         }
 
+        html body .email-subscribe h2 span {
+            color: var(--theme-color) !important;
+            font-size: 30px !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            letter-spacing: 2px !important;
+        }
+
         html body .email-subscribe p {
-            margin: 0 0 18px !important;
+            margin: 0 0 22px !important;
             color: var(--theme-text-secondary) !important;
             font-size: 13px !important;
             line-height: 1.75 !important;
@@ -387,13 +400,13 @@ function document_email_subscribe_render_inline_styles() {
         html body .email-subscribe-form {
             display: flex !important;
             flex-direction: column !important;
-            gap: 18px !important;
+            gap: 20px !important;
         }
 
         html body .email-subscribe-fields {
             display: grid !important;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-            gap: 18px !important;
+            gap: 16px !important;
             align-items: start !important;
         }
 
@@ -432,17 +445,17 @@ function document_email_subscribe_render_inline_styles() {
             max-width: 100% !important;
             min-width: 0 !important;
             border: 1px solid var(--theme-input-border-color) !important;
-            border-radius: 6px !important;
+            border-radius: 5px !important;
             background: var(--theme-front-main-color) !important;
             color: var(--theme-text-color) !important;
-            padding: 11px 12px !important;
+            padding: 12px 14px !important;
             font-size: 14px !important;
             line-height: 1.6 !important;
             transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
 
         html body .email-subscribe textarea {
-            min-height: 150px !important;
+            min-height: 170px !important;
             resize: vertical !important;
         }
 
@@ -476,43 +489,65 @@ function document_email_subscribe_render_inline_styles() {
             align-items: center !important;
             gap: 14px !important;
             flex-wrap: wrap !important;
+            justify-content: space-between !important;
         }
 
         html body .email-subscribe-actions button {
-            border: none !important;
-            border-radius: 6px !important;
-            background: var(--theme-color) !important;
-            color: #fff !important;
+            min-width: 170px !important;
+            border: 1px solid var(--theme-color) !important;
+            border-radius: 5px !important;
+            background: transparent !important;
+            color: var(--theme-color) !important;
             cursor: pointer !important;
             padding: 10px 18px !important;
             font-size: 14px !important;
-            font-weight: 700 !important;
+            font-weight: 500 !important;
             line-height: 1.4 !important;
             white-space: nowrap !important;
         }
 
+        html body .email-subscribe-actions button:hover,
+        html body .email-subscribe-actions button:focus-visible {
+            background: var(--theme-color) !important;
+            color: #fff !important;
+        }
+
         html body .email-subscribe-actions span {
             flex: 1 1 260px !important;
+            max-width: 580px !important;
             color: var(--theme-text-secondary) !important;
             font-size: 12px !important;
             line-height: 1.65 !important;
         }
 
         html body .email-subscribe-guard {
-            margin-top: 20px !important;
-            padding: 14px 16px !important;
-            border-left: 4px solid var(--theme-color) !important;
-            border-radius: 6px !important;
-            background: var(--theme-pagination-bg) !important;
+            margin-top: 30px !important;
+            padding: 18px 0 0 !important;
+            border-top: 1px solid var(--theme-border-color) !important;
+            border-left: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
         }
 
         html body .email-subscribe-guard h2 {
-            margin: 0 0 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 14px !important;
+            margin: 0 0 14px !important;
             color: var(--theme-text-color) !important;
-            font-size: 16px !important;
+            font-size: 19px !important;
             font-weight: 700 !important;
             line-height: 1.45 !important;
             letter-spacing: 0 !important;
+        }
+
+        html body .email-subscribe-guard h2:before {
+            content: "//" !important;
+            color: var(--theme-color) !important;
+            font-size: 30px !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            letter-spacing: 2px !important;
         }
 
         html body .email-subscribe-guard p {
@@ -536,7 +571,7 @@ function document_email_subscribe_render_inline_styles() {
             }
 
             html body .email-subscribe {
-                padding: 18px !important;
+                padding: 0 !important;
             }
 
             html body .email-subscribe-fields {
@@ -546,6 +581,11 @@ function document_email_subscribe_render_inline_styles() {
             html body .email-subscribe-actions,
             html body .email-subscribe-actions button {
                 width: 100% !important;
+            }
+
+            html body .email-subscribe-actions {
+                flex-direction: column-reverse !important;
+                align-items: stretch !important;
             }
         }
     </style>

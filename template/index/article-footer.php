@@ -58,6 +58,12 @@ $previous = get_previous_post();//上一篇
                 </section>
 			<?php }
 		} ?>
+        <!--邮件订阅-->
+		<?php
+		if ( function_exists( 'document_email_subscribe_render_form' ) ) {
+			document_email_subscribe_render_form();
+		}
+		?>
         <!--标签-->
         <div class="label">
             <i class="iconfont icon-biaoqian"></i>

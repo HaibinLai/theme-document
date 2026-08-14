@@ -362,6 +362,14 @@ const ADMIN = [
 							'tip' => '建议与 SMTP 邮件账号保持一致，否则部分邮箱服务可能拒收。'
 						]
 					],
+					[
+						'id'       => 'document_email_subscribe_open',
+						'title'    => '显示读者邮箱订阅入口',
+						'callback' => 'nicen_theme_form_switch',
+						'args'     => [
+							'tip' => '读者提交后需要在后台“邮件订阅”页面批准，批准后才会收到文章通知。'
+						]
+					],
 				]
 			],
 			[
@@ -873,6 +881,8 @@ define( "CONFIG", [
 	//文章通知收件人
 	"document_post_notify_from_email" => '12211612@mail.sustech.edu.cn',
 	//文章通知发件邮箱
+	"document_email_subscribe_open"   => 1,
+	//读者邮箱订阅入口
 
 	'document_footer_bg_color'   => 'transparent',
 	'document_footer_font_color' => '#262626',

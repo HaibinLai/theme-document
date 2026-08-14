@@ -87,6 +87,10 @@ function nicen_theme_post_notify_send( $post_id, $type = 'updated' ) {
 	}
 
 	$recipients = nicen_theme_post_notify_recipients();
+	if ( function_exists( 'document_email_subscribe_approved_emails' ) ) {
+		$recipients = array_merge( $recipients, document_email_subscribe_approved_emails() );
+		$recipients = array_values( array_unique( array_filter( $recipients, 'is_email' ) ) );
+	}
 	if ( empty( $recipients ) ) {
 		return;
 	}

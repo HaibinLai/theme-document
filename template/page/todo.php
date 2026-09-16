@@ -66,6 +66,7 @@ get_header();
                             <button class="todo-filter-btn active" data-filter="all">全部</button>
                             <button class="todo-filter-btn" data-filter="active">未完成</button>
                             <button class="todo-filter-btn" data-filter="completed">已完成</button>
+                            <button class="todo-filter-btn" data-filter="archived">已归档</button>
                         </div>
                     </div>
                     <div id="todo-stats" class="todo-stats"></div>

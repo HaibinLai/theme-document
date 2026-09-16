@@ -99,6 +99,20 @@ function document_todo_update() {
 		$update['completed'] = intval( $_POST['completed'] ) ? 1 : 0;
 		$format[]            = '%d';
 	}
+	if ( isset( $_POST['archived'] ) ) {
+		$archived = intval( $_POST['archived'] ) ? 1 : 0;
+		if ( $archived ) {
+			$completed = $wpdb->get_var( $wpdb->prepare( "SELECT completed FROM $table WHERE id = %d", $id ) );
+			if ( ! $completed ) {
+				wp_send_json_error( '只能归档已完成事项' );
+			}
+		}
+
+		$update['archived']    = $archived;
+		$update['archived_at'] = $archived ? current_time( 'mysql' ) : null;
+		$format[]              = '%d';
+		$format[]              = '%s';
+	}
 	if ( isset( $_POST['priority'] ) ) {
 		$p = sanitize_text_field( $_POST['priority'] );
 		if ( in_array( $p, [ 'urgent', 'twodays', 'thisweek', 'anytime', 'high', 'medium', 'low' ] ) ) {

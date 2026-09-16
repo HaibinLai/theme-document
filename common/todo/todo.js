@@ -148,7 +148,7 @@
 
         var tempId = 'temp_' + Date.now();
         var tempTodo = {
-            id: tempId, title: title, completed: 0, priority: priority,
+            id: tempId, title: title, completed: 0, archived: 0, priority: priority,
             importance: importance, due_date: dueDate || null, sort_order: 0,
             created_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
             updated_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
@@ -170,10 +170,35 @@
 
     function toggleTodo(id) {
         var todo = todos.find(function (t) { return t.id == id; });
-        if (!todo) return;
+        if (!todo || todo.archived == 1) return;
         todo.completed = todo.completed == 1 ? 0 : 1;
         saveToLocal(); render();
         ajax('todo_update', { id: id, completed: todo.completed });
+    }
+
+    function archiveTodo(id) {
+        var todo = todos.find(function (t) { return t.id == id; });
+        if (!todo || todo.completed != 1 || todo.archived == 1) return;
+        todo.archived = 1;
+        todo.archived_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        saveToLocal(); render();
+        ajax('todo_update', { id: id, archived: 1 }).catch(function () {
+            todo.archived = 0;
+            todo.archived_at = null;
+            saveToLocal(); render();
+        });
+    }
+
+    function restoreTodo(id) {
+        var todo = todos.find(function (t) { return t.id == id; });
+        if (!todo || todo.archived != 1) return;
+        todo.archived = 0;
+        todo.archived_at = null;
+        saveToLocal(); render();
+        ajax('todo_update', { id: id, archived: 0 }).catch(function () {
+            todo.archived = 1;
+            saveToLocal(); render();
+        });
     }
 
     function deleteTodo(id) {
@@ -203,7 +228,14 @@
     }
 
     function cancelEdit() { editingId = null; render(); }
-    function setFilter(f) { currentFilter = f; render(); }
+    function setFilter(f) {
+        currentFilter = f;
+        if (f === 'archived' && currentView === 'chart') {
+            setView('list');
+            return;
+        }
+        render();
+    }
     function setView(v) {
         currentView = v;
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === v); });
@@ -240,6 +272,9 @@
     /* ========== 渲染 ========== */
     function getFilteredTodos() {
         return todos.filter(function (t) {
+            var archived = t.archived == 1;
+            if (currentFilter === 'archived') return archived;
+            if (archived) return false;
             if (currentFilter === 'active') return t.completed == 0;
             if (currentFilter === 'completed') return t.completed == 1;
             return true;
@@ -248,11 +283,13 @@
 
     function render() {
         var filtered = getFilteredTodos();
-        var total = todos.length;
-        var done = todos.filter(function (t) { return t.completed == 1; }).length;
+        var visibleTodos = todos.filter(function (t) { return t.archived != 1; });
+        var total = visibleTodos.length;
+        var done = visibleTodos.filter(function (t) { return t.completed == 1; }).length;
+        var archived = todos.filter(function (t) { return t.archived == 1; }).length;
         var percent = total > 0 ? Math.round(done / total * 100) : 0;
 
-        document.getElementById('todo-stats').innerHTML = '<span>共 ' + total + ' 项</span><span>待完成 ' + (total - done) + '</span><span>已完成 ' + done + '</span><span>' + percent + '%</span>';
+        document.getElementById('todo-stats').innerHTML = '<span>共 ' + total + ' 项</span><span>待完成 ' + (total - done) + '</span><span>已完成 ' + done + '</span><span>已归档 ' + archived + '</span><span>' + percent + '%</span>';
         var pb = document.getElementById('todo-progress-bar'); if (pb) pb.style.width = percent + '%';
         document.querySelectorAll('.todo-filter-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.filter === currentFilter); });
 
@@ -329,7 +366,7 @@
         var listEl = document.getElementById('todo-list');
         if (filtered.length === 0) {
             listEl.innerHTML = '<div class="todo-empty"><div class="todo-empty-icon">&#128203;</div>' +
-                (currentFilter === 'all' ? '暂无待办事项，添加一个吧' : currentFilter === 'active' ? '所有任务都完成了！' : '还没有已完成的待办') + '</div>';
+                (currentFilter === 'all' ? '暂无待办事项，添加一个吧' : currentFilter === 'active' ? '所有任务都完成了！' : currentFilter === 'completed' ? '还没有已完成的待办' : '还没有已归档的事项') + '</div>';
             return;
         }
         var html = '';
@@ -339,10 +376,11 @@
             var effCss = priorityCss(effPriority);
             var upgraded = effPriority !== (todo.priority || 'thisweek') && todo.completed != 1;
 
-            html += '<div class="todo-item' + (todo.completed == 1 ? ' completed' : '') + (isPomodoring(todo.id) ? ' pomodoro-active' : '') + '" data-id="' + todo.id + '" draggable="true">';
+            var isArchived = todo.archived == 1;
+            html += '<div class="todo-item' + (todo.completed == 1 ? ' completed' : '') + (isArchived ? ' archived' : '') + (isPomodoring(todo.id) ? ' pomodoro-active' : '') + '" data-id="' + todo.id + '" draggable="true">';
             html += '<div class="todo-priority-bar ' + effCss + '"></div>';
             html += '<div class="todo-body">';
-            html += '<div class="todo-checkbox" onclick="window._todo.toggle(' + todo.id + ')"></div>';
+            html += '<div class="todo-checkbox' + (isArchived ? ' disabled' : '') + '"' + (isArchived ? '' : ' onclick="window._todo.toggle(' + todo.id + ')"') + '></div>';
             html += '<div class="todo-content">';
             if (isEditing) {
                 html += '<input class="todo-title-input" id="edit-title-' + todo.id + '" value="' + escapeHtml(todo.title) + '" onkeydown="if(event.key===\'Enter\')window._todo.saveEdit(' + todo.id + ');if(event.key===\'Escape\')window._todo.cancelEdit()">';
@@ -377,8 +415,13 @@
             html += '</div>';
             if (!isEditing) {
                 html += '<div class="todo-actions">';
-                if (todo.completed != 1) html += '<button class="todo-action-btn pomodoro" onclick="window._todo.startPomodoro(' + todo.id + ')" title="番茄钟">&#9654;</button>';
-                html += '<button class="todo-action-btn" onclick="window._todo.startEdit(' + todo.id + ')" title="编辑">&#9998;</button>';
+                if (isArchived) {
+                    html += '<button class="todo-action-btn restore" onclick="window._todo.restore(' + todo.id + ')" title="恢复到已完成">&#8635;</button>';
+                } else {
+                    if (todo.completed != 1) html += '<button class="todo-action-btn pomodoro" onclick="window._todo.startPomodoro(' + todo.id + ')" title="番茄钟">&#9654;</button>';
+                    html += '<button class="todo-action-btn" onclick="window._todo.startEdit(' + todo.id + ')" title="编辑">&#9998;</button>';
+                    if (todo.completed == 1) html += '<button class="todo-action-btn archive" onclick="window._todo.archive(' + todo.id + ')" title="归档">&#128451;</button>';
+                }
                 html += '<button class="todo-action-btn delete" onclick="window._todo.deleteTodo(' + todo.id + ')" title="删除">&#128465;</button>';
                 html += '</div>';
             }
@@ -1153,7 +1196,7 @@
         }
     }
 
-    window._todo = { toggle: toggleTodo, deleteTodo: deleteTodo, startEdit: startEdit, saveEdit: saveEdit, cancelEdit: cancelEdit, startPomodoro: startPomodoro, pauseSlot: pauseSlot, stopSlot: stopSlot };
+    window._todo = { toggle: toggleTodo, archive: archiveTodo, restore: restoreTodo, deleteTodo: deleteTodo, startEdit: startEdit, saveEdit: saveEdit, cancelEdit: cancelEdit, startPomodoro: startPomodoro, pauseSlot: pauseSlot, stopSlot: stopSlot };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 })();

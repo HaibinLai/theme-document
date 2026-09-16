@@ -205,6 +205,15 @@
     color: var(--theme-text-secondary, rgba(0, 0, 0, 0.65));
 }
 
+.todo-item.archived {
+    opacity: 0.5;
+    border-style: dashed;
+}
+
+.todo-item.archived .todo-title {
+    text-decoration: none;
+}
+
 /* 优先级竖条 — 最左侧 */
 .todo-priority-bar {
     width: 4px;
@@ -262,6 +271,16 @@
 .todo-checkbox:hover {
     border-color: var(--theme-color, #4a90d9);
     box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+.todo-checkbox.disabled {
+    cursor: default;
+    opacity: 0.65;
+}
+
+.todo-checkbox.disabled:hover {
+    border-color: var(--theme-border-color, #ccc);
+    box-shadow: none;
 }
 
 .todo-item.completed .todo-checkbox {

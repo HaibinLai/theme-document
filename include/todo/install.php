@@ -14,6 +14,8 @@ function document_todo_create_table() {
 		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		title varchar(500) NOT NULL DEFAULT '',
 		completed tinyint(1) NOT NULL DEFAULT 0,
+		archived tinyint(1) NOT NULL DEFAULT 0,
+		archived_at datetime DEFAULT NULL,
 		priority varchar(10) NOT NULL DEFAULT 'medium',
 		importance tinyint(1) NOT NULL DEFAULT 3,
 		due_date date DEFAULT NULL,
@@ -22,6 +24,7 @@ function document_todo_create_table() {
 		updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		PRIMARY KEY (id),
 		KEY idx_completed (completed),
+		KEY idx_archived (archived),
 		KEY idx_priority (priority),
 		KEY idx_importance (importance),
 		KEY idx_sort_order (sort_order)
@@ -55,3 +58,17 @@ function document_todo_maybe_add_importance() {
 	}
 }
 add_action( 'init', 'document_todo_maybe_add_importance' );
+
+/* 升级：为已有表添加归档字段 */
+function document_todo_maybe_add_archive() {
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'document_todos';
+	$column     = $wpdb->get_results( "SHOW COLUMNS FROM $table_name LIKE 'archived'" );
+
+	if ( empty( $column ) ) {
+		$wpdb->query( "ALTER TABLE $table_name ADD COLUMN archived tinyint(1) NOT NULL DEFAULT 0 AFTER completed" );
+		$wpdb->query( "ALTER TABLE $table_name ADD COLUMN archived_at datetime DEFAULT NULL AFTER archived" );
+		$wpdb->query( "ALTER TABLE $table_name ADD KEY idx_archived (archived)" );
+	}
+}
+add_action( 'init', 'document_todo_maybe_add_archive' );

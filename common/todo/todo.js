@@ -239,7 +239,7 @@
     function setView(v) {
         currentView = v;
         document.querySelectorAll('.todo-view-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === v); });
-        document.getElementById('todo-list').style.display = v === 'list' ? 'block' : 'none';
+        document.getElementById('todo-list').style.display = v === 'list' ? 'grid' : 'none';
         document.getElementById('todo-matrix-wrap').style.display = v === 'chart' ? '' : 'none';
         // 矩阵视图时扩展外层容器宽度
         var mainMain = document.querySelector('.main-main');

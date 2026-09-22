@@ -203,7 +203,7 @@
 /* 列表 */
 .todo-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
     gap: 12px;
     padding: 0;
     margin: 0;
@@ -213,7 +213,8 @@
 .todo-item {
     display: grid;
     grid-template-columns: 4px minmax(0, 1fr);
-    grid-template-rows: minmax(118px, 1fr) auto;
+    min-height: 210px;
+    min-width: 0;
     align-items: stretch;
     border: 1px solid var(--theme-border-color, #e8e8e8);
     border-radius: 8px;
@@ -254,6 +255,8 @@
 
 /* 优先级竖条 — 最左侧 */
 .todo-priority-bar {
+    grid-column: 1;
+    grid-row: 1;
     width: 4px;
     flex-shrink: 0;
     transition: background 0.2s;
@@ -287,8 +290,10 @@
     grid-column: 2;
     grid-row: 1;
     flex: 1;
-    display: flex;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    align-items: start;
     gap: 12px;
     padding: 14px 16px;
     min-width: 0;
@@ -447,15 +452,16 @@
 
 /* 操作按钮 */
 .todo-actions {
-    grid-column: 2;
+    grid-column: 1 / -1;
     grid-row: 2;
     justify-content: flex-end;
     display: flex;
     gap: 4px;
     flex-shrink: 0;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.2s;
-    padding: 0 12px 12px;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--theme-border-color, #e8e8e8);
     align-items: center;
 }
 
@@ -517,6 +523,7 @@
 /* 编辑行内元素 */
 .todo-edit-inline {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 8px;
     align-items: center;
@@ -524,6 +531,8 @@
 
 .todo-edit-inline select,
 .todo-edit-inline input[type="date"] {
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 5px 10px;
     border: 1px solid var(--theme-border-color, #ddd);
     border-radius: 6px;

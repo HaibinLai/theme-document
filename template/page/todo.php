@@ -31,20 +31,33 @@ get_header();
 
                 <!-- 添加区域 -->
                 <div class="todo-add">
-                    <input type="text" id="todo-input" class="todo-add-input" placeholder="输入新的待办事项，回车添加..." autocomplete="off">
-                    <select id="todo-priority" class="todo-add-select">
-                        <option value="thisweek">这周处理</option>
-                        <option value="urgent">紧急</option>
-                        <option value="twodays">这两天</option>
-                        <option value="anytime">随时可以</option>
-                    </select>
-                    <div class="todo-add-importance">
-                        <span>重要:</span>
-                        <input type="range" id="todo-importance" min="1" max="5" value="3">
-                        <span class="importance-label" id="todo-importance-label">★★★☆☆</span>
+                    <label class="todo-add-field todo-add-field-title" for="todo-input">
+                        <span>待办事项</span>
+                        <input type="text" id="todo-input" class="todo-add-input" placeholder="想完成什么？" autocomplete="off">
+                    </label>
+                    <div class="todo-add-settings">
+                        <label class="todo-add-field" for="todo-priority">
+                            <span>处理时间</span>
+                            <select id="todo-priority" class="todo-add-select">
+                                <option value="thisweek">这周处理</option>
+                                <option value="urgent">紧急</option>
+                                <option value="twodays">这两天</option>
+                                <option value="anytime">随时可以</option>
+                            </select>
+                        </label>
+                        <label class="todo-add-field" for="todo-date">
+                            <span>截止日期</span>
+                            <input type="date" id="todo-date" class="todo-add-date">
+                        </label>
+                        <div class="todo-add-field todo-add-importance">
+                            <span>重要程度</span>
+                            <div class="todo-importance-control">
+                                <input type="range" id="todo-importance" min="1" max="5" value="3">
+                                <span class="importance-label" id="todo-importance-label">★★★☆☆</span>
+                            </div>
+                        </div>
                     </div>
-                    <input type="date" id="todo-date" class="todo-add-date">
-                    <button id="todo-add-btn" class="todo-add-btn">+ 添加</button>
+                    <button id="todo-add-btn" class="todo-add-btn"><span aria-hidden="true">+</span> 添加</button>
                 </div>
 
                 <!-- 番茄钟计时条容器（最多3个并行，一行展示） -->

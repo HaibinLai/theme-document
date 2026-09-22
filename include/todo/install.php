@@ -72,3 +72,30 @@ function document_todo_maybe_add_archive() {
 	}
 }
 add_action( 'init', 'document_todo_maybe_add_archive' );
+
+/** 已完成且截止日期过去至少七天的事项自动归档；手动恢复的事项除外。 */
+function document_todo_auto_archive() {
+	global $wpdb;
+	$table = $wpdb->prefix . 'document_todos';
+	$cutoff = current_datetime()->modify( '-7 days' )->format( 'Y-m-d' );
+	return $wpdb->query( $wpdb->prepare(
+		"UPDATE $table SET archived = 1, archived_at = %s
+		 WHERE completed = 1 AND archived = 0 AND archived_at IS NULL
+		 AND due_date IS NOT NULL AND due_date <> '0000-00-00' AND due_date <= %s",
+		current_time( 'mysql' ),
+		$cutoff
+	) );
+}
+add_action( 'document_todo_daily_archive', 'document_todo_auto_archive' );
+
+function document_todo_schedule_archive() {
+	if ( ! wp_next_scheduled( 'document_todo_daily_archive' ) ) {
+		wp_schedule_event( time(), 'daily', 'document_todo_daily_archive' );
+	}
+}
+add_action( 'init', 'document_todo_schedule_archive', 20 );
+
+function document_todo_unschedule_archive() {
+	wp_clear_scheduled_hook( 'document_todo_daily_archive' );
+}
+add_action( 'switch_theme', 'document_todo_unschedule_archive' );

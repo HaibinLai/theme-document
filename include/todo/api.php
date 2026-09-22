@@ -20,6 +20,7 @@ function document_todo_check_permission() {
  */
 function document_todo_list() {
 	document_todo_check_permission();
+	document_todo_auto_archive();
 	global $wpdb;
 	$table = $wpdb->prefix . 'document_todos';
 
@@ -109,9 +110,12 @@ function document_todo_update() {
 		}
 
 		$update['archived']    = $archived;
-		$update['archived_at'] = $archived ? current_time( 'mysql' ) : null;
 		$format[]              = '%d';
-		$format[]              = '%s';
+		// 保留上次归档时间，手动恢复的事项不再自动归档。
+		if ( $archived ) {
+			$update['archived_at'] = current_time( 'mysql' );
+			$format[] = '%s';
+		}
 	}
 	if ( isset( $_POST['priority'] ) ) {
 		$p = sanitize_text_field( $_POST['priority'] );

@@ -207,13 +207,15 @@
     gap: 12px;
     padding: 0;
     margin: 0;
+    align-items: start;
 }
 
 /* 每条待办 — 紧凑卡片 */
 .todo-item {
     display: grid;
     grid-template-columns: 4px minmax(0, 1fr);
-    min-height: 210px;
+    aspect-ratio: 1 / 1;
+    box-sizing: border-box;
     min-width: 0;
     align-items: stretch;
     border: 1px solid var(--theme-border-color, #e8e8e8);
@@ -223,6 +225,21 @@
     transition: all 0.25s ease;
     cursor: grab;
     overflow: hidden;
+}
+
+.todo-item.editing {
+    aspect-ratio: auto;
+    min-height: 260px;
+}
+
+.todo-item:not(.editing) .todo-content {
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+}
+
+.todo-item .todo-title-input {
+    box-sizing: border-box;
 }
 
 .todo-item:hover {
@@ -292,11 +309,12 @@
     flex: 1;
     display: grid;
     grid-template-columns: 22px minmax(0, 1fr);
-    grid-template-rows: 1fr auto;
+    grid-template-rows: minmax(0, 1fr) auto;
     align-items: start;
     gap: 12px;
     padding: 14px 16px;
     min-width: 0;
+    min-height: 0;
 }
 
 /* 复选框 */

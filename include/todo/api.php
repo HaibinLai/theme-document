@@ -102,13 +102,6 @@ function document_todo_update() {
 	}
 	if ( isset( $_POST['archived'] ) ) {
 		$archived = intval( $_POST['archived'] ) ? 1 : 0;
-		if ( $archived ) {
-			$completed = $wpdb->get_var( $wpdb->prepare( "SELECT completed FROM $table WHERE id = %d", $id ) );
-			if ( ! $completed ) {
-				wp_send_json_error( '只能归档已完成事项' );
-			}
-		}
-
 		$update['archived']    = $archived;
 		$format[]              = '%d';
 		// 保留上次归档时间，手动恢复的事项不再自动归档。

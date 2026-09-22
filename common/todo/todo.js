@@ -178,7 +178,7 @@
 
     function archiveTodo(id) {
         var todo = todos.find(function (t) { return t.id == id; });
-        if (!todo || todo.completed != 1 || todo.archived == 1) return;
+        if (!todo || todo.archived == 1) return;
         todo.archived = 1;
         todo.archived_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
         saveToLocal(); render();
@@ -416,11 +416,11 @@
             if (!isEditing) {
                 html += '<div class="todo-actions">';
                 if (isArchived) {
-                    html += '<button class="todo-action-btn restore" onclick="window._todo.restore(' + todo.id + ')" title="恢复到已完成">&#8635;</button>';
+                    html += '<button class="todo-action-btn restore" onclick="window._todo.restore(' + todo.id + ')" title="恢复到列表">&#8635;</button>';
                 } else {
                     if (todo.completed != 1) html += '<button class="todo-action-btn pomodoro" onclick="window._todo.startPomodoro(' + todo.id + ')" title="番茄钟">&#9654;</button>';
                     html += '<button class="todo-action-btn" onclick="window._todo.startEdit(' + todo.id + ')" title="编辑">&#9998;</button>';
-                    if (todo.completed == 1) html += '<button class="todo-action-btn archive" onclick="window._todo.archive(' + todo.id + ')" title="归档">&#128451;</button>';
+                    html += '<button class="todo-action-btn archive" onclick="window._todo.archive(' + todo.id + ')" title="归档">&#128451;</button>';
                 }
                 html += '<button class="todo-action-btn delete" onclick="window._todo.deleteTodo(' + todo.id + ')" title="删除">&#128465;</button>';
                 html += '</div>';

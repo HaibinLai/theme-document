@@ -12,3 +12,4 @@ include_once get_template_directory() . '/include/admin/metabox.php'; //清理�
 include_once get_template_directory() . '/include/admin/extra.php'; //后台相关初始化
 include_once get_template_directory() . '/include/admin/clear.php'; //清理后台
 include_once get_template_directory() . '/include/admin/math-converter.php'; //Markdown 公式转换工具
+include_once get_template_directory() . '/include/admin/export.php'; //博客数据导出

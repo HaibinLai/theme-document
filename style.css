@@ -2636,6 +2636,16 @@ html body .main-container .main-main .main-content .main-article details table {
   margin: 0.5rem 0;
 }
 
+html body .main-container .main-main .main-content .main-article details .markdown-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+html body .main-container .main-main .main-content .main-article details .markdown-table-wrap table {
+  min-width: 28rem;
+}
+
 html body .main-container .main-main .main-content .main-article details table tr td,
 html body .main-container .main-main .main-content .main-article details table tr th {
   padding: 0.3rem 0.66rem;

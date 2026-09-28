@@ -27,6 +27,11 @@
             return true;
         }
 
+        // A simple function such as f(x) is also a valid display formula.
+        if (/\b[A-Za-z][A-Za-z0-9]*\s*\(\s*[A-Za-z0-9_,\s+*/-]+\s*\)/.test(value)) {
+            return true;
+        }
+
         var permutation = value.replace(/\s*\n\s*/g, ' ');
         return /^(?:\(\s*\d+(?:(?:\\\s+|\s+|,\s*)\d+)*\s*\)\s*)+$/.test(permutation);
     }
@@ -50,8 +55,12 @@
 
     function normalizeFormulaLines(lines) {
         return normalizeChatFormula(lines).map(function (line) {
+            // Strip Markdown-only wrappers that can appear inside a pasted formula.
+            var normalized = line.replace(/([A-Za-z][A-Za-z0-9]*)\s*`?\$([^$]+)\$`?/g, '$1($2)');
+            normalized = normalized.replace(/[`$]/g, '');
+
             // Markdown may escape an underscore that should be a LaTeX subscript.
-            return line.replace(/\\_/g, '_');
+            return normalized.replace(/\\+_/g, '_');
         });
     }
 
@@ -88,6 +97,16 @@
         }
 
         return normalizeFormulaLines([match[1]]);
+    }
+
+    function inlineBracketBoundary(line, boundary) {
+        var value = line.trim();
+        var pattern = boundary === 'open'
+            ? /^\\\[\s*(.*)$/
+            : /^(.*?)\s*\\\]$/;
+        var match = value.match(pattern);
+
+        return match ? match[1] : null;
     }
 
     function isWholeTableCell(content, start, end) {
@@ -314,6 +333,27 @@
                 stats.bracketBlocks += 1;
                 index += 1;
                 continue;
+            }
+
+            var inlineBracketStart = inlineBracketBoundary(line, 'open');
+            if (inlineBracketStart !== null && bracketMarker(line) !== 'open') {
+                var inlineBracketEnd = index + 1;
+                while (inlineBracketEnd < lines.length && inlineBracketBoundary(lines[inlineBracketEnd], 'close') === null) {
+                    inlineBracketEnd += 1;
+                }
+
+                if (inlineBracketEnd < lines.length) {
+                    var inlineBracketLines = [inlineBracketStart]
+                        .concat(lines.slice(index + 1, inlineBracketEnd))
+                        .concat([inlineBracketBoundary(lines[inlineBracketEnd], 'close')]);
+
+                    if (looksLikeFormula(inlineBracketLines)) {
+                        output = output.concat(katexBlock(normalizeFormulaLines(inlineBracketLines)));
+                        stats.bracketBlocks += 1;
+                        index = inlineBracketEnd + 1;
+                        continue;
+                    }
+                }
             }
 
             if (bracketMarker(line) === 'open') {

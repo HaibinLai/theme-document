@@ -48,6 +48,13 @@
         });
     }
 
+    function normalizeFormulaLines(lines) {
+        return normalizeChatFormula(lines).map(function (line) {
+            // Markdown may escape an underscore that should be a LaTeX subscript.
+            return line.replace(/\\_/g, '_');
+        });
+    }
+
     function bracketMarker(line) {
         var marker = line.trim();
 
@@ -66,6 +73,21 @@
         }
 
         return '';
+    }
+
+    function oneLineBracketFormula(line) {
+        var value = line.trim();
+        var match = value.match(/^\[\s*([\s\S]*?)\s*\]$/);
+
+        if (!match) {
+            match = value.match(/^\\\[\s*([\s\S]*?)\s*\\\]$/);
+        }
+
+        if (!match || !looksLikeFormula([match[1]])) {
+            return null;
+        }
+
+        return normalizeFormulaLines([match[1]]);
     }
 
     function isWholeTableCell(content, start, end) {
@@ -286,6 +308,14 @@
                 continue;
             }
 
+            var oneLineBracket = oneLineBracketFormula(line);
+            if (oneLineBracket) {
+                output = output.concat(katexBlock(oneLineBracket));
+                stats.bracketBlocks += 1;
+                index += 1;
+                continue;
+            }
+
             if (bracketMarker(line) === 'open') {
                 var bracketEnd = index + 1;
                 while (bracketEnd < lines.length && bracketMarker(lines[bracketEnd]) !== 'close') {
@@ -294,7 +324,7 @@
 
                 var bracketLines = lines.slice(index + 1, bracketEnd);
                 if (bracketEnd < lines.length && looksLikeFormula(bracketLines)) {
-                    output = output.concat(katexBlock(normalizeChatFormula(bracketLines)));
+                    output = output.concat(katexBlock(normalizeFormulaLines(bracketLines)));
                     stats.bracketBlocks += 1;
                     index = bracketEnd + 1;
                     continue;

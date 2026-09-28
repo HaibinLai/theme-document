@@ -59,7 +59,11 @@ function nicen_render_details_markdown_tables( $content ) {
 	}
 
 	return preg_replace_callback( '/<details\b([^>]*)>(.*?)<\/details>/is', function ( $match ) {
-		$body  = $match[2];
+		$body = $match[2];
+		/* WP Githuber MD may wrap the untouched table in <p> and use <br>. */
+		$body = preg_replace( '/<p\b[^>]*>\s*(?=\|)/i', '', $body );
+		$body = preg_replace( '/\s*<\/p>\s*$/i', '', $body );
+		$body = preg_replace( '/<br\s*\/?>\s*/i', "\n", $body );
 		$lines = preg_split( '/\r\n|\r|\n/', $body );
 		$out   = [];
 

@@ -1272,19 +1272,30 @@ html {
                 html body .main-container .main-main .main-content .article-info ul li:hover .iconfont {
                   color: var(--theme-text-color); }
           html body .main-container .main-main .main-content .main-article {
-            font-size: var(--theme-text);
-            line-height: 1.7;
+            /* Keep article text calm and readable without changing the site-wide UI scale. */
+            font-size: 0.95rem;
+            line-height: 1.85;
             word-break: normal;
             overflow-wrap: break-word;
             /*
               限制文章的大小
             */ }
             html body .main-container .main-main .main-content .main-article p, html body .main-container .main-main .main-content .main-article li {
-              line-height: 1.7; }
+              line-height: 1.85; }
+            html body .main-container .main-main .main-content .main-article > p,
+            html body .main-container .main-main .main-content .main-article > ul,
+            html body .main-container .main-main .main-content .main-article > ol,
+            html body .main-container .main-main .main-content .main-article > blockquote {
+              max-width: 74ch; }
+            html body .main-container .main-main .main-content .main-article > p {
+              margin-top: 0.9em;
+              margin-bottom: 0.9em; }
             html body .main-container .main-main .main-content .main-article h2 {
               display: flex;
               justify-content: flex-start;
               align-items: center;
+              margin-top: 2.1em;
+              margin-bottom: 0.85em;
               padding: 0 0 0.25rem 0;
               border-bottom: 1px solid var(--theme-border-color);
               font-weight: normal;
@@ -1304,6 +1315,10 @@ html {
               position: relative;
               cursor: pointer;
               line-height: 1.45; }
+            html body .main-container .main-main .main-content .main-article h3,
+            html body .main-container .main-main .main-content .main-article h4 {
+              margin-top: 1.7em;
+              margin-bottom: 0.65em; }
             html body .main-container .main-main .main-content .main-article > div {
               margin-bottom: var(--theme-margin-bottom); }
             html body .main-container .main-main .main-content .main-article ul, html body .main-container .main-main .main-content .main-article ol, html body .main-container .main-main .main-content .main-article dl {
